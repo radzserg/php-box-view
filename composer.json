@@ -1,0 +1,26 @@
+{
+  "name": "crocodoc/php-box-view",
+  "description": "PHP wrapper for the Box View API",
+  "keywords": [
+    "box",
+    "box-view",
+    "crocodoc",
+    "api"
+  ],
+  "homepage": "https://developers.box.com/view/",
+  "license": "BSD",
+  "authors": [
+    {
+      "name": "Brandon Goldman",
+      "email": "brandon.goldman@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "guzzlehttp/guzzle": "~5.1"
+  },
+  "type": "library",
+  "autoload": {
+    "classmap": ["lib/BoxView.php"]
+  }
+}
