@@ -9,15 +9,6 @@ require_once dirname(__FILE__) . '/BoxView/Exception.php';
 require_once dirname(__FILE__) . '/BoxView/Document.php';
 require_once dirname(__FILE__) . '/BoxView/Session.php';
 
-// check for curl and json_decode
-if (!function_exists('curl_init')) {
-	throw new Exception('Box View needs the CURL PHP extension.');
-}
-
-if (!function_exists('json_decode')) {
-	throw new Exception('Box View needs the JSON PHP extension.');
-}
-
 /**
  * Provides access to the Box View API. This is a base class that can be used
  * standalone with full access to the other Box View API classes (Document,
