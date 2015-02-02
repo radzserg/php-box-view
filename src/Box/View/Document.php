@@ -217,6 +217,6 @@ class Document extends Request {
 
         if (isset($nonSvg)) $postParams['non_svg'] = $nonSvg;
 
-        return static::_request(null, ['foo' => 'bar'], $postParams);
+        return static::_request(null, null, $postParams);
     }
 }
