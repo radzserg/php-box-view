@@ -7,7 +7,8 @@ require_once dirname(__FILE__) . '/Request.php';
  * Provides access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.
  */
-class Document extends Request {
+class Document extends Request
+{
     /**
      * The Document API path relative to the base API path.
      * 
@@ -23,7 +24,8 @@ class Document extends Request {
      * @return bool Was the file deleted?
      * @throws Box\View\Exception
      */
-    public static function delete($id) {
+    public static function delete($id)
+    {
         $options = [
             'httpMethod' => 'DELETE',
             'rawResponse' => true,
@@ -46,7 +48,8 @@ class Document extends Request {
      * @return file A file to be downloaded.
      * @throws Box\View\Exception
      */
-    public static function download($id, $extension = null) {
+    public static function download($id, $extension = null)
+    {
         $path = '/' . $id . '/content' . ($extension ? '.' . $extension : '');
         $options = [
             'rawResponse' => true,
@@ -65,7 +68,8 @@ class Document extends Request {
      * @throws Box\View\Exception
      */
     public static function listDocuments($limit = null, $createdBefore = null,
-                                         $createdAfter = null) {
+                                         $createdAfter = null)
+    {
         $getParams = [];
         if ($limit) $getParams['limit'] = $limit;
 
@@ -92,7 +96,8 @@ class Document extends Request {
      * @return array An array of the metadata for the file.
      * @throws Box\View\Exception
      */
-    public static function metadata($id, $fields) {
+    public static function metadata($id, $fields)
+    {
         $getParams = [
             'fields' => $fields,
         ];
@@ -109,7 +114,8 @@ class Document extends Request {
      * @return file A thumbnail to be downloaded.
      * @throws Box\View\Exception
      */
-    public static function thumbnail($id, $width, $height) {
+    public static function thumbnail($id, $width, $height)
+    {
         $getParams = [
             'height' => $height,
             'width' => $width,
@@ -132,7 +138,8 @@ class Document extends Request {
      * @return array An array of the metadata for the file.
      * @throws Box\View\Exception
      */
-    public static function update($id, $fields) {
+    public static function update($id, $fields)
+    {
         $postParams = [];
 
         $supportedFields = ['name'];
@@ -161,7 +168,8 @@ class Document extends Request {
      * @throws Box\View\Exception
      */
     public static function uploadFile($file, $name = null, $thumbnails = null,
-                                      $nonSvg = null) {
+                                      $nonSvg = null)
+    {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
             return static::_error('invalid_file', $message);
@@ -201,7 +209,8 @@ class Document extends Request {
      * @throws Box\View\Exception
      */
     public static function uploadUrl($url, $name = null, $thumbnails = null,
-                                  $nonSvg = null) {
+                                  $nonSvg = null)
+    {
         $postParams = [
             'url' => $url,
         ];

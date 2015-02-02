@@ -8,7 +8,8 @@ require_once dirname(__FILE__) . '/Request.php';
  * to create sessions for specific documents that can be used to view a
  * document using a specific session-based URL.
  */
-class Session extends Request {
+class Session extends Request
+{
     /**
      * The Download API path relative to the base API path
      * 
@@ -26,7 +27,8 @@ class Session extends Request {
      */
     public static function create($id, $duration = null, $expiresAt = null,
                                   $isDownloadable = null,
-                                  $isTextSelectable = null) {
+                                  $isTextSelectable = null)
+    {
         $postParams = [
             'document_id' => $id,
         ];
@@ -51,7 +53,8 @@ class Session extends Request {
      * @return bool Was the session deleted?
      * @throws Box\View\Exception
      */
-    public static function delete($id) {
+    public static function delete($id)
+    {
         $options = [
             'httpMethod' => 'DELETE',
             'rawResponse' => true,

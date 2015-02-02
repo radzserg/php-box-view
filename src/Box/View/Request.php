@@ -17,7 +17,8 @@ require_once dirname(__FILE__) . '/Session.php';
  * Download, and Session), and is also used internally by the other Box View
  * API classes for generic methods including error and request.
  */
-class Request {
+class Request
+{
     /**
      * The developer's Box View API key.
      * 
@@ -85,7 +86,8 @@ class Request {
      * 
      * @return Guzzle A new Guzzle instance.
      */
-    private static function _getGuzzleInstance($host = null) {
+    private static function _getGuzzleInstance($host = null)
+    {
         if (!$host) $host = static::$host;
         $defaults = static::$guzzleDefaultOptions;
         $defaults['headers']['Authorization'] = 'Token ' . static::$apiKey;
@@ -103,7 +105,8 @@ class Request {
      * 
      * @return string Brief error description.
      */
-    private static function _handleHttpError($httpCode) {
+    private static function _handleHttpError($httpCode)
+    {
         $http4xxErrorCodes = [
             400 => 'bad_request',
             401 => 'unauthorized',
@@ -133,7 +136,8 @@ class Request {
      * @return GuzzleHttp\Message\Response The Guzzle response object.
      * @throws Box\View\Exception
      */
-    private static function _sendRequest($guzzle, $request) {
+    private static function _sendRequest($guzzle, $request)
+    {
         $response = $guzzle->send($request);
         $headers = $response->getHeaders();
 
@@ -154,7 +158,8 @@ class Request {
      * 
      * @return string An RFC 3339 timestamp.
      */
-    protected static function _date($date) {
+    protected static function _date($date)
+    {
         if (is_string($date)) $date = new \DateTime($date);
         $date->setTimezone(new \DateTimeZone('UTC'));
         return $date->format('c');
@@ -173,7 +178,8 @@ class Request {
      * @throws Box\View\Exception
      */
     protected static function _error($error, $message = null, $request = null,
-                                     $response = null) {
+                                     $response = null)
+    {
         if (!empty($request)) {
             $message .= "\n";
             $message .= 'Method: ' . $request->getMethod() . "\n";
@@ -213,7 +219,8 @@ class Request {
      * @throws Box\View\Exception
      */
     protected static function _request($path, $getParams = [], $postParams = [],
-                                       $requestOpts = []) {
+                                       $requestOpts = [])
+    {
         $host = null;
         if (!empty($requestOpts['host'])) $host = $requestOpts['host'];
         $guzzle = static::_getGuzzleInstance($host);
@@ -288,7 +295,8 @@ class Request {
      * 
      * @return string The API key.
      */
-    public static function getApiKey() {
+    public static function getApiKey()
+    {
         return static::$apiKey;
     }
     
@@ -299,7 +307,8 @@ class Request {
      * 
      * @return void No return value.
      */
-    public static function setApiKey($apiKey) {
+    public static function setApiKey($apiKey)
+    {
         static::$apiKey = $apiKey;
     }
 }
