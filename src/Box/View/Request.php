@@ -10,23 +10,32 @@ namespace Box\View;
 class Request
 {
     /**
+     * The default protocol (Box View uses HTTPS).
+     * 
+     * @const string
+     */
+    const PROTOCOL = 'https';
+    
+    /**
+     * The default host
+     * 
+     * @const string
+     */
+    const HOST = 'view-api.box.com';
+    
+    /**
+     * The default base path on the server where the API lives.
+     * 
+     * @const string
+     */
+    const BASE_PATH = '/1';
+    
+    /**
      * The developer's Box View API key.
      * 
      * @var string
      */
     public static $apiKey;
-    
-    /**
-     * A good set of default curl options.
-     * 
-     * @var array
-     */
-    public static $curlDefaultOptions = [
-        CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 60,
-        CURLOPT_USERAGENT => 'box-view-php',
-    ];
 
     /**
      * A good set of default Guzzle options.
@@ -44,27 +53,6 @@ class Request
     ];
 
     /**
-     * The default protocol (Box View uses HTTPS).
-     * 
-     * @var string
-     */
-    public static $protocol = 'https';
-    
-    /**
-     * The default host
-     * 
-     * @var string
-     */
-    public static $host = 'view-api.box.com';
-    
-    /**
-     * The default base path on the server where the API lives.
-     * 
-     * @var string
-     */
-    public static $basePath = '/1';
-    
-    /**
      * An API path relative to the base API path.
      * 
      * @var string
@@ -80,11 +68,11 @@ class Request
      */
     private static function _getGuzzleInstance($host = null)
     {
-        if (!$host) $host = static::$host;
+        if (!$host) $host = static::HOST;
         $defaults = static::$guzzleDefaultOptions;
         $defaults['headers']['Authorization'] = 'Token ' . static::$apiKey;
         return new \GuzzleHttp\Client([
-            'base_url' => static::$protocol . '://' . $host,
+            'base_url' => static::PROTOCOL . '://' . $host,
             'defaults' => $defaults,
         ]);
     }
@@ -315,7 +303,7 @@ class Request
             $options['headers']['Accept'] = '*/*';
         }
 
-        $url = static::$basePath . static::$path . $path;
+        $url = static::BASE_PATH . static::$path . $path;
         if (!empty($getParams)) $options['query'] = $getParams;
 
         try {
