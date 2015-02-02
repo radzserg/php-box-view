@@ -3,7 +3,7 @@
  * Bootstrap
  */
 error_reporting(E_ALL);
-$exampleApiKey = 'YOUR_API_TOKEN';
+$exampleApiKey = 'YOUR_API_KEY';
 
 // set the content type to plaintext if we're running this from a web browser
 if (php_sapi_name() != 'cli') {
@@ -322,10 +322,10 @@ echo 'Example #12 - Download a small thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $contents = Box\View\Document::thumbnail($document['id'], 16, 16);
+    $thumbnailContents = Box\View\Document::thumbnail($document['id'], 16, 16);
     $filename = __DIR__ . '/files/test-thumbnail.png';
     $handle = fopen($filename, 'w');
-    fwrite($handle, $contents);
+    fwrite($handle, $thumbnailContents);
     fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
@@ -345,10 +345,10 @@ echo 'Example #13 - Download a large thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $contents = Box\View\Document::thumbnail($document['id'], 250, 250);
+    $thumbnailContents = Box\View\Document::thumbnail($document['id'], 250, 250);
     $filename = __DIR__ . '/files/test-thumbnail-large.png';
     $handle = fopen($filename, 'w');
-    fwrite($handle, $contents);
+    fwrite($handle, $thumbnailContents);
     fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";

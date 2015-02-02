@@ -69,7 +69,7 @@ These examples are interactive and you can run this file to see `php-box-view` i
 To run these examples, open up `examples/examples.php` and change this line to show your API key:
 
 ```php
-$exampleApiKey = 'YOUR_API_TOKEN';
+$exampleApiKey = 'YOUR_API_KEY';
 ```
 
 Save the file, make sure the `examples/files` directory is writeable, and then run `examples/examples.php`:
@@ -86,7 +86,7 @@ You can inspect the `examples/examples.php` code to see each API call being used
 To start using `php-box-view` in your code, set your API key:
 
 ```php
-Box\View\Request::setApiKey('YOUR_API_TOKEN');
+Box\View\Request::setApiKey('YOUR_API_KEY');
 ```
 
 And now you can start using the methods in `Box\View\Document` and `Box\View\Session`.
@@ -127,7 +127,7 @@ $metadata = Box\View\Document::uploadFile($fileHandle, [
 ]);
 ```
 
-Here's what the result looks like:
+The response looks like this:
 
 ```php
 array(5) {
@@ -163,7 +163,7 @@ $metadata = Box\View\Document::uploadUrl($url, [
 ]);
 ```
 
-Here's what the result looks like:
+The response looks like this:
 
 ```php
 array(5) {
@@ -191,6 +191,23 @@ This function returns an associative array representing the metadata of the file
 $metadata = Box\View\Document::metadata($file_id);
 ```
 
+The response looks like this:
+
+```php
+array(5) {
+  ["type"]=>
+  string(8) "document"
+  ["id"]=>
+  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
+  ["status"]=>
+  string(6) "queued"
+  ["name"]=>
+  string(11) "Sample File"
+  ["created_at"]=>
+  string(24) "2015-02-02T09:09:47.359Z"
+}
+```
+
 #### List
 
 https://developers.box.com/view/#get-documents  
@@ -212,6 +229,46 @@ $documents = Box\View\Document::listDocuments([
 ]);
 ```
 
+The response looks like this:
+
+array(1) {
+  ["document_collection"]=>
+  array(2) {
+    ["total_count"]=>
+    int(2)
+    ["entries"]=>
+    array(2) {
+      [0]=>
+      array(5) {
+        ["type"]=>
+        string(8) "document"
+        ["id"]=>
+        string(32) "8db7bd32e40d48adac24b3c955f49e23"
+        ["status"]=>
+        string(10) "processing"
+        ["name"]=>
+        string(14) "Sample File #2"
+        ["created_at"]=>
+        string(20) "2015-02-02T09:13:20Z"
+      }
+      [1]=>
+      array(5) {
+        ["type"]=>
+        string(8) "document"
+        ["id"]=>
+        string(32) "ee7ae7e2ff8d44fca84471d42d74006e"
+        ["status"]=>
+        string(4) "done"
+        ["name"]=>
+        string(11) "Sample File"
+        ["created_at"]=>
+        string(20) "2015-02-02T09:13:19Z"
+      }
+    }
+  }
+}
+
+
 #### Download
 
 https://developers.box.com/view/#get-documents-id-content  
@@ -221,7 +278,13 @@ This function returns the contents of the downloaded file.
 
 ```php
 $contents = Box\View\Document::download($file_id);
+$filename = __DIR__ . '/files/new-file.doc';
+$handle = fopen($filename, 'w');
+fwrite($handle, $contents);
+fclose($handle);
 ```
+
+The response is just a giant string representing the data of the file.
 
 #### Thumbnail
 
@@ -232,7 +295,13 @@ This function returns the contents of the downloaded thumbnail.
 
 ```php
 $thumbnailContents = Box\View\Document::thumbnail($file_id, 100, 100);
+$filename = __DIR__ . '/files/new-thumbnail.png';
+$handle = fopen($filename, 'w');
+fwrite($handle, $thumbnailContents);
+fclose($handle);
 ```
+
+The response is just a giant string representing the data of the file.
 
 #### Update
 
@@ -248,6 +317,23 @@ $metadata = Box\View\Document::update($file_id, [
 ]);
 ```
 
+The response looks like this:
+
+```php
+array(5) {
+  ["type"]=>
+  string(8) "document"
+  ["id"]=>
+  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
+  ["status"]=>
+  string(6) "queued"
+  ["name"]=>
+  string(11) "Sample File"
+  ["created_at"]=>
+  string(24) "2015-02-02T09:09:47.359Z"
+}
+```
+
 #### Delete
 
 https://developers.box.com/view/#delete-documents-id  
@@ -257,6 +343,18 @@ This function returns a boolean of whether the file was deleted or not.
 
 ```php
 $deleted = Box\View\Document::delete($file_id);
+
+if ($deleted) {
+    // do something
+} else {
+    // do something else
+}
+```
+
+The response looks like this:
+
+```php
+bool(true)
 ```
 
 ### Session
@@ -281,6 +379,41 @@ $session = Box\View\Session::create($file_id, [
 ]);
 ```
 
+The response looks like this:
+
+```php
+array(5) {
+  ["type"]=>
+  string(7) "session"
+  ["id"]=>
+  string(32) "c3d082985d08425faacb744aa28a8ba3"
+  ["document"]=>
+  array(5) {
+    ["type"]=>
+    string(8) "document"
+    ["id"]=>
+    string(32) "f5f342c440b84dcfa4104eaae49cdead"
+    ["status"]=>
+    string(4) "done"
+    ["name"]=>
+    string(12) "Updated Name"
+    ["created_at"]=>
+    string(20) "2015-02-02T09:16:19Z"
+  }
+  ["expires_at"]=>
+  string(24) "2015-02-02T10:16:39.876Z"
+  ["urls"]=>
+  array(3) {
+    ["view"]=>
+    string(73) "https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/view"
+    ["assets"]=>
+    string(76) "https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/assets/"
+    ["realtime"]=>
+    string(61) "https://view-api.box.com/sse/c3d082985d08425faacb744aa28a8ba3"
+  }
+}
+```
+
 #### Delete
 
 https://developers.box.com/view/#delete-sessions-id  
@@ -290,6 +423,18 @@ This function returns a boolean of whether the session was deleted or not.
 
 ```php
 $deleted = Box\View\Session::delete($session_id);
+
+if ($deleted) {
+    // do something
+} else {
+    // do something else
+}
+```
+
+The response looks like this:
+
+```php
+bool(true)
 ```
 
 ## Tests
