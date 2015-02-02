@@ -91,7 +91,13 @@ Box\View\Request::setApiKey('YOUR_API_KEY');
 
 And now you can start using the methods in `Box\View\Document` and `Box\View\Session`.
 
-Read on to find out more how to use `php-box-view`.
+## Tests
+
+COMING SOON
+
+## Support
+
+Please use GitHub's issue tracker for API library support.
 
 ## Usage
 
@@ -437,11 +443,3 @@ The response looks like this:
 ```php
 bool(true)
 ```
-
-## Tests
-
-COMING SOON
-
-## Support
-
-Please use GitHub's issue tracker for API library support.
