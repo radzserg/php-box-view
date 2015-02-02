@@ -7,7 +7,7 @@ The Box View API lets you upload documents and then generate secure and customiz
 Our API is based on REST principles and generally returns JSON encoded responses,
 and in PHP are converted to associative arrays unless otherwise noted.
 
-For more information about the Box View API, see the [API docs](https://developers.box.com/view/)
+For more information about the Box View API, see the [API docs at developers.box.com](https://developers.box.com/view/).
 
 ## Installation
 
