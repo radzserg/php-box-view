@@ -127,8 +127,11 @@ class Document extends Request
         $options = [
             'rawResponse' => true,
         ];
-        return static::_request('/' . $id . '/thumbnail', $getParams, null,
-                                $options);
+        return static::_request(
+            '/' . $id . '/thumbnail',
+            $getParams, null,
+            $options
+        );
     }
 
     /**

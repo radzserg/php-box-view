@@ -242,7 +242,6 @@ class Request
 
         if (!empty($requestOpts['file'])) {
             $method = 'POST';
-
             $options['body'] = !empty($postParams) ? $postParams : [];
             $options['body']['file'] = $requestOpts['file'];
         } elseif (!empty($postParams)) {
@@ -286,13 +285,19 @@ class Request
             $jsonDecoded = json_decode($responseBody, true);
 
             if ($jsonDecoded === false || $jsonDecoded === null) {
-                return static::_error('server_response_not_valid_json',
-                                      $request, $response);
+                return static::_error(
+                    'server_response_not_valid_json',
+                    $request,
+                    $response
+                );
             }
             
             if (is_array($jsonDecoded) && !empty($jsonDecoded['error'])) {
-                return static::_error($jsonDecoded['error'], $request,
-                                      $response);
+                return static::_error(
+                    $jsonDecoded['error'],
+                    $request,
+                    $response
+                );
             }
             
             $responseBody = $jsonDecoded;
