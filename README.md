@@ -231,6 +231,7 @@ $documents = Box\View\Document::listDocuments([
 
 The response looks like this:
 
+```php
 array(1) {
   ["document_collection"]=>
   array(2) {
@@ -267,7 +268,7 @@ array(1) {
     }
   }
 }
-
+```
 
 #### Download
 
