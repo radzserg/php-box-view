@@ -127,6 +127,23 @@ $metadata = Box\View\Document::uploadFile($fileHandle, [
 ]);
 ```
 
+Here's what the result looks like:
+
+```php
+array(5) {
+  ["type"]=>
+  string(8) "document"
+  ["id"]=>
+  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
+  ["status"]=>
+  string(6) "queued"
+  ["name"]=>
+  string(11) "Sample File"
+  ["created_at"]=>
+  string(24) "2015-02-02T09:09:47.359Z"
+}
+```
+
 #### Upload by URL
 
 https://developers.box.com/view/#post-documents  
@@ -144,6 +161,23 @@ $metadata = Box\View\Document::uploadUrl($url, [
     'thumbnails' => ['100x100', '200x200'],
     'nonSvg' => true,
 ]);
+```
+
+Here's what the result looks like:
+
+```php
+array(5) {
+  ["type"]=>
+  string(8) "document"
+  ["id"]=>
+  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
+  ["status"]=>
+  string(6) "queued"
+  ["name"]=>
+  string(11) "Sample File"
+  ["created_at"]=>
+  string(24) "2015-02-02T09:09:47.359Z"
+}
 ```
 
 #### Metadata
