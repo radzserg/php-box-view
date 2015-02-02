@@ -31,7 +31,9 @@ $sampleUrl = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
 echo '  Uploading... ';
 
 try {
-    $document = Box\View\Document::uploadUrl($sampleUrl, 'Sample File');
+    $document = Box\View\Document::uploadUrl($sampleUrl, [
+        'name' => 'Sample File',
+    ]);
     echo 'success :)' . "\n";
     echo '  ID is ' . $document['id'] . "\n";
 } catch (Box\View\Exception $e) {
@@ -73,21 +75,23 @@ try {
 /*
  * Example #3
  * 
- * Upload another file. We're uploading a sample .doc file as a file.
+ * Upload another file. We're uploading a sample .doc file from the local
+ * filesystem using all options.
  */
 echo "\n";
-echo 'Example #3 - Upload a sample .doc as a file.' . "\n";
+echo 'Example #3 - Upload a sample .doc as a file using all options.' . "\n";
 $filePath = __DIR__ . '/files/sample.doc';
 
 if (is_file($filePath)) {    
-    $fileHandle = fopen($filePath, 'r');
+    $handle = fopen($filePath, 'r');
     echo '  Uploading... ';
     
     try {
-        $document2 = Box\View\Document::uploadFile(
-            $fileHandle,
-            'Sample File #2'
-        );
+        $document2 = Box\View\Document::uploadFile($handle, [
+            'name' => 'Sample File #2',
+            'thumbnails' => ['100x100', '200x200'],
+            'nonSvg' => true,
+        ]);
         echo 'success :)' . "\n";
         echo '  ID is ' . $document2['id'] . "\n";
     } catch (Box\View\Exception $e) {
@@ -139,7 +143,9 @@ echo 'Example #5 - List the documents we uploaded so far.' . "\n";
 echo '  Listing documents... ';
 
 try {
-    $documents = Box\View\Document::listDocuments(null, null, $start);
+    $documents = Box\View\Document::listDocuments([
+        'createdAfter' => $start,
+    ]);
     $doc1 = $documents['document_collection']['entries'][1];
     $doc2 = $documents['document_collection']['entries'][0];
     echo 'success :)' . "\n";
@@ -172,7 +178,9 @@ echo 'done.' . "\n";
 echo '  Checking statuses... ';
 
 try {
-    $documents = Box\View\Document::listDocuments(null, null, $start);
+    $documents = Box\View\Document::listDocuments([
+        'createdAfter' => $start,
+    ]);
     $doc1 = $documents['document_collection']['entries'][1];
     $doc2 = $documents['document_collection']['entries'][0];
     echo 'success :)' . "\n";
@@ -268,7 +276,7 @@ echo 'Example #10 - Download a file as a PDF.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $contents = Box\View\Document::download($document['id'],'pdf');
+    $contents = Box\View\Document::download($document['id'], 'pdf');
     $filename = __DIR__ . '/files/test.pdf';
     $handle = fopen($filename, 'w');
     fwrite($handle, $contents);
@@ -388,14 +396,12 @@ echo '  Creating... ';
 $session2 = null;
 
 try {
-    $expires = date('c', strtotime('+10 min'));
-    $session2 = Box\View\Session::create(
-        $document['id'],
-        10,
-        $expires,
-        true,
-        false
-    );
+    $session2 = Box\View\Session::create($document['id'], [
+        'duration' => 10,
+        'expiresAt' => date('c', strtotime('+10 min')),
+        'isDownloadable' => true,
+        'isTextSelectable' => false,
+    ]);
     echo 'success :)' . "\n";
     echo '  Session id is ' . $session2['id'] . '.' . "\n";
     echo '  Session expires on ' . $session2['expires_at'] . '.' . "\n";

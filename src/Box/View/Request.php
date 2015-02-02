@@ -134,20 +134,20 @@ class Request
      * any errors.
      * 
      * @param GuzzleHttp\Message\Response $response The Guzzle response object.
-     * @param bool $rawResponse Do we want to return the raw response, or
-     *                          process as JSON?
+     * @param bool $isRawResponse Do we want to return the raw response, or
+     *                            process as JSON?
      * @param GuzzleHttp\Message\Request The Guzzle request object.
      * 
      * @return array|string An array decoded from JSON, or the raw response from
      *                      the server.
      * @throws Box\View\Exception
      */
-    private static function _handleResponse($response, $rawResponse, $request)
+    private static function _handleResponse($response, $isRawResponse, $request)
     {
         $responseBody = (string) $response->getBody();
 
         // if we want a raw response, then it's not JSON, and we're done
-        if (!empty($rawResponse)) {
+        if (!empty($isRawResponse)) {
             return $responseBody;
         }
 
@@ -260,13 +260,13 @@ class Request
      * postParams. 
      * 
      * @param string $path The path to add after the base path.
-     * @param array|null $getParams Optional. An array of GET params to be added
-     *                              to the URL - this can also be a string.
-     * @param array|null $postParams Optional. An array of GET params to be
-     *                               added to the URL - this can also be a
-     *                               string.
-     * @param array|null $requestOpts Optional. An array of request options that
-     *                                may modify the way the request is made.
+     * @param array|null $getParams Optional. An associative array of GET params
+     *                              to be added to the URL.
+     * @param array|null $postParams Optional. An associative array of POST
+     *                               params to be sent in the body.
+     * @param array|null $requestOpts Optional. An associative array of request
+     *                                options that may modify the way the
+     *                                request is made.
      * 
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from

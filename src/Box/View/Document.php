@@ -13,6 +13,41 @@ class Document extends Request
      * @var string
      */
     public static $path = '/documents';
+
+    /**
+     * Generic upload function used by the two other upload functions, which are
+     * more specific than this one, and know how to handle upload by URL and
+     * upload from filesystem.
+     * 
+     * @param array|null $params An associative array of options relating to the
+     *                           file upload. Pass-thru from the other upload
+     *                           functions.
+     * @param array|null $postParams An associative array of POST params to be
+     *                               sent in the body.
+     * @param array|null $options An associative array of request options that
+     *                            may modify the way the request is made.
+     * 
+     * @return array An associative array representing the metadata of the file.
+     * @throws Box\View\Exception
+     */
+    private static function _upload($params, $postParams = [], $options = [])
+    {
+        if (!empty($params['name'])) $postParams['name'] = $params['name'];
+
+        if (!empty($params['thumbnails'])) {
+            if (is_array($params['thumbnails'])) {
+                $params['thumbnails'] = implode(',', $params['thumbnails']);
+            }
+
+            $postParams['thumbnails'] = $params['thumbnails'];
+        }
+
+        if (!empty($params['nonSvg'])) {
+            $postParams['non_svg'] = $params['nonSvg'];
+        }
+
+        return static::_request(null, null, $postParams, $options);
+    }
     
     /**
      * Delete a file by ID.
@@ -58,28 +93,32 @@ class Document extends Request
     /**
      * Get a list of all documents that meet the provided criteria.
      * 
-     * @param integer|null $limit Optional. The number of documents to return.
-     * @param string|DateTime|null $createdBefore Optional. Upper date limit to
-    *                                             filter by.
-     * @param string|DateTime|null $createdAfter Optional. Lower limit to filter
-     *                                           by.
+     * @param array|null $params Optional. An associative array to filter the
+     *                           list of all documents uploaded. None are
+     *                           necessary; all are optional. Use the following
+     *                           options:
+     *                             - integer|null 'limit' The number of
+     *                               documents to return.
+     *                             - string|DateTime|null 'createdBefore'
+     *                               Upper date limit to filter by .
+     *                             - string|DateTime|null 'createdAfter'
+     *                               Lower limit to filter by.
      * 
      * @return array An array containing a list of documents.
      * @throws Box\View\Exception
      */
-    public static function listDocuments(
-        $limit = null,
-        $createdBefore = null,
-        $createdAfter = null
-    ) {
+    public static function listDocuments($params = [])
+    {
         $getParams = [];
-        if ($limit) $getParams['limit'] = $limit;
+        if (!empty($params['limit'])) $getParams['limit'] = $params['limit'];
 
-        if ($createdBefore) {
+        if (!empty($params['createdBefore'])) {
+            $createdBefore = $params['createdBefore'];
             $getParams['created_before'] = static::_date($createdBefore);
         }
 
-        if ($createdAfter) {
+        if (!empty($params['createdAfter'])) {
+            $createdAfter = $params['createdAfter'];
             $getParams['created_after'] = static::_date($createdAfter);
         }
 
@@ -95,7 +134,7 @@ class Document extends Request
      *                                string. Regardless of which fields are
      *                                provided, id and type are always returned.
      * 
-     * @return array An array of the metadata for the file.
+     * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
     public static function metadata($id, $fields)
@@ -140,7 +179,7 @@ class Document extends Request
      *                         Regardless of which fields are provided, id and
      *                         type are always returned.
      * 
-     * @return array An array of the metadata for the file.
+     * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
     public static function update($id, $fields)
@@ -160,87 +199,66 @@ class Document extends Request
     }
 
     /**
-     * Upload a file to Box View with a local file.
+     * Upload a local file.
      * 
      * @param resource $file The file resource to upload.
-     * @param string|null $name Optional. Override the filename of the file
-     *                          being uploaded.
-     * @param string[]|string|null $thumbnails Optional. An array of dimensions
-     *                                         in pixels, with each dimension
-     *                                         formatted as [width]x[height],
-     *                                         this can also be a
-     *                                         comma-separated string.
+     * @param array|null $params Optional. An associative array of options
+     *                           relating to the file upload. None are
+     *                           necessary; all are optional. Use the following
+     *                           options:
+     *                             - string|null 'name' Override the filename of
+     *                               the file being uploaded.
+     *                             - string[]|string|null 'thumbnails' An array
+     *                               of dimensions in pixels, with each
+     *                               dimension formatted as [width]x[height],
+     *                               this can also be a comma-separated string.
+     *                             - bool|null 'nonSvg' Create a second version
+     *                               of the file that doesn't use SVG, for users
+     *                               with browsers that don't support SVG?
      * 
-     * @return array An array representing the metadata of the file.
+     * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
-    public static function uploadFile(
-        $file,
-        $name = null,
-        $thumbnails = null,
-        $nonSvg = null
-    ) {
+    public static function uploadFile($file, $params = [])
+    {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
             return static::_error('invalid_file', $message);
         }
 
-        $postParams = [];
-        if (!empty($name)) $postParams['name'] = $name;
-
-        if (!empty($thumbnails)) {
-            if (is_array($thumbnails)) {
-                $thumbnails = implode(',', $thumbnails);
-            }
-
-            $postParams['thumbnails'] = $thumbnails;
-        }
-
-        if (isset($nonSvg)) $postParams['non_svg'] = $nonSvg;
-
         $options = [
             'file' => $file,
             'host' => 'upload.view-api.box.com',
         ];
-        return static::_request(null, null, $postParams, $options);
+        return static::_upload($params, null, $options);
     }
 
     /**
-     * Upload a file to Box View by URL.
+     * Upload a file by URL.
      * 
      * @param string $url The url of the file to upload.
-     * @param string|null $name Optional. Override the filename of the file
-     *                          being uploaded.
-     * @param string[]|string|null $thumbnails Optional. An array of dimensions
-     *                                         in pixels, with each dimension
-     *                                         formatted as [width]x[height],
-     *                                         this can also be a
-     *                                         comma-separated string.
+     * @param array|null $params Optional. An associative array of options
+     *                           relating to the file upload. None are
+     *                           necessary; all are optional. Use the following
+     *                           options:
+     *                             - string|null 'name' Override the filename of
+     *                               the file being uploaded.
+     *                             - string[]|string|null 'thumbnails' An array
+     *                               of dimensions in pixels, with each
+     *                               dimension formatted as [width]x[height],
+     *                               this can also be a comma-separated string.
+     *                             - bool|null 'nonSvg' Create a second version
+     *                               of the file that doesn't use SVG, for users
+     *                               with browsers that don't support SVG?
      * 
-     * @return array An array representing the metadata of the file.
+     * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
-    public static function uploadUrl(
-        $url,
-        $name = null,
-        $thumbnails = null,
-        $nonSvg = null
-    ) {
+    public static function uploadUrl($url, $params = [])
+    {
         $postParams = [
             'url' => $url,
         ];
-        if (!empty($name)) $postParams['name'] = $name;
-
-        if (!empty($thumbnails)) {
-            if (is_array($thumbnails)) {
-                $thumbnails = implode(',', $thumbnails);
-            }
-
-            $postParams['thumbnails'] = $thumbnails;
-        }
-
-        if (isset($nonSvg)) $postParams['non_svg'] = $nonSvg;
-
-        return static::_request(null, null, $postParams);
+        return static::_upload($params, $postParams);
     }
 }
