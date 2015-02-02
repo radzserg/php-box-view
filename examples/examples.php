@@ -245,11 +245,11 @@ echo 'Example #9 - Download a file in its original file format.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = Box\View\Document::download($document['id']);
+    $contents = Box\View\Document::download($document['id']);
     $filename = __DIR__ . '/files/test-original.doc';
-    $fileHandle = fopen($filename, 'w');
-    fwrite($fileHandle, $file);
-    fclose($fileHandle);
+    $handle = fopen($filename, 'w');
+    fwrite($handle, $contents);
+    fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -268,11 +268,11 @@ echo 'Example #10 - Download a file as a PDF.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = Box\View\Document::download($document['id'], 'pdf');
+    $contents = Box\View\Document::download($document['id'],'pdf');
     $filename = __DIR__ . '/files/test.pdf';
-    $fileHandle = fopen($filename, 'w');
-    fwrite($fileHandle, $file);
-    fclose($fileHandle);
+    $handle = fopen($filename, 'w');
+    fwrite($handle, $contents);
+    fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -291,11 +291,11 @@ echo 'Example #11 - Download a file as a zip.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = Box\View\Document::download($document['id'], 'zip');
+    $contents = Box\View\Document::download($document['id'], 'zip');
     $filename = __DIR__ . '/files/test.zip';
-    $fileHandle = fopen($filename, 'w');
-    fwrite($fileHandle, $file);
-    fclose($fileHandle);
+    $handle = fopen($filename, 'w');
+    fwrite($handle, $contents);
+    fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -314,11 +314,11 @@ echo 'Example #12 - Download a small thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = Box\View\Document::thumbnail($document['id'], 16, 16);
+    $contents = Box\View\Document::thumbnail($document['id'], 16, 16);
     $filename = __DIR__ . '/files/test-thumbnail.png';
-    $fileHandle = fopen($filename, 'w');
-    fwrite($fileHandle, $file);
-    fclose($fileHandle);
+    $handle = fopen($filename, 'w');
+    fwrite($handle, $contents);
+    fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -337,11 +337,11 @@ echo 'Example #13 - Download a large thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = Box\View\Document::thumbnail($document['id'], 250, 250);
+    $contents = Box\View\Document::thumbnail($document['id'], 250, 250);
     $filename = __DIR__ . '/files/test-thumbnail-large.png';
-    $fileHandle = fopen($filename, 'w');
-    fwrite($fileHandle, $file);
-    fclose($fileHandle);
+    $handle = fopen($filename, 'w');
+    fwrite($handle, $contents);
+    fclose($handle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {

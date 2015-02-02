@@ -43,7 +43,7 @@ class Document extends Request
      *                               extension is provided, the file will be
      *                               downloaded using the original extension.
      * 
-     * @return string The downloaded file.
+     * @return string The contents of the downloaded file.
      * @throws Box\View\Exception
      */
     public static function download($id, $extension = null)
@@ -113,7 +113,7 @@ class Document extends Request
      * @param width The width of the thumbnail in pixels.
      * @param height The height of the thumbnail in pixels.
      * 
-     * @return string The downloaded thumbnail.
+     * @return string The contents of the downloaded thumbnail.
      * @throws Box\View\Exception
      */
     public static function thumbnail($id, $width, $height)
