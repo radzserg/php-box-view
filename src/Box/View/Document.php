@@ -104,7 +104,8 @@ class Document extends Request
      *                             - string|DateTime|null 'createdAfter'
      *                               Lower limit to filter by.
      * 
-     * @return array An array containing a list of documents.
+     * @return array An array containing a list of documents matching the
+     *               request.
      * @throws Box\View\Exception
      */
     public static function listDocuments($params = [])

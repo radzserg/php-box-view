@@ -3,7 +3,7 @@
  * Bootstrap
  */
 error_reporting(E_ALL);
-$exampleApiKey = '01iet7esk486i0ujkopk0vowbcp99rgo';
+$exampleApiKey = 'YOUR_API_TOKEN';
 
 // set the content type to plaintext if we're running this from a web browser
 if (php_sapi_name() != 'cli') {
