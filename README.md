@@ -93,7 +93,14 @@ And now you can start using the methods in `Box\View\Document` and `Box\View\Ses
 
 ## Tests
 
-COMING SOON
+First make sure you're running Composer and that you've run `composer install`.
+
+Run the tests:
+
+```php
+./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests
+
+```
 
 ## Support
 
