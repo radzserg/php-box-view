@@ -86,7 +86,7 @@ You can inspect the `examples/examples.php` code to see each API call being used
 To start using `php-box-view` in your code, set your API key:
 
 ```php
-Box\View\Request::setApiKey('YOUR_API_KEY');
+Box\View\Client::setApiKey('YOUR_API_KEY');
 ```
 
 And now you can start using the methods in `Box\View\Document` and `Box\View\Session`.
@@ -379,7 +379,6 @@ $session = Box\View\Session::create($file_id);
 
 // with options
 $session = Box\View\Session::create($file_id, [
-    'duration' => 10,
     'expiresAt' => date('c', strtotime('+10 min')),
     'isDownloadable' => true,
     'isTextSelectable' => false,

@@ -2,10 +2,7 @@
 namespace Box\View;
 
 /**
- * Provides access to the Box View API. This is a base class that can be used
- * standalone with full access to the other Box View API classes (Document,
- * Download, and Session), and is also used internally by the other Box View
- * API classes for generic methods including error and request.
+ * Makes a request to the Box View API.
  */
 class Request
 {
@@ -29,14 +26,21 @@ class Request
      * @const string
      */
     const BASE_PATH = '/1';
-    
+
     /**
-     * The developer's Box View API key.
+     * The API key.
      * 
      * @var string
      */
-    public static $apiKey;
+    private $_apiKey;
 
+    /**
+     * The path after the base path before the request path.
+     * 
+     * @var string
+     */
+    private $_path;
+    
     /**
      * A good set of default Guzzle options.
      * 
@@ -51,31 +55,6 @@ class Request
         'connect_timeout' => 10,
         'timeout' => 60,
     ];
-
-    /**
-     * An API path relative to the base API path.
-     * 
-     * @var string
-     */
-    public static $path = '/';
-
-    /**
-     * Get a new Guzzle instance using sensible defaults.
-     * 
-     * @param string|null $host Optional. The host to use in the base URL.
-     * 
-     * @return GuzzleHttp\Client A new Guzzle instance.
-     */
-    private static function _getGuzzleInstance($host = null)
-    {
-        if (!$host) $host = static::HOST;
-        $defaults = static::$guzzleDefaultOptions;
-        $defaults['headers']['Authorization'] = 'Token ' . static::$apiKey;
-        return new \GuzzleHttp\Client([
-            'base_url' => static::PROTOCOL . '://' . $host,
-            'defaults' => $defaults,
-        ]);
-    }
 
     /**
      * Check if there is an HTTP error, and returns a brief error description
@@ -173,46 +152,6 @@ class Request
         
         return $jsonDecoded;
     }
-
-    /**
-     * Send a request to the server and return the response, while retrying
-     * based on any Retry-After headers that are sent back.
-     * 
-     * @param GuzzleHttp\Client $guzzle The Guzzle instance to use.
-     * @param GuzzleHttp\Message\Request $request The request to send, and
-     *                                            possibly retry.
-     * 
-     * @return GuzzleHttp\Message\Response The Guzzle response object.
-     * @throws Box\View\Exception
-     */
-    private static function _sendRequest($guzzle, $request)
-    {
-        $response = $guzzle->send($request);
-        $headers = $response->getHeaders();
-
-        if (!empty($headers['Retry-After'])) {
-            sleep($headers['Retry-After'][0]);
-            return static::_sendRequest($guzzle, $request);
-        }
-
-        return $response;
-    }
-
-    /**
-     * Take a date in almost any format, and return a date string that is
-     * formatted as an RFC 3339 timestamp.
-     * 
-     * @param string|DateTime $date A date string in almost any format, or a
-     *                              DateTime object.
-     * 
-     * @return string An RFC 3339 timestamp.
-     */
-    protected static function _date($date)
-    {
-        if (is_string($date)) $date = new \DateTime($date);
-        $date->setTimezone(new \DateTimeZone('UTC'));
-        return $date->format('c');
-    }
     
     /**
      * Handle an error. We handle errors by throwing an exception.
@@ -254,9 +193,65 @@ class Request
         $exception->errorCode = $error;
         throw $exception;
     }
-    
+
     /**
-     * Make an HTTP request. Some of the params are polymorphic - getParams and
+     * Execute a request to the server and return the response, while retrying
+     * based on any Retry-After headers that are sent back.
+     * 
+     * @param GuzzleHttp\Client $guzzle The Guzzle instance to use.
+     * @param GuzzleHttp\Message\Request $request The request to send, and
+     *                                            possibly retry.
+     * 
+     * @return GuzzleHttp\Message\Response The Guzzle response object.
+     * @throws Box\View\Exception
+     */
+    private function _execute($guzzle, $request)
+    {
+        $response = $guzzle->send($request);
+        $headers = $response->getHeaders();
+
+        if (!empty($headers['Retry-After'])) {
+            sleep($headers['Retry-After'][0]);
+            return $this->_execute($guzzle, $request);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Get a new Guzzle instance using sensible defaults.
+     * 
+     * @param string|null $host Optional. The host to use in the base URL.
+     * 
+     * @return GuzzleHttp\Client A new Guzzle instance.
+     */
+    private function _getGuzzleInstance($host = null)
+    {
+        if (!$host) $host = static::HOST;
+        $defaults = static::$guzzleDefaultOptions;
+        $defaults['headers']['Authorization'] = 'Token ' . $this->_apiKey;
+        return new \GuzzleHttp\Client([
+            'base_url' => static::PROTOCOL . '://' . $host,
+            'defaults' => $defaults,
+        ]);
+    }
+
+    /**
+     * Set the API key.
+     * 
+     * @param string $apiKey The API key.
+     * @param string $path The path after the base path before the request path.
+     * 
+     * @return void No return value.
+     */
+    public function __construct($apiKey, $path)
+    {
+        $this->_apiKey = $apiKey;
+        $this->_path = $path;
+    }
+
+    /**
+     * Send an HTTP request. Some of the params are polymorphic - getParams and
      * postParams. 
      * 
      * @param string $path The path to add after the base path.
@@ -273,7 +268,7 @@ class Request
      *                      the server.
      * @throws Box\View\Exception
      */
-    protected static function _request(
+    public function send(
         $path,
         $getParams = [],
         $postParams = [],
@@ -281,7 +276,7 @@ class Request
     ) {
         $host = null;
         if (!empty($requestOpts['host'])) $host = $requestOpts['host'];
-        $guzzle = static::_getGuzzleInstance($host);
+        $guzzle = $this->_getGuzzleInstance($host);
 
         $options = array();
         $method = 'GET';
@@ -303,39 +298,17 @@ class Request
             $options['headers']['Accept'] = '*/*';
         }
 
-        $url = static::BASE_PATH . static::$path . $path;
+        $url = static::BASE_PATH . $this->_path . $path;
         if (!empty($getParams)) $options['query'] = $getParams;
 
         try {
             $request = $guzzle->createRequest($method, $url, $options);
-            $response = static::_sendRequest($guzzle, $request);
+            $response = $this->_execute($guzzle, $request);
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             static::_handleRequestError($e);
         }
 
         $rawResponse = !empty($requestOpts['rawResponse']);
         return static::_handleResponse($response, $rawResponse, $request);
-    }
-
-    /**
-     * Get the API key.
-     * 
-     * @return string The API key.
-     */
-    public static function getApiKey()
-    {
-        return static::$apiKey;
-    }
-    
-    /**
-     * Set the API key.
-     * 
-     * @param string $apiKey The API key.
-     * 
-     * @return void No return value.
-     */
-    public static function setApiKey($apiKey)
-    {
-        static::$apiKey = $apiKey;
     }
 }

@@ -2,12 +2,19 @@
 namespace Box\View;
 
 /**
- * Provides access to the Box View Session API. The Session API is used to
+ * Provide access to the Box View Session API. The Session API is used to
  * to create sessions for specific documents that can be used to view a
  * document using a specific session-based URL.
  */
-class Session extends Request
+class Session extends Base
 {
+    /**
+     * The request handler.
+     * 
+     * @var Request|null
+     */
+    protected static $_requestHandler;
+
     /**
      * The Download API path relative to the base API path
      * 
@@ -41,14 +48,20 @@ class Session extends Request
         $postParams = [
             'document_id' => $id,
         ];
-        if (isset($duration)) $postParams['duration'] = $duration;
 
-        if (isset($isDownloadable)) {
-            $postParams['is_downloadable'] = $isDownloadable;
+        if (isset($params['duration'])) {
+            $postParams['duration'] = $params['duration'];
+        }
+        if (isset($params['expiresAt'])) {
+            $postParams['expires_at'] = static::date($params['expiresAt']);
         }
 
-        if (isset($isTextSelectable)) {
-            $postParams['is_text_selectable'] = $isTextSelectable;
+        if (isset($params['isDownloadable'])) {
+            $postParams['is_downloadable'] = $params['isDownloadable'];
+        }
+
+        if (isset($params['isTextSelectable'])) {
+            $postParams['is_text_selectable'] = $params['isTextSelectable'];
         }
 
         return static::_request(null, null, $postParams);

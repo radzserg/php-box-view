@@ -2,11 +2,18 @@
 namespace Box\View;
 
 /**
- * Provides access to the Box View Document API. The Document API is used for
+ * Provide access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.
  */
-class Document extends Request
+class Document extends Base
 {
+    /**
+     * The request handler.
+     * 
+     * @var Request|null
+     */
+    protected static $_requestHandler;
+
     /**
      * The Document API path relative to the base API path.
      * 
@@ -115,12 +122,12 @@ class Document extends Request
 
         if (!empty($params['createdBefore'])) {
             $createdBefore = $params['createdBefore'];
-            $getParams['created_before'] = static::_date($createdBefore);
+            $getParams['created_before'] = static::date($createdBefore);
         }
 
         if (!empty($params['createdAfter'])) {
             $createdAfter = $params['createdAfter'];
-            $getParams['created_after'] = static::_date($createdAfter);
+            $getParams['created_after'] = static::date($createdAfter);
         }
 
         return static::_request(null, $getParams);
@@ -140,6 +147,7 @@ class Document extends Request
      */
     public static function metadata($id, $fields)
     {
+        if (is_array($fields)) $fields = implode(',', $fields);
         $getParams = [
             'fields' => $fields,
         ];
@@ -167,7 +175,8 @@ class Document extends Request
         ];
         return static::_request(
             '/' . $id . '/thumbnail',
-            $getParams, null,
+            $getParams,
+            null,
             $options
         );
     }

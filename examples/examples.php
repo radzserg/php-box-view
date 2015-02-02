@@ -11,7 +11,7 @@ if (php_sapi_name() != 'cli') {
 }
 
 require_once __DIR__ . '/../vendor/autoload.php';
-Box\View\Request::setApiKey($exampleApiKey);
+Box\View\Client::setApiKey($exampleApiKey);
 
 // when did this script start?
 date_default_timezone_set('America/Los_Angeles');
@@ -390,14 +390,13 @@ try {
  * Create a session for the file we uploaded from Example #1 all of the options.
  */
 echo "\n";
-echo 'Example #15 - Create a session for a file with all of the options.'
+echo 'Example #15 - Create a session for a file with more of the options.'
      . "\n";
 echo '  Creating... ';
 $session2 = null;
 
 try {
     $session2 = Box\View\Session::create($document['id'], [
-        'duration' => 10,
         'expiresAt' => date('c', strtotime('+10 min')),
         'isDownloadable' => true,
         'isTextSelectable' => false,
