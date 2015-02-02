@@ -40,12 +40,12 @@ class Document extends Request
      * Download a file using a specific extension or the original extension.
      * 
      * @param string $id The ID of the file to download.
-     * @param string $extension The extension to download the file in, which can
-     *                          be pdf or zip. If no extension is provided,
-     *                          the file will be downloaded using the original
-     *                          extension.
+     * @param string|null $extension Optional. The extension to download the
+     *                               file in, which can be pdf or zip. If no
+     *                               extension is provided, the file will be
+     *                               downloaded using the original extension.
      * 
-     * @return file A file to be downloaded.
+     * @return string The downloaded file.
      * @throws Box\View\Exception
      */
     public static function download($id, $extension = null)
@@ -60,16 +60,20 @@ class Document extends Request
     /**
      * Get a list of all documents that meet the provided criteria.
      * 
-     * @param integer $limit The number of documents to return.
-     * @param string|DateTime $createdBefore Upper date limit to filter by.
-     * @param string|DateTime $createdAfter Lower limit to filter by.
+     * @param integer|null $limit Optional. The number of documents to return.
+     * @param string|DateTime|null $createdBefore Optional. Upper date limit to
+    *                                             filter by.
+     * @param string|DateTime|null $createdAfter Optional. Lower limit to filter
+     *                                           by.
      * 
      * @return array An array containing a list of documents.
      * @throws Box\View\Exception
      */
-    public static function listDocuments($limit = null, $createdBefore = null,
-                                         $createdAfter = null)
-    {
+    public static function listDocuments(
+        $limit = null,
+        $createdBefore = null,
+        $createdAfter = null
+    ) {
         $getParams = [];
         if ($limit) $getParams['limit'] = $limit;
 
@@ -111,7 +115,7 @@ class Document extends Request
      * @param width The width of the thumbnail in pixels.
      * @param height The height of the thumbnail in pixels.
      * 
-     * @return file A thumbnail to be downloaded.
+     * @return string The downloaded thumbnail.
      * @throws Box\View\Exception
      */
     public static function thumbnail($id, $width, $height)
@@ -158,18 +162,23 @@ class Document extends Request
      * Upload a file to Box View with a local file.
      * 
      * @param resource $file The file resource to upload.
-     * @param string $name Override the filename of the file being uploaded.
-     * @param string[]|string $thumbnails An array of dimensions in pixels, with 
-     *                                    each dimension formatted as
-     *                                    [width]x[height], this can also be a
-     *                                    comma-separated string.
+     * @param string|null $name Optional. Override the filename of the file
+     *                          being uploaded.
+     * @param string[]|string|null $thumbnails Optional. An array of dimensions
+     *                                         in pixels, with each dimension
+     *                                         formatted as [width]x[height],
+     *                                         this can also be a
+     *                                         comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
      * @throws Box\View\Exception
      */
-    public static function uploadFile($file, $name = null, $thumbnails = null,
-                                      $nonSvg = null)
-    {
+    public static function uploadFile(
+        $file,
+        $name = null,
+        $thumbnails = null,
+        $nonSvg = null
+    ) {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
             return static::_error('invalid_file', $message);
@@ -199,18 +208,23 @@ class Document extends Request
      * Upload a file to Box View by URL.
      * 
      * @param string $url The url of the file to upload.
-     * @param string $name Override the filename of the file being uploaded.
-     * @param string[]|string $thumbnails An array of dimensions in pixels, with 
-     *                                    each dimension formatted as
-     *                                    [width]x[height], this can also be a
-     *                                    comma-separated string.
+     * @param string|null $name Optional. Override the filename of the file
+     *                          being uploaded.
+     * @param string[]|string|null $thumbnails Optional. An array of dimensions
+     *                                         in pixels, with each dimension
+     *                                         formatted as [width]x[height],
+     *                                         this can also be a
+     *                                         comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
      * @throws Box\View\Exception
      */
-    public static function uploadUrl($url, $name = null, $thumbnails = null,
-                                  $nonSvg = null)
-    {
+    public static function uploadUrl(
+        $url,
+        $name = null,
+        $thumbnails = null,
+        $nonSvg = null
+    ) {
         $postParams = [
             'url' => $url,
         ];

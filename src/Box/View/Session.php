@@ -25,10 +25,13 @@ class Session extends Request
      * @return array An array representing the metadata of the session.
      * @throws Box\View\Exception
      */
-    public static function create($id, $duration = null, $expiresAt = null,
-                                  $isDownloadable = null,
-                                  $isTextSelectable = null)
-    {
+    public static function create(
+        $id,
+        $duration = null,
+        $expiresAt = null,
+        $isDownloadable = null,
+        $isTextSelectable = null
+    ) {
         $postParams = [
             'document_id' => $id,
         ];

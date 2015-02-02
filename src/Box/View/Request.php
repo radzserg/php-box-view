@@ -84,7 +84,9 @@ class Request
     /**
      * Get a new Guzzle instance using sensible defaults.
      * 
-     * @return Guzzle A new Guzzle instance.
+     * @param string|null $host Optional. The host to use in the base URL.
+     * 
+     * @return GuzzleHttp\Client A new Guzzle instance.
      */
     private static function _getGuzzleInstance($host = null)
     {
@@ -129,7 +131,7 @@ class Request
      * Send a request to the server and return the response, while retrying
      * based on any Retry-After headers that are sent back.
      * 
-     * @param Guzzle $guzzle The Guzzle instance to use.
+     * @param GuzzleHttp\Client $guzzle The Guzzle instance to use.
      * @param GuzzleHttp\Message\Request $request The request to send, and
      *                                            possibly retry.
      * 
@@ -170,16 +172,21 @@ class Request
      * 
      * @param string $error An error code representing the error
      *                      (use_underscore_separators).
-     * @param string $message The error message.
-     * @param GuzzleHttp\Message\Request $request The Guzzle request object.
-     * @param GuzzleHttp\Message\Response $response The Guzzle response object.
+     * @param string|null $message The error message.
+     * @param GuzzleHttp\Message\Request|null $request Optional. The Guzzle
+     *                                                 request object.
+     * @param GuzzleHttp\Message\Response|null $response Optional. The Guzzle
+     *                                                   response object.
      * 
      * @return void No return value.
      * @throws Box\View\Exception
      */
-    protected static function _error($error, $message = null, $request = null,
-                                     $response = null)
-    {
+    protected static function _error(
+        $error,
+        $message = null,
+        $request = null,
+        $response = null
+    ) {
         if (!empty($request)) {
             $message .= "\n";
             $message .= 'Method: ' . $request->getMethod() . "\n";
@@ -206,21 +213,25 @@ class Request
      * postParams. 
      * 
      * @param string $path The path to add after the base path.
-     * @param array $getParams An array of GET params to be added to the URL -
-     *                         this can also be a string.
-     * @param array $postParams An array of GET params to be added to the URL -
-     *                          this can also be a string.
-     * @param array $requestOpts An array of request options that may modify
-     *                           the way the request is made.
+     * @param array|null $getParams Optional. An array of GET params to be added
+     *                              to the URL - this can also be a string.
+     * @param array|null $postParams Optional. An array of GET params to be
+     *                               added to the URL - this can also be a
+     *                               string.
+     * @param array|null $requestOpts Optional. An array of request options that
+     *                                may modify the way the request is made.
      * 
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from
      *                      the server.
      * @throws Box\View\Exception
      */
-    protected static function _request($path, $getParams = [], $postParams = [],
-                                       $requestOpts = [])
-    {
+    protected static function _request(
+        $path,
+        $getParams = [],
+        $postParams = [],
+        $requestOpts = []
+    ) {
         $host = null;
         if (!empty($requestOpts['host'])) $host = $requestOpts['host'];
         $guzzle = static::_getGuzzleInstance($host);
