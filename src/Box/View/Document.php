@@ -1,8 +1,6 @@
 <?php
 namespace Box\View;
 
-require_once dirname(__FILE__) . '/Request.php';
-
 /**
  * Provides access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.

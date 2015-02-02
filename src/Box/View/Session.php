@@ -1,8 +1,6 @@
 <?php
 namespace Box\View;
 
-require_once dirname(__FILE__) . '/Request.php';
-
 /**
  * Provides access to the Box View Session API. The Session API is used to
  * to create sessions for specific documents that can be used to view a

@@ -1,6 +1,7 @@
 {
   "name": "crocodoc/php-box-view",
   "description": "PHP wrapper for the Box View API",
+  "type": "library",
   "keywords": [
     "box",
     "box-view",
@@ -17,10 +18,11 @@
   ],
   "require": {
     "php": ">=5.4",
-    "guzzlehttp/guzzle": "~5.1"
+    "guzzlehttp/guzzle": "~5.2"
   },
-  "type": "library",
   "autoload": {
-    "classmap": ["lib/BoxView.php"]
+    "psr-4": {
+      "Box\\View\\": "src/Box/View/"
+    }
   }
 }

@@ -1,16 +1,6 @@
 <?php
 namespace Box\View;
 
-// require composer packages
-require_once dirname(__FILE__) . '/../../../vendor/autoload.php';
-
-// require our exception class
-require_once dirname(__FILE__) . '/Exception.php';
-
-// require the different Box View classes
-require_once dirname(__FILE__) . '/Document.php';
-require_once dirname(__FILE__) . '/Session.php';
-
 /**
  * Provides access to the Box View API. This is a base class that can be used
  * standalone with full access to the other Box View API classes (Document,

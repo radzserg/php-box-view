@@ -10,7 +10,7 @@ if (php_sapi_name() != 'cli') {
     header('Content-Type: text/plain');
 }
 
-require_once dirname(__FILE__) . '/../src/Box/View/Request.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 Box\View\Request::setApiKey($exampleApiKey);
 
 // when did this script start?
@@ -77,7 +77,7 @@ try {
  */
 echo "\n";
 echo 'Example #3 - Upload a sample .pdf as a file.' . "\n";
-$filePath = dirname(__FILE__) . '/files/form-w4.pdf';
+$filePath = __DIR__ . '/files/form-w4.pdf';
 
 if (is_file($filePath)) {    
     $fileHandle = fopen($filePath, 'r');
@@ -243,7 +243,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::download($document['id']);
-    $filename = dirname(__FILE__) . '/files/test-original.pdf';
+    $filename = __DIR__ . '/files/test-original.pdf';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
@@ -266,7 +266,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::download($document['id'], 'pdf');
-    $filename = dirname(__FILE__) . '/files/test.pdf';
+    $filename = __DIR__ . '/files/test.pdf';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
@@ -289,7 +289,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::download($document['id'], 'zip');
-    $filename = dirname(__FILE__) . '/files/test.zip';
+    $filename = __DIR__ . '/files/test.zip';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
@@ -312,7 +312,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::thumbnail($document['id'], 16, 16);
-    $filename = dirname(__FILE__) . '/files/test-thumbnail.png';
+    $filename = __DIR__ . '/files/test-thumbnail.png';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
@@ -335,7 +335,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::thumbnail($document['id'], 250, 250);
-    $filename = dirname(__FILE__) . '/files/test-thumbnail-large.png';
+    $filename = __DIR__ . '/files/test-thumbnail-large.png';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
