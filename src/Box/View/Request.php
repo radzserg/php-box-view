@@ -1,13 +1,15 @@
 <?php
+namespace Box\View;
+
 // require composer packages
-require_once dirname(__FILE__) . '/../vendor/autoload.php';
+require_once dirname(__FILE__) . '/../../../vendor/autoload.php';
 
 // require our exception class
-require_once dirname(__FILE__) . '/BoxView/Exception.php';
+require_once dirname(__FILE__) . '/Exception.php';
 
 // require the different Box View classes
-require_once dirname(__FILE__) . '/BoxView/Document.php';
-require_once dirname(__FILE__) . '/BoxView/Session.php';
+require_once dirname(__FILE__) . '/Document.php';
+require_once dirname(__FILE__) . '/Session.php';
 
 /**
  * Provides access to the Box View API. This is a base class that can be used
@@ -15,9 +17,9 @@ require_once dirname(__FILE__) . '/BoxView/Session.php';
  * Download, and Session), and is also used internally by the other Box View
  * API classes for generic methods including error and request.
  */
-class BoxView {
+class Request {
     /**
-     * The developer's BoxView API key.
+     * The developer's Box View API key.
      * 
      * @var string
      */
@@ -87,7 +89,7 @@ class BoxView {
         if (!$host) $host = static::$host;
         $defaults = static::$guzzleDefaultOptions;
         $defaults['headers']['Authorization'] = 'Token ' . static::$apiKey;
-        return new GuzzleHttp\Client([
+        return new \GuzzleHttp\Client([
             'base_url' => static::$protocol . '://' . $host,
             'defaults' => $defaults,
         ]);
@@ -129,7 +131,7 @@ class BoxView {
      *                                               possibly retry.
      * 
      * @return GuzzleHttp\Message\Response The Guzzle response object.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     private static function _sendRequest($guzzle, $request) {
         $response = $guzzle->send($request);
@@ -153,8 +155,8 @@ class BoxView {
      * @return string An RFC 3339 timestamp.
      */
     protected static function _date($date) {
-        if (is_string($date)) $date = new DateTime($date);
-        $date->setTimezone(new DateTimeZone('UTC'));
+        if (is_string($date)) $date = new \DateTime($date);
+        $date->setTimezone(new \DateTimeZone('UTC'));
         return $date->format('c');
     }
     
@@ -168,7 +170,7 @@ class BoxView {
      * @param GuzzleHttp\Message\Response $response The Guzzle response object.
      * 
      * @return void No return value.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     protected static function _error($error, $message = null, $request = null,
                                      $response = null) {
@@ -188,7 +190,7 @@ class BoxView {
             $message .= 'Response: ' . $response->getBody() . "\n";
         }
         
-        $exception = new BoxView_Exception($message);
+        $exception = new Exception($message);
         $exception->errorCode = $error;
         throw $exception;
     }
@@ -208,7 +210,7 @@ class BoxView {
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from
      *                      the server.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     protected static function _request($path, $getParams = [], $postParams = [],
                                        $requestOpts = []) {

@@ -1,11 +1,13 @@
 <?php
-require_once dirname(__FILE__) . '/../BoxView.php';
+namespace Box\View;
+
+require_once dirname(__FILE__) . '/Request.php';
 
 /**
  * Provides access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.
  */
-class BoxView_Document extends BoxView {
+class Document extends Request {
     /**
      * The Document API path relative to the base API path.
      * 
@@ -19,7 +21,7 @@ class BoxView_Document extends BoxView {
      * @param string $id The ID of the file to delete.
      * 
      * @return bool Was the file deleted?
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function delete($id) {
         $options = [
@@ -42,7 +44,7 @@ class BoxView_Document extends BoxView {
      *                             extension.
      * 
      * @return file A file to be downloaded.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function download($id, $extension = null) {
         $path = '/' . $id . '/content' . ($extension ? '.' . $extension : '');
@@ -60,7 +62,7 @@ class BoxView_Document extends BoxView {
      * @param string|DateTime $createdAfter Lower limit to filter by.
      * 
      * @return array An array containing a list of documents.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function listDocuments($limit = null, $createdBefore = null,
                                          $createdAfter = null) {
@@ -88,7 +90,7 @@ class BoxView_Document extends BoxView {
      *                                   provided, id and type are always returned.
      * 
      * @return array An array of the metadata for the file.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function metadata($id, $fields) {
         $getParams = [
@@ -105,7 +107,7 @@ class BoxView_Document extends BoxView {
      * @param height The height of the thumbnail in pixels.
      * 
      * @return file A thumbnail to be downloaded.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function thumbnail($id, $width, $height) {
         $getParams = [
@@ -128,7 +130,7 @@ class BoxView_Document extends BoxView {
      *                            type are always returned.
      * 
      * @return array An array of the metadata for the file.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function update($id, $fields) {
         $postParams = [];
@@ -156,7 +158,7 @@ class BoxView_Document extends BoxView {
      *                                       comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function uploadFile($file, $name = null, $thumbnails = null,
                                       $nonSvg = null) {
@@ -196,7 +198,7 @@ class BoxView_Document extends BoxView {
      *                                   comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function uploadUrl($url, $name = null, $thumbnails = null,
                                   $nonSvg = null) {

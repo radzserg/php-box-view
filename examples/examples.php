@@ -10,8 +10,8 @@ if (php_sapi_name() != 'cli') {
     header('Content-Type: text/plain');
 }
 
-require_once dirname(__FILE__) . '/../lib/BoxView.php';
-BoxView::setApiKey($exampleApiKey);
+require_once dirname(__FILE__) . '/../src/Box/View/Request.php';
+Box\View\Request::setApiKey($exampleApiKey);
 
 // when did this script start?
 date_default_timezone_set('America/Los_Angeles');
@@ -31,10 +31,10 @@ $formW4Url = 'http://www.irs.gov/pub/irs-pdf/fw4.pdf';
 echo '  Uploading... ';
 
 try {
-    $document = BoxView_Document::uploadUrl($formW4Url, 'Form W4');
+    $document = Box\View\Document::uploadUrl($formW4Url, 'Form W4');
     echo 'success :)' . "\n";
     echo '  ID is ' . $document['id'] . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -50,7 +50,7 @@ echo 'Example #2 - Check the metadata of the file we just uploaded.' . "\n";
 echo '  Checking metadata... ';
 
 try {
-    $metadata = BoxView_Document::metadata($document['id'], [
+    $metadata = Box\View\Document::metadata($document['id'], [
         'id',
         'type',
         'status',
@@ -64,7 +64,7 @@ try {
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
     echo '  File was created on ' . $metadata['created_at'] . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -84,10 +84,10 @@ if (is_file($filePath)) {
     echo '  Uploading... ';
     
     try {
-        $document2 = BoxView_Document::uploadFile($fileHandle, 'Form W4 #2');
+        $document2 = Box\View\Document::uploadFile($fileHandle, 'Form W4 #2');
         echo 'success :)' . "\n";
         echo '  ID is ' . $document2['id'] . "\n";
-    } catch (BoxView_Exception $e) {
+    } catch (Box\View\Exception $e) {
         echo 'failed :(' . "\n";
         echo '  Error Code: ' . $e->errorCode . "\n";
         echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -106,7 +106,7 @@ echo 'Example #4 - Check the metadata of the file we just uploaded.' . "\n";
 echo '  Checking metadata... ';
 
 try {
-    $metadata = BoxView_Document::metadata($document2['id'], [
+    $metadata = Box\View\Document::metadata($document2['id'], [
         'id',
         'type',
         'status',
@@ -120,7 +120,7 @@ try {
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
     echo '  File was created on ' . $metadata['created_at'] . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -136,7 +136,7 @@ echo 'Example #5 - List the documents we uploaded so far.' . "\n";
 echo '  Listing documents... ';
 
 try {
-    $documents = BoxView_Document::listDocuments(null, null, $start);
+    $documents = Box\View\Document::listDocuments(null, null, $start);
     $doc1 = $documents['document_collection']['entries'][1];
     $doc2 = $documents['document_collection']['entries'][0];
     echo 'success :)' . "\n";
@@ -150,7 +150,7 @@ try {
     echo '  File #2 status is ' . $doc2['status'] . '.' . "\n";
     echo '  File #2 name is ' . $doc2['name'] . '.' . "\n";
     echo '  File #2 was created on ' . $doc2['created_at'] . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -169,7 +169,7 @@ echo 'done.' . "\n";
 echo '  Checking statuses... ';
 
 try {
-    $documents = BoxView_Document::listDocuments(null, null, $start);
+    $documents = Box\View\Document::listDocuments(null, null, $start);
     $doc1 = $documents['document_collection']['entries'][1];
     $doc2 = $documents['document_collection']['entries'][0];
     echo 'success :)' . "\n";
@@ -177,7 +177,7 @@ try {
          . '.' . "\n";
     echo '  Status for file #2 (id=' . $doc2['id'] . ') is ' . $doc2['status']
          . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -193,7 +193,7 @@ echo 'Example #7 - Delete the second file we uploaded.' . "\n";
 echo '  Deleting... ';
 
 try {
-    $deleted = BoxView_Document::delete($document2['id']);
+    $deleted = Box\View\Document::delete($document2['id']);
 
     if ($deleted) {
         echo 'success :)' . "\n";
@@ -201,7 +201,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -217,7 +217,7 @@ echo 'Example #8 - Update the name of a file.' . "\n";
 echo '  Updating... ';
 
 try {
-    $metadata = BoxView_Document::update($document['id'], [
+    $metadata = Box\View\Document::update($document['id'], [
         'name' => 'Updated Name',
     ]);
     echo 'success :)' . "\n";
@@ -226,7 +226,7 @@ try {
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
     echo '  File was created on ' . $metadata['created_at'] . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -242,14 +242,14 @@ echo 'Example #9 - Download a file in its original file format.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = BoxView_Document::download($document['id']);
+    $file = Box\View\Document::download($document['id']);
     $filename = dirname(__FILE__) . '/files/test-original.pdf';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -265,14 +265,14 @@ echo 'Example #10 - Download a file as a PDF.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = BoxView_Document::download($document['id'], 'pdf');
+    $file = Box\View\Document::download($document['id'], 'pdf');
     $filename = dirname(__FILE__) . '/files/test.pdf';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -288,14 +288,14 @@ echo 'Example #11 - Download a file as a zip.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = BoxView_Document::download($document['id'], 'zip');
+    $file = Box\View\Document::download($document['id'], 'zip');
     $filename = dirname(__FILE__) . '/files/test.zip';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -311,14 +311,14 @@ echo 'Example #12 - Download a small thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = BoxView_Document::thumbnail($document['id'], 16, 16);
+    $file = Box\View\Document::thumbnail($document['id'], 16, 16);
     $filename = dirname(__FILE__) . '/files/test-thumbnail.png';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -334,14 +334,14 @@ echo 'Example #13 - Download a large thumbnail from a file.' . "\n";
 echo '  Downloading... ';
 
 try {
-    $file = BoxView_Document::thumbnail($document['id'], 250, 250);
+    $file = Box\View\Document::thumbnail($document['id'], 250, 250);
     $filename = dirname(__FILE__) . '/files/test-thumbnail-large.png';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -359,7 +359,7 @@ echo '  Creating... ';
 $session = null;
 
 try {
-    $session = BoxView_Session::create($document['id']);
+    $session = Box\View\Session::create($document['id']);
     echo 'success :)' . "\n";
     echo '  Session id is ' . $session['id'] . '.' . "\n";
     echo '  Session expires on ' . $session['expires_at'] . '.' . "\n";
@@ -367,7 +367,7 @@ try {
     echo '  Session assets URL is ' . $session['urls']['assets'] . '.' . "\n";
     echo '  Session realtime URL is ' . $session['urls']['realtime'] . '.'
          . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -386,7 +386,7 @@ $session2 = null;
 
 try {
     $expires = date('c', strtotime('+10 min'));
-    $session2 = BoxView_Session::create($document['id'], 10, $expires, true,
+    $session2 = Box\View\Session::create($document['id'], 10, $expires, true,
                                         false);
     echo 'success :)' . "\n";
     echo '  Session id is ' . $session2['id'] . '.' . "\n";
@@ -395,7 +395,7 @@ try {
     echo '  Session assets URL is ' . $session2['urls']['assets'] . '.' . "\n";
     echo '  Session realtime URL is ' . $session2['urls']['realtime'] . '.'
          . "\n";
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -411,7 +411,7 @@ echo 'Example #16 - Delete the two sessions.' . "\n";
 echo '  Deleting... ';
 
 try {
-    $deleted = BoxView_Session::delete($session['id']);
+    $deleted = Box\View\Session::delete($session['id']);
 
     if ($deleted) {
         echo 'success :)' . "\n";
@@ -419,14 +419,14 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
 }
 
 try {
-    $deleted = BoxView_Session::delete($session2['id']);
+    $deleted = Box\View\Session::delete($session2['id']);
 
     if ($deleted) {
         echo 'success :)' . "\n";
@@ -434,7 +434,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -450,7 +450,7 @@ echo 'Example #17 - Delete the first file we uploaded.' . "\n";
 echo '  Deleting... ';
 
 try {
-    $deleted = BoxView_Document::delete($document['id']);
+    $deleted = Box\View\Document::delete($document['id']);
 
     if ($deleted) {
         echo 'success :)' . "\n";
@@ -458,7 +458,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (BoxView_Exception $e) {
+} catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";

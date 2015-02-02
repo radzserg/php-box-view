@@ -1,12 +1,14 @@
 <?php
-require_once dirname(__FILE__) . '/../BoxView.php';
+namespace Box\View;
+
+require_once dirname(__FILE__) . '/Request.php';
 
 /**
  * Provides access to the Box View Session API. The Session API is used to
  * to create sessions for specific documents that can be used to view a
  * document using a specific session-based URL.
  */
-class BoxView_Session extends BoxView {
+class Session extends Request {
     /**
      * The Download API path relative to the base API path
      * 
@@ -20,7 +22,7 @@ class BoxView_Session extends BoxView {
      * @param string $id The id of the file to create a session for.
      * 
      * @return array An array representing the metadata of the session.
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function create($id, $duration = null, $expiresAt = null,
                                   $isDownloadable = null,
@@ -47,7 +49,7 @@ class BoxView_Session extends BoxView {
      * @param string $id The ID of the session to delete.
      * 
      * @return bool Was the session deleted?
-     * @throws BoxView_Exception
+     * @throws Box\View\Exception
      */
     public static function delete($id) {
         $options = [
