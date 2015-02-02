@@ -27,7 +27,7 @@ $document2 = null;
  * Upload a file. We're uploading a sample file by URL.
  */
 echo 'Example #1 - Upload sample file by URL.' . "\n";
-$sampleUrl = 'https://github.com/crocodoc/php-box-view/raw/master/examples/files/sample.doc';
+$sampleUrl = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
 echo '  Uploading... ';
 
 try {
@@ -57,7 +57,6 @@ try {
         'name',
         'created_at',
     ]);
-    var_dump($metadata);die;
 
     echo 'success :)' . "\n";
     echo '  File id is ' . $metadata['id'] . '.' . "\n";

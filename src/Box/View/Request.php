@@ -279,7 +279,11 @@ class Request
                 return static::_error($error, null, $request, $response);
             }
             
-            if (is_array($jsonDecoded) && $jsonDecoded['status'] == 'error') {
+            if (
+                is_array($jsonDecoded)
+                && isset($jsonDecoded['status'])
+                && $jsonDecoded['status'] == 'error'
+            ) {
                 $error = 'server_error';
                 $message = !empty($jsonDecoded['error_message'])
                     ? $jsonDecoded['error_message']
