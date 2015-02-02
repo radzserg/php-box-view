@@ -97,7 +97,7 @@ First make sure you're running Composer and that you've run `composer install`.
 
 Run the tests:
 
-```php
+```bash
 ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests
 
 ```
