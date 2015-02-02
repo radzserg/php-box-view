@@ -128,7 +128,7 @@ class Request {
      * 
      * @param Guzzle $guzzle The Guzzle instance to use.
      * @param GuzzleHttp\Message\Request $request The request to send, and
-     *                                               possibly retry.
+     *                                            possibly retry.
      * 
      * @return GuzzleHttp\Message\Response The Guzzle response object.
      * @throws Box\View\Exception
@@ -150,7 +150,7 @@ class Request {
      * formatted as an RFC 3339 timestamp.
      * 
      * @param string|DateTime $date A date string in almost any format, or a
-     *                                 DateTime object.
+     *                              DateTime object.
      * 
      * @return string An RFC 3339 timestamp.
      */
@@ -201,11 +201,11 @@ class Request {
      * 
      * @param string $path The path to add after the base path.
      * @param array $getParams An array of GET params to be added to the URL -
-     *                            this can also be a string.
+     *                         this can also be a string.
      * @param array $postParams An array of GET params to be added to the URL -
-     *                             this can also be a string.
+     *                          this can also be a string.
      * @param array $requestOpts An array of request options that may modify
-     *                              the way the request is made.
+     *                           the way the request is made.
      * 
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from

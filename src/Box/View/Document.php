@@ -39,9 +39,9 @@ class Document extends Request {
      * 
      * @param string $id The ID of the file to download.
      * @param string $extension The extension to download the file in, which can
-     *                             be pdf or zip. If no extension is provided,
-     *                             the file will be downloaded using the original
-     *                             extension.
+     *                          be pdf or zip. If no extension is provided,
+     *                          the file will be downloaded using the original
+     *                          extension.
      * 
      * @return file A file to be downloaded.
      * @throws Box\View\Exception
@@ -85,9 +85,9 @@ class Document extends Request {
      * 
      * @param string $id The ID of the file to check.
      * @param string[]|string $fields The fields to return with the metadata,
-     *                                   formatted as an array or a comma-separated
-     *                                   string. Regardless of which fields are
-     *                                   provided, id and type are always returned.
+     *                                formatted as an array or a comma-separated
+     *                                string. Regardless of which fields are
+     *                                provided, id and type are always returned.
      * 
      * @return array An array of the metadata for the file.
      * @throws Box\View\Exception
@@ -126,8 +126,8 @@ class Document extends Request {
      * 
      * @param string $id The ID of the file to check.
      * @param string[] $fields The fields to return with the metadata.
-     *                            Regardless of which fields are provided, id and
-     *                            type are always returned.
+     *                         Regardless of which fields are provided, id and
+     *                         type are always returned.
      * 
      * @return array An array of the metadata for the file.
      * @throws Box\View\Exception
@@ -153,9 +153,9 @@ class Document extends Request {
      * @param resource $file The file resource to upload.
      * @param string $name Override the filename of the file being uploaded.
      * @param string[]|string $thumbnails An array of dimensions in pixels, with 
-     *                                       each dimension formatted as
-     *                                       [width]x[height], this can also be a
-     *                                       comma-separated string.
+     *                                    each dimension formatted as
+     *                                    [width]x[height], this can also be a
+     *                                    comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
      * @throws Box\View\Exception
@@ -193,9 +193,9 @@ class Document extends Request {
      * @param string $url The url of the file to upload.
      * @param string $name Override the filename of the file being uploaded.
      * @param string[]|string $thumbnails An array of dimensions in pixels, with 
-     *                                   each dimension formatted as
-     *                                   [width]x[height], this can also be a
-     *                                   comma-separated string.
+     *                                    each dimension formatted as
+     *                                    [width]x[height], this can also be a
+     *                                    comma-separated string.
      * 
      * @return array An array representing the metadata of the file.
      * @throws Box\View\Exception
