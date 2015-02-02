@@ -253,7 +253,7 @@ class Request
         try {
             $request = $guzzle->createRequest($method, $url, $options);
             $response = static::_sendRequest($guzzle, $request);
-        } catch (GuzzleHttp\Exception\RequestException $e) {
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
             $request = $e->getRequest();
             $response = $e->getResponse();
 
@@ -275,19 +275,16 @@ class Request
             $jsonDecoded = json_decode($responseBody, true);
 
             if ($jsonDecoded === false || $jsonDecoded === null) {
-                return static::_error(
-                    'server_response_not_valid_json',
-                    $request,
-                    $response
-                );
+                $error = 'server_response_not_valid_json';
+                return static::_error($error, null, $request, $response);
             }
             
-            if (is_array($jsonDecoded) && !empty($jsonDecoded['error'])) {
-                return static::_error(
-                    $jsonDecoded['error'],
-                    $request,
-                    $response
-                );
+            if (is_array($jsonDecoded) && $jsonDecoded['status'] == 'error') {
+                $error = 'server_error';
+                $message = !empty($jsonDecoded['error_message'])
+                    ? $jsonDecoded['error_message']
+                    : 'Server Error';
+                return static::_error($error, $message, $request, $response);
             }
             
             $responseBody = $jsonDecoded;
