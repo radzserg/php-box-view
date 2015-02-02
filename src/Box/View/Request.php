@@ -118,6 +118,75 @@ class Request
     }
 
     /**
+     * Handle a request error from Guzzle.
+     * 
+     * @param GuzzleHttp\Exception\RequestException The Guzzle request error.
+     * 
+     * @throws Box\View\Exception
+     */
+    private static function _handleRequestError($e)
+    {
+        $request = $e->getRequest();
+        $response = $e->getResponse();
+
+        $error = static::_handleHttpError($response->getStatusCode());
+        $message = 'Server Error';
+
+        if (!$error) {
+            $error = 'guzzle_error';
+            $message = 'Guzzle Error';
+        }
+
+        static::_error($error, $message, $request, $response);
+    }
+
+    /**
+     * Handle the response from the server. Raw responses are returned without
+     * checking anything. JSON responses are decoded and then checked for
+     * any errors.
+     * 
+     * @param GuzzleHttp\Message\Response $response The Guzzle response object.
+     * @param bool $rawResponse Do we want to return the raw response, or
+     *                          process as JSON?
+     * @param GuzzleHttp\Message\Request The Guzzle request object.
+     * 
+     * @return array|string An array decoded from JSON, or the raw response from
+     *                      the server.
+     * @throws Box\View\Exception
+     */
+    private static function _handleResponse($response, $rawResponse, $request)
+    {
+        $responseBody = (string) $response->getBody();
+
+        // if we want a raw response, then it's not JSON, and we're done
+        if (!empty($rawResponse)) {
+            return $responseBody;
+        }
+
+        // decode json and handle any potential errors
+        $jsonDecoded = json_decode($responseBody, true);
+
+        if ($jsonDecoded === false || $jsonDecoded === null) {
+            $error = 'server_response_not_valid_json';
+            return static::_error($error, null, $request, $response);
+        }
+        
+        if (
+            is_array($jsonDecoded)
+            && isset($jsonDecoded['status'])
+            && $jsonDecoded['status'] == 'error'
+        ) {
+            $error = 'server_error';
+            $message = !empty($jsonDecoded['error_message'])
+                ? $jsonDecoded['error_message']
+                : 'Server Error';
+            return static::_error($error, $message, $request, $response);
+        }
+        
+        return $jsonDecoded;
+    }
+
+    /**
      * Send a request to the server and return the response, while retrying
      * based on any Retry-After headers that are sent back.
      * 
@@ -227,7 +296,6 @@ class Request
         $guzzle = static::_getGuzzleInstance($host);
 
         $options = array();
-
         $method = 'GET';
 
         if (!empty($requestOpts['file'])) {
@@ -254,47 +322,11 @@ class Request
             $request = $guzzle->createRequest($method, $url, $options);
             $response = static::_sendRequest($guzzle, $request);
         } catch (\GuzzleHttp\Exception\RequestException $e) {
-            $request = $e->getRequest();
-            $response = $e->getResponse();
-
-            $error = static::_handleHttpError($response->getStatusCode());
-            $message = 'Server Error';
-
-            if (!$error) {
-                $error = 'guzzle_error';
-                $message = 'Guzzle Error';
-            }
-
-            return static::_error($error, $message, $request, $response);
+            static::_handleRequestError($e);
         }
 
-        $responseBody = (string) $response->getBody();
-        
-        // if we don't want a raw response, then it's JSON
-        if (empty($requestOpts['rawResponse'])) {
-            $jsonDecoded = json_decode($responseBody, true);
-
-            if ($jsonDecoded === false || $jsonDecoded === null) {
-                $error = 'server_response_not_valid_json';
-                return static::_error($error, null, $request, $response);
-            }
-            
-            if (
-                is_array($jsonDecoded)
-                && isset($jsonDecoded['status'])
-                && $jsonDecoded['status'] == 'error'
-            ) {
-                $error = 'server_error';
-                $message = !empty($jsonDecoded['error_message'])
-                    ? $jsonDecoded['error_message']
-                    : 'Server Error';
-                return static::_error($error, $message, $request, $response);
-            }
-            
-            $responseBody = $jsonDecoded;
-        }
-        
-        return $responseBody;
+        $rawResponse = !empty($requestOpts['rawResponse']);
+        return static::_handleResponse($response, $rawResponse, $request);
     }
 
     /**
