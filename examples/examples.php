@@ -24,14 +24,14 @@ $document2 = null;
 /*
  * Example #1
  * 
- * Upload a file. We're uploading Form W4 from the IRS by URL.
+ * Upload a file. We're uploading a sample file by URL.
  */
-echo 'Example #1 - Upload Form W4 from the IRS by URL.' . "\n";
-$formW4Url = 'http://www.irs.gov/pub/irs-pdf/fw4.pdf';
+echo 'Example #1 - Upload sample file by URL.' . "\n";
+$sampleUrl = 'https://github.com/crocodoc/php-box-view/raw/master/examples/files/sample.doc';
 echo '  Uploading... ';
 
 try {
-    $document = Box\View\Document::uploadUrl($formW4Url, 'Form W4');
+    $document = Box\View\Document::uploadUrl($sampleUrl, 'Sample File');
     echo 'success :)' . "\n";
     echo '  ID is ' . $document['id'] . "\n";
 } catch (Box\View\Exception $e) {
@@ -57,6 +57,7 @@ try {
         'name',
         'created_at',
     ]);
+    var_dump($metadata);die;
 
     echo 'success :)' . "\n";
     echo '  File id is ' . $metadata['id'] . '.' . "\n";
@@ -73,18 +74,21 @@ try {
 /*
  * Example #3
  * 
- * Upload another file. We're uploading Form W4 from the IRS as a PDF.
+ * Upload another file. We're uploading a sample .doc file as a file.
  */
 echo "\n";
-echo 'Example #3 - Upload a sample .pdf as a file.' . "\n";
-$filePath = __DIR__ . '/files/form-w4.pdf';
+echo 'Example #3 - Upload a sample .doc as a file.' . "\n";
+$filePath = __DIR__ . '/files/sample.doc';
 
 if (is_file($filePath)) {    
     $fileHandle = fopen($filePath, 'r');
     echo '  Uploading... ';
     
     try {
-        $document2 = Box\View\Document::uploadFile($fileHandle, 'Form W4 #2');
+        $document2 = Box\View\Document::uploadFile(
+            $fileHandle,
+            'Sample File #2'
+        );
         echo 'success :)' . "\n";
         echo '  ID is ' . $document2['id'] . "\n";
     } catch (Box\View\Exception $e) {
@@ -93,7 +97,7 @@ if (is_file($filePath)) {
         echo '  Error Message: ' . $e->getMessage() . "\n";
     }
 } else {
-    echo '  Skipping because the sample pdf can\'t be found.' . "\n";
+    echo '  Skipping because the sample .doc file can\'t be found.' . "\n";
 }
 
 /*
@@ -243,7 +247,7 @@ echo '  Downloading... ';
 
 try {
     $file = Box\View\Document::download($document['id']);
-    $filename = __DIR__ . '/files/test-original.pdf';
+    $filename = __DIR__ . '/files/test-original.doc';
     $fileHandle = fopen($filename, 'w');
     fwrite($fileHandle, $file);
     fclose($fileHandle);
@@ -386,8 +390,13 @@ $session2 = null;
 
 try {
     $expires = date('c', strtotime('+10 min'));
-    $session2 = Box\View\Session::create($document['id'], 10, $expires, true,
-                                        false);
+    $session2 = Box\View\Session::create(
+        $document['id'],
+        10,
+        $expires,
+        true,
+        false
+    );
     echo 'success :)' . "\n";
     echo '  Session id is ' . $session2['id'] . '.' . "\n";
     echo '  Session expires on ' . $session2['expires_at'] . '.' . "\n";
