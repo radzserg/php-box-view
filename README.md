@@ -35,7 +35,7 @@ Make sure to add this package to your composer.json file.
 And if you aren't doing this already, require Composer's autoloader from your project:
 
 ```php
-require __DIR__ '/path/to/root/vendor/autoload.php';
+require __DIR__ . '/path/to/root/vendor/autoload.php';
 ```
 
 ### Install without Composer
