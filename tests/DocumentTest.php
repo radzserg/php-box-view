@@ -128,7 +128,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
              ->andReturn($documents);
 
         $response = \Box\View\Document::listDocuments([
-            'limit' => 1,
+            'limit' => $limit,
         ]);
         $this->assertSame($documents, $response);
         $this->assertCount($limit, $response);
