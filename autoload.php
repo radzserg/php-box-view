@@ -18,7 +18,6 @@ if (!class_exists('GuzzleHttp\Client')) {
  * @return void
  */
 spl_autoload_register(function ($class) {
-
     // project-specific namespace prefix
     $prefix = 'Box\\View\\';
 
@@ -27,6 +26,7 @@ spl_autoload_register(function ($class) {
 
     // does the class use the namespace prefix?
     $len = strlen($prefix);
+
     if (strncmp($prefix, $class, $len) !== 0) {
         // no, move to the next registered autoloader
         return;

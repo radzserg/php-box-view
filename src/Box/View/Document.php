@@ -9,14 +9,14 @@ class Document extends Base
 {
     /**
      * The request handler.
-     * 
+     *
      * @var Request|null
      */
     protected static $_requestHandler;
 
     /**
      * The Document API path relative to the base API path.
-     * 
+     *
      * @var string
      */
     public static $path = '/documents';
@@ -25,7 +25,7 @@ class Document extends Base
      * Generic upload function used by the two other upload functions, which are
      * more specific than this one, and know how to handle upload by URL and
      * upload from filesystem.
-     * 
+     *
      * @param array|null $params An associative array of options relating to the
      *                           file upload. Pass-thru from the other upload
      *                           functions.
@@ -33,7 +33,7 @@ class Document extends Base
      *                               sent in the body.
      * @param array|null $options An associative array of request options that
      *                            may modify the way the request is made.
-     * 
+     *
      * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
@@ -55,22 +55,21 @@ class Document extends Base
 
         return static::_request(null, null, $postParams, $options);
     }
-    
+
     /**
      * Delete a file by ID.
-     * 
+     *
      * @param string $id The ID of the file to delete.
-     * 
+     *
      * @return bool Was the file deleted?
      * @throws Box\View\Exception
      */
     public static function delete($id)
     {
-        $options = [
-            'httpMethod' => 'DELETE',
+        $response = static::_request('/' . $id, null, null, [
+            'httpMethod'  => 'DELETE',
             'rawResponse' => true,
-        ];
-        $response = static::_request('/' . $id, null, null, $options);
+        ]);
 
         // a successful delete returns nothing, so we return true in that case
         return empty($response);
@@ -78,39 +77,38 @@ class Document extends Base
 
     /**
      * Download a file using a specific extension or the original extension.
-     * 
+     *
      * @param string $id The ID of the file to download.
      * @param string|null $extension Optional. The extension to download the
      *                               file in, which can be pdf or zip. If no
      *                               extension is provided, the file will be
      *                               downloaded using the original extension.
-     * 
+     *
      * @return string The contents of the downloaded file.
      * @throws Box\View\Exception
      */
     public static function download($id, $extension = null)
     {
         $path = '/' . $id . '/content' . ($extension ? '.' . $extension : '');
-        $options = [
+        return static::_request($path, null, null, [
             'rawResponse' => true,
-        ];
-        return static::_request($path, null, null, $options);
+        ]);
     }
 
     /**
      * Get a list of all documents that meet the provided criteria.
-     * 
+     *
      * @param array|null $params Optional. An associative array to filter the
      *                           list of all documents uploaded. None are
      *                           necessary; all are optional. Use the following
      *                           options:
      *                             - integer|null 'limit' The number of
      *                               documents to return.
-     *                             - string|DateTime|null 'createdBefore'
-     *                               Upper date limit to filter by .
-     *                             - string|DateTime|null 'createdAfter'
-     *                               Lower limit to filter by.
-     * 
+     *                             - string|DateTime|null 'createdBefore' Upper
+     *                               date limit to filter by.
+     *                             - string|DateTime|null 'createdAfter' Lower
+     *                               date limit to filter by.
+     *
      * @return array An array containing a list of documents matching the
      *               request.
      * @throws Box\View\Exception
@@ -121,46 +119,45 @@ class Document extends Base
         if (!empty($params['limit'])) $getParams['limit'] = $params['limit'];
 
         if (!empty($params['createdBefore'])) {
-            $createdBefore = $params['createdBefore'];
+            $createdBefore               = $params['createdBefore'];
             $getParams['created_before'] = static::date($createdBefore);
         }
 
         if (!empty($params['createdAfter'])) {
-            $createdAfter = $params['createdAfter'];
+            $createdAfter               = $params['createdAfter'];
             $getParams['created_after'] = static::date($createdAfter);
         }
 
         return static::_request(null, $getParams);
     }
-    
+
     /**
      * Get specific fields from the metadata of a file.
-     * 
+     *
      * @param string $id The ID of the file to check.
      * @param string[]|string $fields The fields to return with the metadata,
      *                                formatted as an array or a comma-separated
      *                                string. Regardless of which fields are
      *                                provided, id and type are always returned.
-     * 
+     *
      * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
     public static function metadata($id, $fields)
     {
         if (is_array($fields)) $fields = implode(',', $fields);
-        $getParams = [
+        return static::_request('/' . $id, [
             'fields' => $fields,
-        ];
-        return static::_request('/' . $id, $getParams);
+        ]);
     }
 
     /**
      * Download a thumbnail of a specific size for a file.
-     * 
+     *
      * @param string $id The ID of the file to download a thumbnail for.
-     * @param width The width of the thumbnail in pixels.
-     * @param height The height of the thumbnail in pixels.
-     * 
+     * @param int $width The width of the thumbnail in pixels.
+     * @param int $height The height of the thumbnail in pixels.
+     *
      * @return string The contents of the downloaded thumbnail.
      * @throws Box\View\Exception
      */
@@ -168,27 +165,20 @@ class Document extends Base
     {
         $getParams = [
             'height' => $height,
-            'width' => $width,
+            'width'  => $width,
         ];
-        $options = [
+        return static::_request('/' . $id . '/thumbnail', $getParams, null, [
             'rawResponse' => true,
-        ];
-        return static::_request(
-            '/' . $id . '/thumbnail',
-            $getParams,
-            null,
-            $options
-        );
+        ]);
     }
 
     /**
      * Update specific fields for the metadata of a file .
-     * 
+     *
      * @param string $id The ID of the file to check.
-     * @param string[] $fields The fields to return with the metadata.
-     *                         Regardless of which fields are provided, id and
-     *                         type are always returned.
-     * 
+     * @param array $fields An associative array of the fields to update on the
+     *                      file.
+     *
      * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
@@ -202,15 +192,14 @@ class Document extends Base
             if (isset($fields[$field])) $postParams[$field] = $fields[$field];
         }
 
-        $options = [
+        return static::_request('/' . $id, null, $postParams, [
             'httpMethod' => 'PUT',
-        ];
-        return static::_request('/' . $id, null, $postParams, $options);
+        ]);
     }
 
     /**
      * Upload a local file.
-     * 
+     *
      * @param resource $file The file resource to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -225,7 +214,7 @@ class Document extends Base
      *                             - bool|null 'nonSvg' Create a second version
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
-     * 
+     *
      * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
@@ -236,16 +225,15 @@ class Document extends Base
             return static::_error('invalid_file', $message);
         }
 
-        $options = [
+        return static::_upload($params, null, [
             'file' => $file,
             'host' => 'upload.view-api.box.com',
-        ];
-        return static::_upload($params, null, $options);
+        ]);
     }
 
     /**
      * Upload a file by URL.
-     * 
+     *
      * @param string $url The url of the file to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -260,15 +248,14 @@ class Document extends Base
      *                             - bool|null 'nonSvg' Create a second version
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
-     * 
+     *
      * @return array An associative array representing the metadata of the file.
      * @throws Box\View\Exception
      */
     public static function uploadUrl($url, $params = [])
     {
-        $postParams = [
+        return static::_upload($params, [
             'url' => $url,
-        ];
-        return static::_upload($params, $postParams);
+        ]);
     }
 }

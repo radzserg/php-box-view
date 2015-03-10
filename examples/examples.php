@@ -18,24 +18,26 @@ date_default_timezone_set('America/Los_Angeles');
 $start = date('c');
 
 // set a couple document variables we'll use later
-$document = null;
+$document  = null;
 $document2 = null;
 
 /*
  * Example #1
- * 
+ *
  * Upload a file. We're uploading a sample file by URL.
  */
 echo 'Example #1 - Upload sample file by URL.' . "\n";
-$sampleUrl = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
 echo '  Uploading... ';
+
+$sampleUrl = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
 
 try {
     $document = Box\View\Document::uploadUrl($sampleUrl, [
         'name' => 'Sample File',
     ]);
+
     echo 'success :)' . "\n";
-    echo '  ID is ' . $document['id'] . "\n";
+    echo '  ID is ' . $document['id'] . '.' . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
@@ -44,7 +46,7 @@ try {
 
 /*
  * Example #2
- * 
+ *
  * Check the metadata of the file from Example #1.
  */
 echo "\n";
@@ -61,7 +63,7 @@ try {
     ]);
 
     echo 'success :)' . "\n";
-    echo '  File id is ' . $metadata['id'] . '.' . "\n";
+    echo '  File ID is ' . $metadata['id'] . '.' . "\n";
     echo '  File type is ' . $metadata['type'] . '.' . "\n";
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
@@ -74,26 +76,29 @@ try {
 
 /*
  * Example #3
- * 
+ *
  * Upload another file. We're uploading a sample .doc file from the local
  * filesystem using all options.
  */
 echo "\n";
 echo 'Example #3 - Upload a sample .doc as a file using all options.' . "\n";
+
 $filePath = __DIR__ . '/files/sample.doc';
 
-if (is_file($filePath)) {    
-    $handle = fopen($filePath, 'r');
+if (is_file($filePath)) {
     echo '  Uploading... ';
-    
+
+    $handle = fopen($filePath, 'r');
+
     try {
         $document2 = Box\View\Document::uploadFile($handle, [
-            'name' => 'Sample File #2',
+            'name'       => 'Sample File #2',
             'thumbnails' => ['100x100', '200x200'],
-            'nonSvg' => true,
+            'nonSvg'     => true,
         ]);
+
         echo 'success :)' . "\n";
-        echo '  ID is ' . $document2['id'] . "\n";
+        echo '  ID is ' . $document2['id'] . '.' . "\n";
     } catch (Box\View\Exception $e) {
         echo 'failed :(' . "\n";
         echo '  Error Code: ' . $e->errorCode . "\n";
@@ -105,7 +110,7 @@ if (is_file($filePath)) {
 
 /*
  * Example #4
- * 
+ *
  * Check the metadata of the file from Example #3.
  */
 echo "\n";
@@ -122,7 +127,7 @@ try {
     ]);
 
     echo 'success :)' . "\n";
-    echo '  File id is ' . $metadata['id'] . '.' . "\n";
+    echo '  File ID is ' . $metadata['id'] . '.' . "\n";
     echo '  File type is ' . $metadata['type'] . '.' . "\n";
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
@@ -135,7 +140,7 @@ try {
 
 /*
  * Example #5
- * 
+ *
  * List the documents we've uploaded since starting these examples.
  */
 echo "\n";
@@ -148,13 +153,14 @@ try {
     ]);
     $doc1 = $documents['document_collection']['entries'][1];
     $doc2 = $documents['document_collection']['entries'][0];
+
     echo 'success :)' . "\n";
-    echo '  File #1 id is ' . $doc1['id'] . '.' . "\n";
+    echo '  File #1 ID is ' . $doc1['id'] . '.' . "\n";
     echo '  File #1 type is ' . $doc1['type'] . '.' . "\n";
     echo '  File #1 status is ' . $doc1['status'] . '.' . "\n";
     echo '  File #1 name is ' . $doc1['name'] . '.' . "\n";
     echo '  File #1 was created on ' . $doc1['created_at'] . '.' . "\n";
-    echo '  File #2 id is ' . $doc2['id'] . '.' . "\n";
+    echo '  File #2 ID is ' . $doc2['id'] . '.' . "\n";
     echo '  File #2 type is ' . $doc2['type'] . '.' . "\n";
     echo '  File #2 status is ' . $doc2['status'] . '.' . "\n";
     echo '  File #2 name is ' . $doc2['name'] . '.' . "\n";
@@ -167,7 +173,7 @@ try {
 
 /*
  * Example #6
- * 
+ *
  * Wait ten seconds and check the status of both files.
  */
 echo "\n";
@@ -181,8 +187,9 @@ try {
     $documents = Box\View\Document::listDocuments([
         'createdAfter' => $start,
     ]);
-    $doc1 = $documents['document_collection']['entries'][1];
-    $doc2 = $documents['document_collection']['entries'][0];
+    $doc1      = $documents['document_collection']['entries'][1];
+    $doc2      = $documents['document_collection']['entries'][0];
+
     echo 'success :)' . "\n";
     echo '  Status for file #1 (id=' . $doc1['id'] . ') is ' . $doc1['status']
          . '.' . "\n";
@@ -196,7 +203,7 @@ try {
 
 /*
  * Example #7
- * 
+ *
  * Delete the file we uploaded from Example #1.
  */
 echo "\n";
@@ -220,7 +227,7 @@ try {
 
 /*
  * Example #8
- * 
+ *
  * Update the name of the file from Example #1.
  */
 echo "\n";
@@ -231,8 +238,9 @@ try {
     $metadata = Box\View\Document::update($document['id'], [
         'name' => 'Updated Name',
     ]);
+
     echo 'success :)' . "\n";
-    echo '  File id is ' . $metadata['id'] . '.' . "\n";
+    echo '  File ID is ' . $metadata['id'] . '.' . "\n";
     echo '  File type is ' . $metadata['type'] . '.' . "\n";
     echo '  File status is ' . $metadata['status'] . '.' . "\n";
     echo '  File name is ' . $metadata['name'] . '.' . "\n";
@@ -245,7 +253,7 @@ try {
 
 /*
  * Example #9
- * 
+ *
  * Download the file we uploaded from Example #1 in its original file format.
  */
 echo "\n";
@@ -255,9 +263,10 @@ echo '  Downloading... ';
 try {
     $contents = Box\View\Document::download($document['id']);
     $filename = __DIR__ . '/files/test-original.doc';
-    $handle = fopen($filename, 'w');
+    $handle   = fopen($filename, 'w');
     fwrite($handle, $contents);
     fclose($handle);
+
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -268,7 +277,7 @@ try {
 
 /*
  * Example #10
- * 
+ *
  * Download the file we uploaded from Example #1 as a PDF.
  */
 echo "\n";
@@ -278,9 +287,10 @@ echo '  Downloading... ';
 try {
     $contents = Box\View\Document::download($document['id'], 'pdf');
     $filename = __DIR__ . '/files/test.pdf';
-    $handle = fopen($filename, 'w');
+    $handle   = fopen($filename, 'w');
     fwrite($handle, $contents);
     fclose($handle);
+
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -291,7 +301,7 @@ try {
 
 /*
  * Example #11
- * 
+ *
  * Download the file we uploaded from Example #1 as a zip file.
  */
 echo "\n";
@@ -301,9 +311,10 @@ echo '  Downloading... ';
 try {
     $contents = Box\View\Document::download($document['id'], 'zip');
     $filename = __DIR__ . '/files/test.zip';
-    $handle = fopen($filename, 'w');
+    $handle   = fopen($filename, 'w');
     fwrite($handle, $contents);
     fclose($handle);
+
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -314,7 +325,7 @@ try {
 
 /*
  * Example #12
- * 
+ *
  * Download the file we uploaded from Example #1 as a small thumbnail.
  */
 echo "\n";
@@ -323,10 +334,11 @@ echo '  Downloading... ';
 
 try {
     $thumbnailContents = Box\View\Document::thumbnail($document['id'], 16, 16);
-    $filename = __DIR__ . '/files/test-thumbnail.png';
-    $handle = fopen($filename, 'w');
+    $filename          = __DIR__ . '/files/test-thumbnail.png';
+    $handle            = fopen($filename, 'w');
     fwrite($handle, $thumbnailContents);
     fclose($handle);
+
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -337,7 +349,7 @@ try {
 
 /*
  * Example #13
- * 
+ *
  * Download the file we uploaded from Example #1 as a large thumbnail.
  */
 echo "\n";
@@ -346,10 +358,11 @@ echo '  Downloading... ';
 
 try {
     $thumbnailContents = Box\View\Document::thumbnail($document['id'], 250, 250);
-    $filename = __DIR__ . '/files/test-thumbnail-large.png';
-    $handle = fopen($filename, 'w');
+    $filename          = __DIR__ . '/files/test-thumbnail-large.png';
+    $handle            = fopen($filename, 'w');
     fwrite($handle, $thumbnailContents);
     fclose($handle);
+
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
 } catch (Box\View\Exception $e) {
@@ -360,19 +373,21 @@ try {
 
 /*
  * Example #14
- * 
+ *
  * Create a session for the file we uploaded from Example #1 with default
  * options.
  */
 echo "\n";
 echo 'Example #14 - Create a session for a file with default options.' . "\n";
 echo '  Creating... ';
+
 $session = null;
 
 try {
     $session = Box\View\Session::create($document['id']);
+
     echo 'success :)' . "\n";
-    echo '  Session id is ' . $session['id'] . '.' . "\n";
+    echo '  Session ID is ' . $session['id'] . '.' . "\n";
     echo '  Session expires on ' . $session['expires_at'] . '.' . "\n";
     echo '  Session view URL is ' . $session['urls']['view'] . '.' . "\n";
     echo '  Session assets URL is ' . $session['urls']['assets'] . '.' . "\n";
@@ -386,23 +401,25 @@ try {
 
 /*
  * Example #15
- * 
+ *
  * Create a session for the file we uploaded from Example #1 all of the options.
  */
 echo "\n";
 echo 'Example #15 - Create a session for a file with more of the options.'
      . "\n";
 echo '  Creating... ';
+
 $session2 = null;
 
 try {
     $session2 = Box\View\Session::create($document['id'], [
-        'expiresAt' => date('c', strtotime('+10 min')),
-        'isDownloadable' => true,
+        'expiresAt'        => date('c', strtotime('+10 min')),
+        'isDownloadable'   => true,
         'isTextSelectable' => false,
     ]);
+
     echo 'success :)' . "\n";
-    echo '  Session id is ' . $session2['id'] . '.' . "\n";
+    echo '  Session ID is ' . $session2['id'] . '.' . "\n";
     echo '  Session expires on ' . $session2['expires_at'] . '.' . "\n";
     echo '  Session view URL is ' . $session2['urls']['view'] . '.' . "\n";
     echo '  Session assets URL is ' . $session2['urls']['assets'] . '.' . "\n";
@@ -416,12 +433,12 @@ try {
 
 /*
  * Example #16
- * 
+ *
  * Delete the two sessions.
  */
 echo "\n";
 echo 'Example #16 - Delete the two sessions.' . "\n";
-echo '  Deleting... ';
+echo '  Deleting session #1...';
 
 try {
     $deleted = Box\View\Session::delete($session['id']);
@@ -437,6 +454,8 @@ try {
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
 }
+
+echo '  Deleting session #2...';
 
 try {
     $deleted = Box\View\Session::delete($session2['id']);
@@ -455,7 +474,7 @@ try {
 
 /*
  * Example #17
- * 
+ *
  * Delete the file we uploaded from Example #1.
  */
 echo "\n";

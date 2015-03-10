@@ -57,7 +57,7 @@ require __DIR__ . '/path/to/box/view/autoload.php';
 Enter your application name, click the option for `Box View`, and click `Create Application`.
 Then click `Configure your application`.
 
-You can find your API key where it says `View APi Key`.
+You can find your API key where it says `View API Key`.
 
 In the future, if you need to return to this page, go to [Box Developers > My Applications](https://app.box.com/developers/services) and click on any of your Box View apps.
 
@@ -121,7 +121,7 @@ You can see `examples/examples.php` to see working code for each method using tr
 
 #### Upload from File
 
-https://developers.box.com/view/#post-documents  
+https://developers.box.com/view/#post-documents
 To upload a document from a local file, use Box\View\Document::uploadFile().
 Pass in a file resource, and also an optional associative array of other params.
 This function returns an associative array representing the metadata of the file.
@@ -159,7 +159,7 @@ array(5) {
 
 #### Upload by URL
 
-https://developers.box.com/view/#post-documents  
+https://developers.box.com/view/#post-documents
 To upload a document by a URL, use `Box\View\Document::uploadUrl()`.
 Pass in the URL of the file you want to upload, and also an optional associative array of other params.
 This function returns an associative array representing the metadata of the file.
@@ -195,13 +195,13 @@ array(5) {
 
 #### Metadata
 
-https://developers.box.com/view/#get-documents-id  
+https://developers.box.com/view/#get-documents-id
 To get a document's metadata, use `Box\View\Document::metadata()`.
 Pass in the ID of the file you want to check the metadata of.
 This function returns an associative array representing the metadata of the file.
 
 ```php
-$metadata = Box\View\Document::metadata($file_id);
+$metadata = Box\View\Document::metadata($documentId);
 ```
 
 The response looks like this:
@@ -223,7 +223,7 @@ array(5) {
 
 #### List
 
-https://developers.box.com/view/#get-documents  
+https://developers.box.com/view/#get-documents
 To get a list of documents you've uploaded, use `Box\View\Document::listDocuments()`.
 Pass an optional associative array of parameters you want to filter by.
 This function returns an array of files matching the request.
@@ -285,13 +285,13 @@ array(1) {
 
 #### Download
 
-https://developers.box.com/view/#get-documents-id-content  
+https://developers.box.com/view/#get-documents-id-content
 To download a document, use `Box\View\Document::download()`.
 Pass in the ID of the file you want to download.
 This function returns the contents of the downloaded file.
 
 ```php
-$contents = Box\View\Document::download($file_id);
+$contents = Box\View\Document::download($documentId);
 $filename = __DIR__ . '/files/new-file.doc';
 $handle = fopen($filename, 'w');
 fwrite($handle, $contents);
@@ -302,13 +302,13 @@ The response is just a giant string representing the data of the file.
 
 #### Thumbnail
 
-https://developers.box.com/view/#get-documents-id-thumbnail  
+https://developers.box.com/view/#get-documents-id-thumbnail
 To download a document, use `Box\View\Document::thumbnail()`.
 Pass in the ID of the file you want to download, and also the width and height in pixels of the thumbnail you want to download.
 This function returns the contents of the downloaded thumbnail.
 
 ```php
-$thumbnailContents = Box\View\Document::thumbnail($file_id, 100, 100);
+$thumbnailContents = Box\View\Document::thumbnail($documentId, 100, 100);
 $filename = __DIR__ . '/files/new-thumbnail.png';
 $handle = fopen($filename, 'w');
 fwrite($handle, $thumbnailContents);
@@ -319,14 +319,14 @@ The response is just a giant string representing the data of the file.
 
 #### Update
 
-https://developers.box.com/view/#put-documents-id  
+https://developers.box.com/view/#put-documents-id
 To update the metadata of a document, use `Box\View\Document::update()`.
 Pass in the ID of the file you want to update, and also the fields you want to update.
 Right now, only the name field is supported.
 This function returns an associative array representing the metadata of the file.
 
 ```php
-$metadata = Box\View\Document::update($file_id, [
+$metadata = Box\View\Document::update($documentId, [
     'name' => 'Updated Name',
 ]);
 ```
@@ -350,13 +350,13 @@ array(5) {
 
 #### Delete
 
-https://developers.box.com/view/#delete-documents-id  
+https://developers.box.com/view/#delete-documents-id
 To delete a document, use `Box\View\Document::delete()`.
 Pass in the ID of the file you want to delete.
 This function returns a boolean of whether the file was deleted or not.
 
 ```php
-$deleted = Box\View\Document::delete($file_id);
+$deleted = Box\View\Document::delete($documentId);
 
 if ($deleted) {
     // do something
@@ -375,17 +375,17 @@ bool(true)
 
 #### Create
 
-https://developers.box.com/view/#post-sessions  
+https://developers.box.com/view/#post-sessions
 To create a session, use `Box\View\Session::create()`.
 Pass in the ID of the file you want to create a session for, and also an optional associative array of other params.
 This function returns an associative array representing the metadata of the session.
 
 ```php
 // without options
-$session = Box\View\Session::create($file_id);
+$session = Box\View\Session::create($documentId);
 
 // with options
-$session = Box\View\Session::create($file_id, [
+$session = Box\View\Session::create($documentId, [
     'expiresAt' => date('c', strtotime('+10 min')),
     'isDownloadable' => true,
     'isTextSelectable' => false,
@@ -429,13 +429,13 @@ array(5) {
 
 #### Delete
 
-https://developers.box.com/view/#delete-sessions-id  
+https://developers.box.com/view/#delete-sessions-id
 To delete a session, use `Box\View\Session::delete()`.
 Pass in the ID of the session you want to delete.
 This function returns a boolean of whether the session was deleted or not.
 
 ```php
-$deleted = Box\View\Session::delete($session_id);
+$deleted = Box\View\Session::delete($sessionId);
 
 if ($deleted) {
     // do something

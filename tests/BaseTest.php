@@ -12,7 +12,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function testDate()
     {
-        $date = date('r');
+        $date   = date('r');
         $result = \Box\View\Base::date($date);
         $this->assertEquals(date('c', strtotime($date)), $result);
     }
@@ -25,7 +25,7 @@ class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function testSetRequestHandler()
     {
-        $type = '\Box\View\RequestFoo';
+        $type              = '\Box\View\RequestFoo';
         $this->requestMock = m::mock($type);
         \Box\View\Base::setRequestHandler($this->requestMock);
 

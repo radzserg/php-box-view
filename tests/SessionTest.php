@@ -25,7 +25,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with(null, null, [
-                'document_id' => $id,
+                   'document_id' => $id,
                ], null)
              ->andReturn($session);
 
@@ -44,7 +44,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with(null, null, [
-                'document_id' => $id,
+                   'document_id' => $id,
                ], null)
              ->andThrow('Box\View\Exception');
 
@@ -57,7 +57,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateWithOptions()
     {
-        $id = 123;
+        $id   = 123;
         $date = date('r', strtotime('+10 min'));
 
         $session = $this->_getTestSession();
@@ -65,18 +65,18 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with(null, null, [
-                'document_id' => $id,
-                'duration' => 10,
-                'expires_at' => date('c', strtotime($date)),
-                'is_downloadable' => true,
-                'is_text_selectable' => false,
+                   'document_id'        => $id,
+                   'duration'           => 10,
+                   'expires_at'         => date('c', strtotime($date)),
+                   'is_downloadable'    => true,
+                   'is_text_selectable' => false,
                ], null)
              ->andReturn($session);
 
         $response = \Box\View\Session::create($id, [
-            'duration' => 10,
-            'expiresAt' => $date,
-            'isDownloadable' => true,
+            'duration'         => 10,
+            'expiresAt'        => $date,
+            'isDownloadable'   => true,
             'isTextSelectable' => false,
         ]);
         $this->assertSame($session, $response);
@@ -93,8 +93,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/' . $id, null, null, [
-                'httpMethod' => 'DELETE',
-                'rawResponse' => true,
+                   'httpMethod'  => 'DELETE',
+                   'rawResponse' => true,
                ])
              ->andReturnNull();
 
@@ -109,8 +109,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/' . $id, null, null, [
-                'httpMethod' => 'DELETE',
-                'rawResponse' => true,
+                   'httpMethod'  => 'DELETE',
+                   'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
@@ -124,19 +124,19 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     private function _getTestSession()
     {
         return [
-            'type' => 'session',
-            'id' => 'c3d082985d08425faacb744aa28a8ba3',
-            'document' => [
-                'type' => 'document',
-                'id' => 'f5f342c440b84dcfa4104eaae49cdead',
-                'status' => 'done',
-                'name' => 'Updated Name',
+            'type'       => 'session',
+            'id'         => 'c3d082985d08425faacb744aa28a8ba3',
+            'document'   => [
+                'type'       => 'document',
+                'id'         => 'f5f342c440b84dcfa4104eaae49cdead',
+                'status'     => 'done',
+                'name'       => 'Updated Name',
                 'created_at' => '2015-02-02T09:16:19Z',
             ],
             'expires_at' => '2015-02-02T10:16:39.876Z',
-            'urls' => [
-                'view' => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/view',
-                'assets' => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/assets/',
+            'urls'       => [
+                'view'     => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/view',
+                'assets'   => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/assets/',
                 'realtime' => 'https://view-api.box.com/sse/c3d082985d08425faacb744aa28a8ba3',
             ],
         ];
