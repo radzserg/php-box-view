@@ -120,12 +120,12 @@ class Document extends Base
 
         if (!empty($params['createdBefore'])) {
             $createdBefore               = $params['createdBefore'];
-            $getParams['created_before'] = static::date($createdBefore);
+            $getParams['created_before'] = static::_date($createdBefore);
         }
 
         if (!empty($params['createdAfter'])) {
             $createdAfter               = $params['createdAfter'];
-            $getParams['created_after'] = static::date($createdAfter);
+            $getParams['created_after'] = static::_date($createdAfter);
         }
 
         return static::_request(null, $getParams);

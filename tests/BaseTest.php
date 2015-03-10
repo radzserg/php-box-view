@@ -10,13 +10,6 @@ class BaseTest extends \PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function testDate()
-    {
-        $date   = date('r');
-        $result = \Box\View\Base::date($date);
-        $this->assertEquals(date('c', strtotime($date)), $result);
-    }
-
     public function testGetRequestHandler()
     {
         $handler = \Box\View\Base::getRequestHandler();

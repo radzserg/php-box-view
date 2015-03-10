@@ -21,6 +21,22 @@ class Base
     public static $path = '/';
 
     /**
+     * Take a date in almost any format, and return a date string that is
+     * formatted as an RFC 3339 timestamp.
+     *
+     * @param string|DateTime $date A date string in almost any format, or a
+     *                              DateTime object.
+     *
+     * @return string An RFC 3339 timestamp.
+     */
+    protected static function _date($date)
+    {
+        if (is_string($date)) $date = new \DateTime($date);
+        $date->setTimezone(new \DateTimeZone('UTC'));
+        return $date->format('c');
+    }
+
+    /**
      * Handle an error. We handle errors by throwing an exception.
      *
      * @param string $error An error code representing the error
@@ -65,22 +81,6 @@ class Base
             $postParams,
             $requestOpts
         );
-    }
-
-    /**
-     * Take a date in almost any format, and return a date string that is
-     * formatted as an RFC 3339 timestamp.
-     *
-     * @param string|DateTime $date A date string in almost any format, or a
-     *                              DateTime object.
-     *
-     * @return string An RFC 3339 timestamp.
-     */
-    public static function date($date)
-    {
-        if (is_string($date)) $date = new \DateTime($date);
-        $date->setTimezone(new \DateTimeZone('UTC'));
-        return $date->format('c');
     }
 
     /**

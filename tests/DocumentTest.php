@@ -145,8 +145,8 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
              ->shouldReceive('send')
              ->with('', [
                    'limit'          => $limit,
-                   'created_before' => \Box\View\Document::date($createdBefore),
-                   'created_after'  => \Box\View\Document::date($createdAfter),
+                   'created_before' => date('c', strtotime($createdBefore)),
+                   'created_after'  => date('c', strtotime($createdAfter)),
                ], null, null)
              ->andReturn($documents);
 

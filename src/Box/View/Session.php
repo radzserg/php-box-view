@@ -53,7 +53,7 @@ class Session extends Base
             $postParams['duration'] = $params['duration'];
         }
         if (isset($params['expiresAt'])) {
-            $postParams['expires_at'] = static::date($params['expiresAt']);
+            $postParams['expires_at'] = static::_date($params['expiresAt']);
         }
 
         if (isset($params['isDownloadable'])) {
