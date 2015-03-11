@@ -5,6 +5,19 @@ namespace Box\View;
  * Provide access to the Box View Session API. The Session API is used to create
  * sessions for specific documents that can be used to view a document using a
  * specific session-based URL.
+ *
+ * Session objects have the following fields:
+ *   - string 'id' The session ID.
+ *   - string 'expiresAt' The date te session was created.
+ *   - array 'urls' An associative array of URLs for 'assets', 'realtime', and
+ *                  'view'.
+ *
+ * When creating a session, the following parameters can be set:
+ *   - int|null 'duration' The number of minutes for the session to last.
+ *   - string|DateTime|null 'expiresAt' When the session should expire.
+ *   - bool|null 'isDownloadable' Should the user be allowed to download the
+ *                                original file?
+ *   - bool|null 'isTextSelectable' Should the user be allowed to select text?
  */
 class Session extends Base
 {
@@ -45,14 +58,11 @@ class Session extends Base
      * @param Box\View\Client $client The client instance to make requests from.
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
-     *                      - string 'id' The document ID.
-     *                      - string 'createdAt' The date te document was
-     *                        created, formatted as RFC 3339.
-     *                      - string 'name' The document title.
-     *                      - string 'status' The document status, which can be
-     *                        'queued', 'processing', 'done', or 'error'.
-     *                      - array 'document' An associative array of the
-     *                        document that created this session.
+     *                      - string 'id' The session ID.
+     *                      - string 'expiresAt' The date te session was
+     *                        created.
+     *                      - array 'urls' An associative array of URLs for
+     *                        assets', 'realtime', and 'view'.
      */
     public function __construct($client, $data)
     {
@@ -134,7 +144,7 @@ class Session extends Base
      *                      - string 'expiresAt' The date te session was
      *                        created.
      *                      - array 'urls' An associative array of URLs for
-     *                        assets', 'realtime', and 'view'.
+     *                        'assets', 'realtime', and 'view'.
      */
     private function setValues($data)
     {

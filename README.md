@@ -227,8 +227,8 @@ This function returns an array of `Box\View\Document` objects matching the reque
 $documents = $boxView->findDocuments();
 
 // with options
-$start = date('c', strtotime('-2 weeks'));
-$end = date('c', strtotime('-1 week'));
+$start     = date('c', strtotime('-2 weeks'));
+$end       = date('c', strtotime('-1 week'));
 $documents = $boxView->findDocuments([
     'limit'         => 10,
     'createdAfter'  => $start,
@@ -290,8 +290,8 @@ This function returns the contents of the downloaded thumbnail.
 
 ```php
 $thumbnailContents = $document->thumbnail(100, 100);
-$filename = __DIR__ . '/files/new-thumbnail.png';
-$handle   = fopen($filename, 'w');
+$filename          = __DIR__ . '/files/new-thumbnail.png';
+$handle            = fopen($filename, 'w');
 fwrite($handle, $thumbnailContents);
 fclose($handle);
 ```

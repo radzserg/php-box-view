@@ -25,17 +25,23 @@ class Request
     const BASE_PATH = '/1';
 
     /**
+     * The number of seconds before timing out when in a retry loop.
+     * @const int
+     */
+    const DEFAULT_RETRY_TIMEOUT = 60;
+
+    /**
      * A good set of default Guzzle options.
      * @var array
      */
     public static $guzzleDefaultOptions = [
-        'headers' => [
+        'headers'         => [
             'Accept'        => 'application/json',
             'Authorization' => null,
             'User-Agent'    => 'box-view-php',
         ],
         'connect_timeout' => 10,
-        'timeout' => 60,
+        'timeout'         => 60,
     ];
 
     /**
@@ -43,6 +49,12 @@ class Request
      * @var string
      */
     private $apiKey;
+
+    /**
+     * The timestamp of the last request.
+     * @var string
+     */
+    private $timestampRequested;
 
     /**
      * Set the API key.
@@ -110,8 +122,14 @@ class Request
         if (!empty($getParams)) $options['query'] = $getParams;
 
         try {
-            $request  = $guzzle->createRequest($method, $url, $options);
-            $response = $this->execute($guzzle, $request);
+            $request = $guzzle->createRequest($method, $url, $options);
+
+            $timeout = !empty($requestOpts['timeout'])
+                       ? $requestOpts['timeout']
+                       : static::DEFAULT_RETRY_TIMEOUT;
+            $this->timestampRequested = time();
+
+            $response = $this->execute($guzzle, $request, $timeout);
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             static::handleRequestError($e);
         }
@@ -168,18 +186,28 @@ class Request
      * @param GuzzleHttp\Client $guzzle The Guzzle instance to use.
      * @param GuzzleHttp\Message\Request $request The request to send, and
      *                                            possibly retry.
+     * @param int $timeout The maximum number of seconds to retry for.
      *
      * @return GuzzleHttp\Message\Response The Guzzle response object.
      * @throws GuzzleHttp\Exception\RequestException
      */
-    private function execute($guzzle, $request)
+    private function execute($guzzle, $request, $timeout)
     {
         $response = $guzzle->send($request);
         $headers  = $response->getHeaders();
 
         if (!empty($headers['Retry-After'])) {
+            $seconds = round(time() - $this->timestampRequested);
+
+            if ($timeout > 0 && $seconds >= $timeout) {
+                $error   = 'request_timeout';
+                $message = 'The request timed out after retrying for '
+                         . $seconds . ' seconds.';
+                static::error($error, $message, $request, null);
+            }
+
             sleep($headers['Retry-After'][0]);
-            return $this->execute($guzzle, $request);
+            return $this->execute($guzzle, $request, $timeout);
         }
 
         return $response;
@@ -250,11 +278,11 @@ class Request
         $response = $e->getResponse();
 
         $error   = static::handleHttpError($response->getStatusCode());
-        $message = 'Server Error';
+        $message = 'Server error';
 
         if (!$error) {
             $error   = 'guzzle_error';
-            $message = 'Guzzle Error';
+            $message = 'Guzzle error';
         }
 
         static::error($error, $message, $request, $response);
@@ -299,7 +327,7 @@ class Request
             $error   = 'server_error';
             $message = !empty($jsonDecoded['error_message'])
                        ? $jsonDecoded['error_message']
-                       : 'Server Error';
+                       : 'Server error';
             return static::error($error, $message, $request, $response);
         }
 

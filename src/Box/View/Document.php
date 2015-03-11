@@ -4,9 +4,41 @@ namespace Box\View;
 /**
  * Provide access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.
+ *
+ * Document objects have the following fields:
+ *   - string 'id' The document ID.
+ *   - string 'createdAt' The date te document was created, formatted as
+ *                        RFC 3339.
+ *   - string 'name' The document title.
+ *   - string 'status' The document status, which can be 'queued', 'processing',
+ *                     'done', or 'error'.
+ *
+ * Only the following fields can be updated:
+ *   - string 'name' The document title.
+ *
+ * When finding documents, the following parameters can be set:
+ *   - int|null 'limit' The number of documents to return.
+ *   - string|DateTime|null 'createdBefore' Upper date limit to filter by.
+ *   - string|DateTime|null 'createdAfter' Lower date limit to filter by.
+ *
+ * When uploading a file, the following parameters can be set:
+ *   - string|null 'name' Override the filename of the file being uploaded.
+ *   - string[]|string|null 'thumbnails' An array of dimensions in pixels, with
+ *                                       each dimension formatted as
+ *                                       [width]x[height], this can also be a
+ *                                       comma-separated string.
+ *   - bool|null 'nonSvg' Create a second version of the file that doesn't use
+ *                        SVG, for users with browsers that don't support SVG?
+ *
  */
 class Document extends Base
 {
+    /**
+     * An alternate hostname that file upload requests are sent to.
+     * @const string
+     */
+    const FILE_UPLOAD_HOST = 'upload.view-api.box.com';
+
     /**
      * The date the document was created, formatted as RFC 3339.
      * @var string
@@ -38,6 +70,13 @@ class Document extends Base
      * @var string
      */
     public static $path = '/documents';
+
+
+    /**
+     * The fields that can be updated on a document.
+     * @var array
+     */
+    public static $updateableFields = ['name'];
 
     /**
      * Instantiate the document.
@@ -158,9 +197,7 @@ class Document extends Base
         $path       = '/' . $this->id;
         $postParams = [];
 
-        $supportedFields = ['name'];
-
-        foreach ($supportedFields as $field) {
+        foreach (self::$updateableFields as $field) {
             if (isset($fields[$field])) $postParams[$field] = $fields[$field];
         }
 
@@ -276,7 +313,7 @@ class Document extends Base
 
         return static::upload($client, $params, null, [
             'file' => $file,
-            'host' => 'upload.view-api.box.com',
+            'host' => static::FILE_UPLOAD_HOST,
         ]);
     }
 
@@ -371,6 +408,8 @@ class Document extends Base
         if (!empty($params['nonSvg'])) {
             $postParams['non_svg'] = $params['nonSvg'];
         }
+
+        $options['timeout'] = 1;
 
         $metadata = static::request($client, null, null, $postParams, $options);
         return new self($client, $metadata);
