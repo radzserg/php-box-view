@@ -86,7 +86,7 @@ You can inspect the `examples/examples.php` code to see each API call being used
 To start using `php-box-view` in your code, set your API key:
 
 ```php
-Box\View\Client::setApiKey('YOUR_API_KEY');
+$boxView = new Box\View\Client('YOUR_API_KEY');
 ```
 
 And now you can start using the methods in `Box\View\Document` and `Box\View\Session`.
@@ -111,7 +111,7 @@ Please use GitHub's issue tracker for API library support.
 ### Errors
 
 Errors are handled by throwing exceptions.
-We throw instances of Box\View\Exception.
+We throw instances of `Box\View\Exception`.
 
 Note that any Box View API call can throw an exception.
 When making API calls, put them in a try/catch block.
@@ -122,122 +122,116 @@ You can see `examples/examples.php` to see working code for each method using tr
 #### Upload from File
 
 https://developers.box.com/view/#post-documents
-To upload a document from a local file, use Box\View\Document::uploadFile().
+To upload a document from a local file, use `$boxView->uploadFile()`.
 Pass in a file resource, and also an optional associative array of other params.
-This function returns an associative array representing the metadata of the file.
+This function returns a `Box\View\Document` object.
 
 ```php
 // without options
 $fileHandle = fopen($filePath, 'r');
-$metadata = Box\View\Document::uploadFile($fileHandle);
+$document   = $boxView->uploadFile($fileHandle);
 
 // with options
 $fileHandle = fopen($filePath, 'r');
-$metadata = Box\View\Document::uploadFile($fileHandle, [
-    'name' => 'Test File',
+$document   = $boxView->uploadFile($fileHandle, [
+    'name'       => 'Test File',
     'thumbnails' => ['100x100', '200x200'],
-    'nonSvg' => true,
+    'nonSvg'     => true,
 ]);
 ```
 
 The response looks like this:
 
 ```php
-array(5) {
-  ["type"]=>
-  string(8) "document"
+object(Box\View\Document)#54 (5) {
+  ["createdAt"]=>
+  string(25) "2015-03-11T07:48:52+00:00"
   ["id"]=>
-  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
-  ["status"]=>
-  string(6) "queued"
+  string(32) "0971e7674469406dba53254fcbb11d05"
   ["name"]=>
   string(11) "Sample File"
-  ["created_at"]=>
-  string(24) "2015-02-02T09:09:47.359Z"
+  ["status"]=>
+  string(6) "queued"
 }
 ```
 
 #### Upload by URL
 
 https://developers.box.com/view/#post-documents
-To upload a document by a URL, use `Box\View\Document::uploadUrl()`.
+To upload a document by a URL, use `$boxView->uploadUrl()`.
 Pass in the URL of the file you want to upload, and also an optional associative array of other params.
-This function returns an associative array representing the metadata of the file.
+This function returns a `Box\View\Document` object.
 
 ```php
 // without options
-$metadata = Box\View\Document::uploadUrl($url);
+$document = $boxView->uploadUrl($url);
 
 // with options
-$metadata = Box\View\Document::uploadUrl($url, [
-    'name' => 'Test File',
+$document = $boxView->uploadUrl($url, [
+    'name'       => 'Test File',
     'thumbnails' => ['100x100', '200x200'],
-    'nonSvg' => true,
+    'nonSvg'     => true,
 ]);
 ```
 
 The response looks like this:
 
 ```php
-array(5) {
-  ["type"]=>
-  string(8) "document"
+object(Box\View\Document)#54 (5) {
+  ["createdAt"]=>
+  string(25) "2015-03-11T07:48:52+00:00"
   ["id"]=>
-  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
-  ["status"]=>
-  string(6) "queued"
+  string(32) "0971e7674469406dba53254fcbb11d05"
   ["name"]=>
   string(11) "Sample File"
-  ["created_at"]=>
-  string(24) "2015-02-02T09:09:47.359Z"
+  ["status"]=>
+  string(6) "queued"
 }
 ```
 
-#### Metadata
+#### Get Document
 
 https://developers.box.com/view/#get-documents-id
-To get a document's metadata, use `Box\View\Document::metadata()`.
-Pass in the ID of the file you want to check the metadata of.
-This function returns an associative array representing the metadata of the file.
+To get a document, use `$boxView->get()`.
+Pass in the ID of the document you want to get.
+This function returns a `Box\View\Document` object.
 
 ```php
-$metadata = Box\View\Document::metadata($documentId);
+$document = $boxView->getDocument($documentId);
 ```
 
 The response looks like this:
 
 ```php
-array(5) {
-  ["type"]=>
-  string(8) "document"
+object(Box\View\Document)#54 (5) {
+  ["createdAt"]=>
+  string(25) "2015-03-11T07:48:52+00:00"
   ["id"]=>
-  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
-  ["status"]=>
-  string(6) "queued"
+  string(32) "0971e7674469406dba53254fcbb11d05"
   ["name"]=>
   string(11) "Sample File"
-  ["created_at"]=>
-  string(24) "2015-02-02T09:09:47.359Z"
+  ["status"]=>
+  string(6) "queued"
 }
 ```
 
-#### List
+#### Find
 
 https://developers.box.com/view/#get-documents
-To get a list of documents you've uploaded, use `Box\View\Document::listDocuments()`.
+To get a list of documents you've uploaded, use `$boxView->findDocuments()`.
 Pass an optional associative array of parameters you want to filter by.
-This function returns an array of files matching the request.
+This function returns an array of `Box\View\Document` objects matching the request.
 
 ```php
 // without options
-$documents = Box\View\Document::listDocuments();
+$documents = $boxView->findDocuments();
 
 // with options
 $start = date('c', strtotime('-2 weeks'));
 $end = date('c', strtotime('-1 week'));
-$documents = Box\View\Document::listDocuments([
-    'limit' => 10,
-    'createdAfter' => $start,
+$documents = $boxView->findDocuments([
+    'limit'         => 10,
+    'createdAfter'  => $start,
     'createdBefore' => $end,
 ]);
 ```
@@ -245,40 +239,28 @@ $documents = Box\View\Document::listDocuments([
 The response looks like this:
 
 ```php
-array(1) {
-  ["document_collection"]=>
-  array(2) {
-    ["total_count"]=>
-    int(2)
-    ["entries"]=>
-    array(2) {
-      [0]=>
-      array(5) {
-        ["type"]=>
-        string(8) "document"
-        ["id"]=>
-        string(32) "8db7bd32e40d48adac24b3c955f49e23"
-        ["status"]=>
-        string(10) "processing"
-        ["name"]=>
-        string(14) "Sample File #2"
-        ["created_at"]=>
-        string(20) "2015-02-02T09:13:20Z"
-      }
-      [1]=>
-      array(5) {
-        ["type"]=>
-        string(8) "document"
-        ["id"]=>
-        string(32) "ee7ae7e2ff8d44fca84471d42d74006e"
-        ["status"]=>
-        string(4) "done"
-        ["name"]=>
-        string(11) "Sample File"
-        ["created_at"]=>
-        string(20) "2015-02-02T09:13:19Z"
-      }
-    }
+array(2) {
+  [0]=>
+  object(Box\View\Document)#31 (5) {
+    ["createdAt"]=>
+    string(25) "2015-03-11T07:50:41+00:00"
+    ["id"]=>
+    string(32) "f2f9be2249e2490da3b0a040d5eaae58"
+    ["name"]=>
+    string(14) "Sample File #2"
+    ["status"]=>
+    string(10) "processing"
+  }
+  [1]=>
+  object(Box\View\Document)#55 (5) {
+    ["createdAt"]=>
+    string(25) "2015-03-11T07:50:40+00:00"
+    ["id"]=>
+    string(32) "966f747cb77b4f1b805cc594c9fdd30c"
+    ["name"]=>
+    string(11) "Sample File"
+    ["status"]=>
+    string(4) "done"
   }
 }
 ```
@@ -286,14 +268,13 @@ array(1) {
 #### Download
 
 https://developers.box.com/view/#get-documents-id-content
-To download a document, use `Box\View\Document::download()`.
-Pass in the ID of the file you want to download.
+To download a document, use `$document->download()`.
 This function returns the contents of the downloaded file.
 
 ```php
-$contents = Box\View\Document::download($documentId);
+$contents = $document->download();
 $filename = __DIR__ . '/files/new-file.doc';
-$handle = fopen($filename, 'w');
+$handle   = fopen($filename, 'w');
 fwrite($handle, $contents);
 fclose($handle);
 ```
@@ -303,14 +284,14 @@ The response is just a giant string representing the data of the file.
 #### Thumbnail
 
 https://developers.box.com/view/#get-documents-id-thumbnail
-To download a document, use `Box\View\Document::thumbnail()`.
-Pass in the ID of the file you want to download, and also the width and height in pixels of the thumbnail you want to download.
+To download a document, use `$document->thumbnail()`.
+Pass in the width and height in pixels of the thumbnail you want to download.
 This function returns the contents of the downloaded thumbnail.
 
 ```php
-$thumbnailContents = Box\View\Document::thumbnail($documentId, 100, 100);
+$thumbnailContents = $document->thumbnail(100, 100);
 $filename = __DIR__ . '/files/new-thumbnail.png';
-$handle = fopen($filename, 'w');
+$handle   = fopen($filename, 'w');
 fwrite($handle, $thumbnailContents);
 fclose($handle);
 ```
@@ -320,43 +301,37 @@ The response is just a giant string representing the data of the file.
 #### Update
 
 https://developers.box.com/view/#put-documents-id
-To update the metadata of a document, use `Box\View\Document::update()`.
-Pass in the ID of the file you want to update, and also the fields you want to update.
-Right now, only the name field is supported.
-This function returns an associative array representing the metadata of the file.
+To update the metadata of a document, use `$document->update()`.
+Pass in the fields you want to update.
+Right now, only the `name` field is supported.
+This function returns a boolean of whether the file was updated or not.
 
 ```php
-$metadata = Box\View\Document::update($documentId, [
+$updated = $document->update([
     'name' => 'Updated Name',
 ]);
+
+if ($updated) {
+    // do something
+} else {
+    // do something else
+}
 ```
 
 The response looks like this:
 
 ```php
-array(5) {
-  ["type"]=>
-  string(8) "document"
-  ["id"]=>
-  string(32) "32db41a77ca0432fbf88ddd766b4b1e5"
-  ["status"]=>
-  string(6) "queued"
-  ["name"]=>
-  string(11) "Sample File"
-  ["created_at"]=>
-  string(24) "2015-02-02T09:09:47.359Z"
-}
+bool(true)
 ```
 
 #### Delete
 
 https://developers.box.com/view/#delete-documents-id
-To delete a document, use `Box\View\Document::delete()`.
-Pass in the ID of the file you want to delete.
+To delete a document, use `$document->delete()`.
 This function returns a boolean of whether the file was deleted or not.
 
 ```php
-$deleted = Box\View\Document::delete($documentId);
+$deleted = $document->delete($documentId);
 
 if ($deleted) {
     // do something
@@ -376,16 +351,16 @@ bool(true)
 #### Create
 
 https://developers.box.com/view/#post-sessions
-To create a session, use `Box\View\Session::create()`.
-Pass in the ID of the file you want to create a session for, and also an optional associative array of other params.
-This function returns an associative array representing the metadata of the session.
+To create a session, use `$document->createSession()`.
+Pass in an optional associative array of params.
+This function returns a `Box\View\Session` object.
 
 ```php
 // without options
-$session = Box\View\Session::create($documentId);
+$session = $document->createSession();
 
 // with options
-$session = Box\View\Session::create($documentId, [
+$session = $document->createSession([
     'expiresAt' => date('c', strtotime('+10 min')),
     'isDownloadable' => true,
     'isTextSelectable' => false,
@@ -395,47 +370,36 @@ $session = Box\View\Session::create($documentId, [
 The response looks like this:
 
 ```php
-array(5) {
-  ["type"]=>
-  string(7) "session"
-  ["id"]=>
-  string(32) "c3d082985d08425faacb744aa28a8ba3"
+object(Box\View\Session)#41 (5) {
   ["document"]=>
-  array(5) {
-    ["type"]=>
-    string(8) "document"
-    ["id"]=>
-    string(32) "f5f342c440b84dcfa4104eaae49cdead"
-    ["status"]=>
-    string(4) "done"
-    ["name"]=>
-    string(12) "Updated Name"
-    ["created_at"]=>
-    string(20) "2015-02-02T09:16:19Z"
+  object(Box\View\Document)#27 (5) {
+    ...
   }
-  ["expires_at"]=>
-  string(24) "2015-02-02T10:16:39.876Z"
+  ["id"]=>
+  string(32) "d1b8c35a69da43fbb2e978e99589114a"
+  ["expiresAt"]=>
+  string(25) "2015-03-11T08:53:23+00:00"
   ["urls"]=>
   array(3) {
-    ["view"]=>
-    string(73) "https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/view"
     ["assets"]=>
-    string(76) "https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/assets/"
+    string(76) "https://view-api.box.com/1/sessions/d1b8c35a69da43fbb2e978e99589114a/assets/"
     ["realtime"]=>
-    string(61) "https://view-api.box.com/sse/c3d082985d08425faacb744aa28a8ba3"
+    string(61) "https://view-api.box.com/sse/d1b8c35a69da43fbb2e978e99589114a"
+    ["view"]=>
+    string(73) "https://view-api.box.com/1/sessions/d1b8c35a69da43fbb2e978e99589114a/view"
   }
 }
+
 ```
 
 #### Delete
 
 https://developers.box.com/view/#delete-sessions-id
-To delete a session, use `Box\View\Session::delete()`.
-Pass in the ID of the session you want to delete.
+To delete a session, use `$session->delete()`.
 This function returns a boolean of whether the session was deleted or not.
 
 ```php
-$deleted = Box\View\Session::delete($sessionId);
+$deleted = $session->delete();
 
 if ($deleted) {
     // do something

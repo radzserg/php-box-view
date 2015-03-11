@@ -9,11 +9,28 @@ namespace Box\View;
 class Session extends Base
 {
     /**
-     * The request handler.
-     *
-     * @var Request|null
+     * The document that created this session.
+     * @var Box\View\Document
      */
-    protected static $_requestHandler;
+    public $document;
+
+    /**
+     * The session ID.
+     * @var string
+     */
+    public $id;
+
+    /**
+     * The date the session expires, formatted as RFC 3339.
+     * @var string
+     */
+    public $expiresAt;
+
+    public $urls = [
+        'assets'   => null,
+        'realtime' => null,
+        'view'     => null,
+    ];
 
     /**
      * The Session API path relative to the base API path.
@@ -23,15 +40,57 @@ class Session extends Base
     public static $path = '/sessions';
 
     /**
-     * Create a session for a specific document by ID that may expire.
+     * Instantiate the document.
      *
-     * @param string $id The id of the file to create a session for.
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param array $data An associative array to instantiate the object with.
+     *                    Use the following values:
+     *                      - string 'id' The document ID.
+     *                      - string 'createdAt' The date te document was
+     *                        created, formatted as RFC 3339.
+     *                      - string 'name' The document title.
+     *                      - string 'status' The document status, which can be
+     *                        'queued', 'processing', 'done', or 'error'.
+     *                      - array 'document' An associative array of the
+     *                        document that created this session.
+     */
+    public function __construct($client, $data)
+    {
+        $this->client = $client;
+
+        $this->id = $data['id'];
+        $this->setValues($data);
+    }
+
+    /**
+     * Delete a session.
+     *
+     * @return bool Was the session deleted?
+     * @throws Box\View\Exception
+     */
+    public function delete()
+    {
+        $path = '/' . $this->id;
+        $response = static::request($this->client, $path, null, null, [
+            'httpMethod'  => 'DELETE',
+            'rawResponse' => true,
+        ]);
+
+        // a successful delete returns nothing, so we return true in that case
+        return empty($response);
+    }
+
+    /**
+     * Create a session for a specific document by ID.
+     *
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param string $id The id of the document to create a session for.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the new session. None are
      *                           necessary; all are optional. Use the following
      *                           options:
-     *                             - integer|null 'duration' The number of
-     *                               minutes for the session to last.
+     *                             - int|null 'duration' The number of minutes
+     *                               for the session to last.
      *                             - string|DateTime|null 'expiresAt' When the
      *                               session should expire.
      *                             - bool|null 'isDownloadable' Should the user
@@ -39,11 +98,10 @@ class Session extends Base
      *                             - bool|null 'isTextSelectable' Should the
      *                               user be allowed to select text?
      *
-     * @return array An associative array representing the metadata of the
-     *               session.
+     * @return Box\View\Session A new session instance.
      * @throws Box\View\Exception
      */
-    public static function create($id, $params = [])
+    public static function create($client, $id, $params = [])
     {
         $postParams = [
             'document_id' => $id,
@@ -53,7 +111,7 @@ class Session extends Base
             $postParams['duration'] = $params['duration'];
         }
         if (isset($params['expiresAt'])) {
-            $postParams['expires_at'] = static::_date($params['expiresAt']);
+            $postParams['expires_at'] = static::date($params['expiresAt']);
         }
 
         if (isset($params['isDownloadable'])) {
@@ -64,25 +122,45 @@ class Session extends Base
             $postParams['is_text_selectable'] = $params['isTextSelectable'];
         }
 
-        return static::_request(null, null, $postParams);
+        $metadata = static::request($client, null, null, $postParams);
+        return new Session($client, $metadata);
     }
 
     /**
-     * Delete a session by ID.
+     * Update the current document instance with new metadata.
      *
-     * @param string $id The ID of the session to delete.
-     *
-     * @return bool Was the session deleted?
-     * @throws Box\View\Exception
+     * @param array $data An associative array to instantiate the object with.
+     *                    Use the following values:
+     *                      - string 'expiresAt' The date te session was
+     *                        created.
+     *                      - array 'urls' An associative array of URLs for
+     *                        assets', 'realtime', and 'view'.
      */
-    public static function delete($id)
+    private function setValues($data)
     {
-        $response = static::_request('/' . $id, null, null, [
-            'httpMethod'  => 'DELETE',
-            'rawResponse' => true,
-        ]);
+        if (isset($data['expires_at'])) {
+            $data['expiresAt'] = $data['expires_at'];
+            unset($data['expires_at']);
+        }
 
-        // a successful delete returns nothing, so we return true in that case
-        return empty($response);
+        if (isset($data['expiresAt'])) {
+            $this->expiresAt = static::date($data['expiresAt']);
+        }
+
+        if (isset($data['urls']['assets'])) {
+            $this->urls['assets'] = $data['urls']['assets'];
+        }
+
+        if (isset($data['urls']['realtime'])) {
+            $this->urls['realtime'] = $data['urls']['realtime'];
+        }
+
+        if (isset($data['urls']['view'])) {
+            $this->urls['view'] = $data['urls']['view'];
+        }
+
+        if (isset($data['document'])) {
+            $this->document = new Document($this->client, $data['document']);
+        }
     }
 }

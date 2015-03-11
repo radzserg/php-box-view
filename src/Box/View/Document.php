@@ -8,65 +8,92 @@ namespace Box\View;
 class Document extends Base
 {
     /**
-     * The request handler.
-     *
-     * @var Request|null
+     * The date the document was created, formatted as RFC 3339.
+     * @var string
      */
-    protected static $_requestHandler;
+    public $createdAt;
+
+    /**
+     * The document ID.
+     * @var string
+     */
+    public $id;
+
+    /**
+     * The document title.
+     * @var string
+     */
+    public $name;
+
+
+    /**
+     * The document status, which can be 'queued', 'processing', 'done', or
+     * 'error'.
+     * @var string
+     */
+    public $status;
 
     /**
      * The Document API path relative to the base API path.
-     *
      * @var string
      */
     public static $path = '/documents';
 
     /**
-     * Generic upload function used by the two other upload functions, which are
-     * more specific than this one, and know how to handle upload by URL and
-     * upload from filesystem.
+     * Instantiate the document.
      *
-     * @param array|null $params An associative array of options relating to the
-     *                           file upload. Pass-thru from the other upload
-     *                           functions.
-     * @param array|null $postParams An associative array of POST params to be
-     *                               sent in the body.
-     * @param array|null $options An associative array of request options that
-     *                            may modify the way the request is made.
-     *
-     * @return array An associative array representing the metadata of the file.
-     * @throws Box\View\Exception
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param array $data An associative array to instantiate the object with.
+     *                    Use the following values:
+     *                      - string 'id' The document ID.
+     *                      - string 'createdAt' The date te document was
+     *                        created, formatted as RFC 3339.
+     *                      - string 'name' The document title.
+     *                      - string 'status' The document status, which can be
+     *                        'queued', 'processing', 'done', or 'error'.
      */
-    private static function _upload($params, $postParams = [], $options = [])
+    public function __construct($client, $data)
     {
-        if (!empty($params['name'])) $postParams['name'] = $params['name'];
+        $this->client = $client;
 
-        if (!empty($params['thumbnails'])) {
-            if (is_array($params['thumbnails'])) {
-                $params['thumbnails'] = implode(',', $params['thumbnails']);
-            }
-
-            $postParams['thumbnails'] = $params['thumbnails'];
-        }
-
-        if (!empty($params['nonSvg'])) {
-            $postParams['non_svg'] = $params['nonSvg'];
-        }
-
-        return static::_request(null, null, $postParams, $options);
+        $this->id = $data['id'];
+        $this->setValues($data);
     }
 
     /**
-     * Delete a file by ID.
+     * Create a session for a specific document.
      *
-     * @param string $id The ID of the file to delete.
+     * @param array|null $params Optional. An associative array of options
+     *                           relating to the new session. None are
+     *                           necessary; all are optional. Use the following
+     *                           options:
+     *                             - int|null 'duration' The number of minutes
+     *                               for the session to last.
+     *                             - string|DateTime|null 'expiresAt' When the
+     *                               session should expire.
+     *                             - bool|null 'isDownloadable' Should the user
+     *                               be allowed to download the original file?
+     *                             - bool|null 'isTextSelectable' Should the
+     *                               user be allowed to select text?
+     *
+     * @return Box\View\Session A new session instance.
+     * @throws Box\View\Exception
+     */
+    public function createSession($params = [])
+    {
+        return Session::create($this->client, $this->id, $params);
+    }
+
+    /**
+     * Delete a file.
      *
      * @return bool Was the file deleted?
      * @throws Box\View\Exception
      */
-    public static function delete($id)
+    public function delete()
     {
-        $response = static::_request('/' . $id, null, null, [
+        $path = '/' . $this->id;
+        $response = static::request($this->client, $path, null, null, [
             'httpMethod'  => 'DELETE',
             'rawResponse' => true,
         ]);
@@ -78,7 +105,6 @@ class Document extends Base
     /**
      * Download a file using a specific extension or the original extension.
      *
-     * @param string $id The ID of the file to download.
      * @param string|null $extension Optional. The extension to download the
      *                               file in, which can be pdf or zip. If no
      *                               extension is provided, the file will be
@@ -87,87 +113,32 @@ class Document extends Base
      * @return string The contents of the downloaded file.
      * @throws Box\View\Exception
      */
-    public static function download($id, $extension = null)
+    public function download($extension = null)
     {
-        $path = '/' . $id . '/content' . ($extension ? '.' . $extension : '');
-        return static::_request($path, null, null, [
+        if ($extension) $extension = '.' . $extension;
+        $path = '/' . $this->id . '/content' . $extension;
+        return static::request($this->client, $path, null, null, [
             'rawResponse' => true,
-        ]);
-    }
-
-    /**
-     * Get a list of all documents that meet the provided criteria.
-     *
-     * @param array|null $params Optional. An associative array to filter the
-     *                           list of all documents uploaded. None are
-     *                           necessary; all are optional. Use the following
-     *                           options:
-     *                             - integer|null 'limit' The number of
-     *                               documents to return.
-     *                             - string|DateTime|null 'createdBefore' Upper
-     *                               date limit to filter by.
-     *                             - string|DateTime|null 'createdAfter' Lower
-     *                               date limit to filter by.
-     *
-     * @return array An array containing a list of documents matching the
-     *               request.
-     * @throws Box\View\Exception
-     */
-    public static function listDocuments($params = [])
-    {
-        $getParams = [];
-        if (!empty($params['limit'])) $getParams['limit'] = $params['limit'];
-
-        if (!empty($params['createdBefore'])) {
-            $createdBefore               = $params['createdBefore'];
-            $getParams['created_before'] = static::_date($createdBefore);
-        }
-
-        if (!empty($params['createdAfter'])) {
-            $createdAfter               = $params['createdAfter'];
-            $getParams['created_after'] = static::_date($createdAfter);
-        }
-
-        return static::_request(null, $getParams);
-    }
-
-    /**
-     * Get specific fields from the metadata of a file.
-     *
-     * @param string $id The ID of the file to check.
-     * @param string[]|string $fields The fields to return with the metadata,
-     *                                formatted as an array or a comma-separated
-     *                                string. Regardless of which fields are
-     *                                provided, id and type are always returned.
-     *
-     * @return array An associative array representing the metadata of the file.
-     * @throws Box\View\Exception
-     */
-    public static function metadata($id, $fields)
-    {
-        if (is_array($fields)) $fields = implode(',', $fields);
-        return static::_request('/' . $id, [
-            'fields' => $fields,
         ]);
     }
 
     /**
      * Download a thumbnail of a specific size for a file.
      *
-     * @param string $id The ID of the file to download a thumbnail for.
      * @param int $width The width of the thumbnail in pixels.
      * @param int $height The height of the thumbnail in pixels.
      *
      * @return string The contents of the downloaded thumbnail.
      * @throws Box\View\Exception
      */
-    public static function thumbnail($id, $width, $height)
+    public function thumbnail($width, $height)
     {
+        $path      = '/' . $this->id . '/thumbnail';
         $getParams = [
             'height' => $height,
             'width'  => $width,
         ];
-        return static::_request('/' . $id . '/thumbnail', $getParams, null, [
+        return static::request($this->client, $path, $getParams, null, [
             'rawResponse' => true,
         ]);
     }
@@ -175,15 +146,16 @@ class Document extends Base
     /**
      * Update specific fields for the metadata of a file .
      *
-     * @param string $id The ID of the file to check.
      * @param array $fields An associative array of the fields to update on the
-     *                      file.
+     *                      file. Only the 'name' field is supported at this
+     *                      time.
      *
-     * @return array An associative array representing the metadata of the file.
+     * @return bool Was the file updated?
      * @throws Box\View\Exception
      */
-    public static function update($id, $fields)
+    public function update($fields)
     {
+        $path       = '/' . $this->id;
         $postParams = [];
 
         $supportedFields = ['name'];
@@ -192,14 +164,91 @@ class Document extends Base
             if (isset($fields[$field])) $postParams[$field] = $fields[$field];
         }
 
-        return static::_request('/' . $id, null, $postParams, [
+        $metadata = static::request($this->client, $path, null, $postParams, [
             'httpMethod' => 'PUT',
         ]);
+
+        $this->setValues($metadata);
+        return true;
     }
 
     /**
-     * Upload a local file.
+     * Get a list of all documents that meet the provided criteria.
      *
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param array|null $params Optional. An associative array to filter the
+     *                           list of all documents uploaded. None are
+     *                           necessary; all are optional. Use the following
+     *                           options:
+     *                             - int|null 'limit' The number of documents to
+     *                               return.
+     *                             - string|DateTime|null 'createdBefore' Upper
+     *                               date limit to filter by.
+     *                             - string|DateTime|null 'createdAfter' Lower
+     *                               date limit to filter by.
+     *
+     * @return array An array containing document instances matching the
+     *               request.
+     * @throws Box\View\Exception
+     */
+    public static function find($client, $params = [])
+    {
+        $getParams = [];
+        if (!empty($params['limit'])) $getParams['limit'] = $params['limit'];
+
+        if (!empty($params['createdBefore'])) {
+            $createdBefore               = $params['createdBefore'];
+            $getParams['created_before'] = static::date($createdBefore);
+        }
+
+        if (!empty($params['createdAfter'])) {
+            $createdAfter               = $params['createdAfter'];
+            $getParams['created_after'] = static::date($createdAfter);
+        }
+
+        $response = static::request($client, null, $getParams);
+
+        if (empty($response)
+            || empty($response['document_collection'])
+            || !isset($response['document_collection']['entries'])
+        ) {
+            $message = '$response is not in a valid format.';
+            return static::error('invalid_response', $message);
+        }
+
+        $documents = [];
+
+        foreach ($response['document_collection']['entries'] as $metadata) {
+            $documents[] = new Document($client, $metadata);
+        }
+
+        return $documents;
+    }
+
+   /**
+     * Create a new document instance by ID, and load it with values requested
+     * from the API.
+     *
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param string $id The document ID.
+     *
+     * @return Box\View\Document A document instance using data from the API.
+     * @throws Box\View\Exception
+     */
+    public static function get($client, $id)
+    {
+        $fields   = ['id', 'created_at', 'name', 'status'];
+        $metadata = static::request($client, '/' . $id, [
+            'fields' => implode(',', $fields),
+        ]);
+
+        return new self($client, $metadata);
+    }
+
+    /**
+     * Upload a local file and return a new document instance.
+     *
+     * @param Box\View\Client $client The client instance to make requests from.
      * @param resource $file The file resource to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -215,25 +264,26 @@ class Document extends Base
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return array An associative array representing the metadata of the file.
+     * @return Box\View\Document A new document instance.
      * @throws Box\View\Exception
      */
-    public static function uploadFile($file, $params = [])
+    public static function uploadFile($client, $file, $params = [])
     {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
-            return static::_error('invalid_file', $message);
+            return static::error('invalid_file', $message);
         }
 
-        return static::_upload($params, null, [
+        return static::upload($client, $params, null, [
             'file' => $file,
             'host' => 'upload.view-api.box.com',
         ]);
     }
 
     /**
-     * Upload a file by URL.
+     * Upload a file by URL and return a new document instance.
      *
+     * @param Box\View\Client $client The client instance to make requests from.
      * @param string $url The url of the file to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -249,13 +299,80 @@ class Document extends Base
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return array An associative array representing the metadata of the file.
+     * @return Box\View\Document A new document instance.
      * @throws Box\View\Exception
      */
-    public static function uploadUrl($url, $params = [])
+    public static function uploadUrl($client, $url, $params = [])
     {
-        return static::_upload($params, [
+        return static::upload($client, $params, [
             'url' => $url,
         ]);
+    }
+
+    /**
+     * Update the current document instance with new metadata.
+     *
+     * @param array $data An associative array to instantiate the object with.
+     *                    Use the following values:
+     *                      - string 'createdAt' The date te document was
+     *                        created.
+     *                      - string 'name' The document title.
+     *                      - string 'status' The document status, which can be
+     *                        'queued', 'processing', 'done', or 'error'.
+     */
+    private function setValues($data)
+    {
+        if (isset($data['created_at'])) {
+            $data['createdAt'] = $data['created_at'];
+            unset($data['created_at']);
+        }
+
+        if (isset($data['createdAt'])) {
+            $this->createdAt = static::date($data['createdAt']);
+        }
+
+        if (isset($data['name']))   $this->name   = $data['name'];
+        if (isset($data['status'])) $this->status = $data['status'];
+    }
+
+    /**
+     * Generic upload function used by the two other upload functions, which are
+     * more specific than this one, and know how to handle upload by URL and
+     * upload from filesystem.
+     *
+     * @param Box\View\Client $client The client instance to make requests from.
+     * @param array|null $params An associative array of options relating to the
+     *                           file upload. Pass-thru from the other upload
+     *                           functions.
+     * @param array|null $postParams An associative array of POST params to be
+     *                               sent in the body.
+     * @param array|null $options An associative array of request options that
+     *                            may modify the way the request is made.
+     *
+     * @return Box\View\Document A new document instance.
+     * @throws Box\View\Exception
+     */
+    private static function upload(
+        $client,
+        $params,
+        $postParams = [],
+        $options = []
+    ) {
+        if (!empty($params['name'])) $postParams['name'] = $params['name'];
+
+        if (!empty($params['thumbnails'])) {
+            if (is_array($params['thumbnails'])) {
+                $params['thumbnails'] = implode(',', $params['thumbnails']);
+            }
+
+            $postParams['thumbnails'] = $params['thumbnails'];
+        }
+
+        if (!empty($params['nonSvg'])) {
+            $postParams['non_svg'] = $params['nonSvg'];
+        }
+
+        $metadata = static::request($client, null, null, $postParams, $options);
+        return new self($client, $metadata);
     }
 }

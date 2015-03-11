@@ -4,21 +4,19 @@ namespace Box\View;
 /**
  * Acts as a base class for the different Box View APIs.
  */
-class Base
+abstract class Base
 {
     /**
-     * The request handler.
-     *
-     * @var Request|null
-     */
-    protected static $_requestHandler;
-
-    /**
      * The API path relative to the base API path.
-     *
      * @var string
      */
     public static $path = '/';
+
+    /**
+     * The client instance to make requests from.
+     * @var Box\View\Client
+     */
+    protected $client;
 
     /**
      * Take a date in almost any format, and return a date string that is
@@ -29,7 +27,7 @@ class Base
      *
      * @return string An RFC 3339 timestamp.
      */
-    protected static function _date($date)
+    protected static function date($date)
     {
         if (is_string($date)) $date = new \DateTime($date);
         $date->setTimezone(new \DateTimeZone('UTC'));
@@ -46,7 +44,7 @@ class Base
      * @return void No return value.
      * @throws Box\View\Exception
      */
-    protected static function _error($error, $message = null)
+    protected static function error($error, $message = null)
     {
         $exception            = new Exception($message);
         $exception->errorCode = $error;
@@ -56,6 +54,7 @@ class Base
     /**
      * Send a new request to the API.
      *
+     * @param Box\View\Client $client The client instance to make requests from.
      * @param string $path The path to add after the base path.
      * @param array|null $getParams Optional. An associative array of GET params
      *                              to be added to the URL.
@@ -68,45 +67,18 @@ class Base
      * @return array|string The response is pass-thru from Box\View\Request.
      * @throws Box\View\Exception
      */
-    protected static function _request(
+    protected static function request(
+        $client,
         $path,
         $getParams   = [],
         $postParams  = [],
         $requestOpts = []
     ) {
-        $requestHandler = static::getRequestHandler();
+        $requestHandler = $client->getRequestHandler();
         return $requestHandler->send(
-            $path,
+            static::$path . $path,
             $getParams,
             $postParams,
-            $requestOpts
-        );
-    }
-
-    /**
-     * Return the request handler.
-     *
-     * @return Request The request handler.
-     */
-    public static function getRequestHandler()
-    {
-        if (!isset(static::$_requestHandler)) {
-            $requestHandler = new Request(Client::getApiKey(), static::$path);
-            static::setRequestHandler($requestHandler);
-        }
-
-        return static::$_requestHandler;
-    }
-
-    /**
-     * Set the request handler.
-     *
-     * @param Request $requestHandler The request handler.
-     *
-     * @return void No return value.
-     */
-    public static function setRequestHandler($requestHandler)
-    {
-        static::$_requestHandler = $requestHandler;
+            $requestOpts);
     }
 }

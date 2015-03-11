@@ -7,8 +7,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $apiKey       = 'abc123';
+        $this->client = new \Box\View\Client($apiKey);
+
         $this->requestMock = m::mock('\Box\View\Request');
-        \Box\View\Document::setRequestHandler($this->requestMock);
+        $this->client->setRequestHandler($this->requestMock);
     }
 
     public function tearDown()
@@ -16,19 +19,72 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         m::close();
     }
 
+    public function testConstructor()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
+
+        $response = new \Box\View\Document($this->client, $rawDocument);
+
+        $this->assertEquals($document, $response);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testDefaultCreateSession()
+    {
+        $sessionMock = m::mock('alias:\Box\View\Session');
+        $document    = $this->getTestDocument();
+        $session     = $this->getTestSession();
+
+        $sessionMock->shouldReceive('create')
+                    ->with($this->client, $document->id, [])
+                    ->andReturn($session);
+
+        $response = $document->createSession();
+
+        $this->assertEquals($session, $response);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testCreateSessionWithOptions()
+    {
+        $sessionMock = m::mock('alias:\Box\View\Session');
+        $document    = $this->getTestDocument();
+        $session     = $this->getTestSession();
+        $options     = [
+           'duration'         => 10,
+           'expiresAt'        => date('c', strtotime('now')),
+           'isDownloadable'   => true,
+           'isTextSelectable' => false,
+        ];
+
+        $sessionMock->shouldReceive('create')
+                    ->with($this->client, $document->id, $options)
+                    ->andReturn($session);
+
+        $response = $document->createSession($options);
+
+        $this->assertEquals($session, $response);
+    }
+
     public function testDelete()
     {
-        $id = 123;
+        $document = $this->getTestDocument();
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id, null, null, [
+             ->with('/documents/' . $document->id, null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andReturnNull();
 
-        $deleted = \Box\View\Document::delete($id);
+        $deleted  = $document->delete();
+
         $this->assertTrue($deleted);
     }
 
@@ -38,184 +94,96 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id, null, null, [
+             ->with('/documents/' . $id, null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
+        $document = new \Box\View\Document($this->client, [
+            'id' => $id,
+        ]);
+
+        $failed = false;
+
         try {
-            $deleted = \Box\View\Document::delete($id);
+            $deleted = $document->delete($id);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
+
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
     public function testDefaultDownload()
     {
-        $id      = 123;
-        $content = '123456789';
+        $document = $this->getTestDocument();
+        $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id . '/content', null, null, [
+             ->with('/documents/' . $document->id . '/content', null, null, [
                    'rawResponse' => true,
                ])
-             ->andReturn('123456789');
+             ->andReturn($content);
 
-        $response = \Box\View\Document::download($id);
+        $response = $document->download();
+
         $this->assertEquals($content, $response);
     }
 
     public function testDownloadWithExtension()
     {
-        $id      = 123;
-        $content = '123456789';
+        $document = $this->getTestDocument();
+        $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id . '/content.pdf', null, null, [
+             ->with('/documents/' . $document->id . '/content.pdf', null, null, [
                    'rawResponse' => true,
                ])
-             ->andReturn('123456789');
+             ->andReturn($content);
 
-        $response = \Box\View\Document::download($id, 'pdf');
+        $response = $document->download('pdf');
+
         $this->assertEquals($content, $response);
     }
 
     public function testDownloadWithWrongExtension()
     {
-        $id       = 123;
-        $expected = '123456789';
+        $document = $this->getTestDocument();
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id . '/content.pdf2', null, null, [
+             ->with('/documents/' . $document->id . '/content.pdf2', null, null, [
                    'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
-        try {
-            $response = \Box\View\Document::download($id, 'pdf2');
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
-        }
-    }
-
-    public function testDefaultList()
-    {
-        $documents = $this->_getTestDocuments();
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with('', null, null, null)
-             ->andReturn($documents);
-
-        $response = \Box\View\Document::listDocuments();
-        $this->assertSame($documents, $response);
-    }
-
-    public function testListWithLimit()
-    {
-        $limit     = 1;
-        $documents = $this->_getTestDocuments($limit);
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with('', [
-                   'limit' => $limit,
-               ], null, null)
-             ->andReturn($documents);
-
-        $response = \Box\View\Document::listDocuments([
-            'limit' => $limit,
-        ]);
-        $this->assertSame($documents, $response);
-        $this->assertCount($limit, $response);
-    }
-
-   public function testListWithOptions()
-    {
-        $limit         = 1;
-        $createdAfter  = date('r', strtotime('-2 weeks'));
-        $createdBefore = date('r', strtotime('-1 week'));
-        $documents     = $this->_getTestDocuments($limit);
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with('', [
-                   'limit'          => $limit,
-                   'created_before' => date('c', strtotime($createdBefore)),
-                   'created_after'  => date('c', strtotime($createdAfter)),
-               ], null, null)
-             ->andReturn($documents);
-
-        $response = \Box\View\Document::listDocuments([
-            'limit'          => 1,
-             'createdAfter'  => $createdAfter,
-             'createdBefore' => $createdBefore,
-        ]);
-        $this->assertSame($documents, $response);
-        $this->assertCount($limit, $response);
-    }
-
-    public function testMetadata()
-    {
-        $id       = '8db7bd32e40d48adac24b3c955f49e23';
-        $document = $this->_getTestDocument();
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with('/' . $id, [
-                   'fields' => 'id,type,status,name,created_at',
-               ], null, null)
-             ->andReturn($document);
-
-        $response = \Box\View\Document::metadata($id, [
-            'id',
-            'type',
-            'status',
-            'name',
-            'created_at',
-        ]);
-        $this->assertEquals($id, $response['id']);
-        $this->assertSame($document, $response);
-    }
-
-    public function testMetadataWithNonExistantFile()
-    {
-        $id       = '123';
-        $document = $this->_getTestDocument();
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with('/' . $id, [
-                   'fields' => 'id,type,status,name,created_at',
-               ], null, null)
-             ->andThrow('Box\View\Exception');
+        $failed = false;
 
         try {
-            $response = \Box\View\Document::metadata($id, [
-                'id',
-                'type',
-                'status',
-                'name',
-                'created_at',
-            ]);
+            $response = $document->download('pdf2');
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
+
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
     public function testThumbnail()
     {
-        $id      = 123;
-        $content = '123456789';
+        $document = $this->getTestDocument();
+        $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/' . $id . '/thumbnail',
+                   '/documents/' . $document->id . '/thumbnail',
                    [
                        'height' => 100,
                        'width'  => 100,
@@ -225,21 +193,25 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                        'rawResponse' => true,
                    ]
                )
-             ->andReturn('123456789');
+             ->andReturn($content);
 
-        $response = \Box\View\Document::thumbnail($id, 100, 100);
+        $response = $document->thumbnail(100, 100);
+
         $this->assertEquals($content, $response);
     }
 
     public function testThumbnailNonExistantFile()
     {
-        $id      = 123;
-        $content = '123456789';
+        $id = '123';
+        $document = new \Box\View\Document($this->client, [
+            'id' => $id,
+        ]);
+        $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/' . $id . '/thumbnail',
+                   '/documents/' . $document->id . '/thumbnail',
                    [
                        'height' => 100,
                        'width'  => 100,
@@ -251,25 +223,31 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                )
              ->andThrow('Box\View\Exception');
 
+        $failed = false;
+
         try {
-            $response = \Box\View\Document::thumbnail($id, 100, 100);
+            $response = $document->thumbnail(100, 100);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
+
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
     public function testUpdate()
     {
-        $id      = 123;
-        $newName = 'Updated Name';
+        $document = $this->getTestDocument();
+        $newName  = 'Updated Name';
 
-        $document         = $this->_getTestDocument();
-        $document['name'] = $newName;
+        $updatedRawDocument         = $this->getRawTestDocument();
+        $updatedRawDocument['name'] = $newName;
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/' . $id,
+                   '/documents/' . $document->id,
                    null,
                    [
                        'name' => $newName,
@@ -278,46 +256,169 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                        'httpMethod' => 'PUT',
                    ]
                )
-             ->andReturn($document);
+             ->andReturn($updatedRawDocument);
 
-        $response = \Box\View\Document::update($id, [
+        $response = $document->update([
             'name' => $newName,
         ]);
-        $this->assertEquals($newName, $response['name']);
-        $this->assertSame($document, $response);
+
+        $this->assertEquals($newName, $document->name);
+        $this->assertTrue($response);
+    }
+
+    public function testDefaultFind()
+    {
+        $rawDocuments = $this->getRawTestDocuments();
+        $documents    = $this->getTestDocuments();
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents', null, null, null)
+             ->andReturn($rawDocuments);
+
+        $response = \Box\View\Document::find($this->client);
+
+        $this->assertEquals($documents, $response);
+    }
+
+    public function testFindWithLimit()
+    {
+        $limit        = 1;
+        $rawDocuments = $this->getRawTestDocuments($limit);
+        $documents    = $this->getTestDocuments($limit);
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents', [
+                   'limit' => $limit,
+               ], null, null)
+             ->andReturn($rawDocuments);
+
+        $response = \Box\View\Document::find($this->client, [
+            'limit' => $limit,
+        ]);
+
+        $this->assertEquals($documents, $response);
+        $this->assertCount($limit, $response);
+    }
+
+    public function testFindWithOptions()
+    {
+        $limit         = 1;
+        $createdAfter  = date('r', strtotime('-2 weeks'));
+        $createdBefore = date('r', strtotime('-1 week'));
+        $rawDocuments  = $this->getRawTestDocuments($limit);
+        $documents     = $this->getTestDocuments($limit);
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents', [
+                   'limit'          => $limit,
+                   'created_before' => date('c', strtotime($createdBefore)),
+                   'created_after'  => date('c', strtotime($createdAfter)),
+               ], null, null)
+             ->andReturn($rawDocuments);
+
+        $response = \Box\View\Document::find($this->client, [
+            'limit'          => $limit,
+             'createdAfter'  => $createdAfter,
+             'createdBefore' => $createdBefore,
+        ]);
+
+        $this->assertEquals($documents, $response);
+        $this->assertCount($limit, $response);
+    }
+
+    public function testDefaultGet()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents/' . $document->id, [
+                   'fields' => 'id,created_at,name,status',
+               ], null, null)
+             ->andReturn($rawDocument);
+
+        $response = \Box\View\Document::get($this->client, $document->id);
+
+        $this->assertEquals($document->id, $response->id);
+        $this->assertEquals($document, $response);
+    }
+
+    public function testGetWithNonExistantFile()
+    {
+        $id = '123';
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents/' . $id, [
+                   'fields' => 'id,created_at,name,status',
+               ], null, null)
+             ->andThrow('Box\View\Exception');
+
+        $failed = false;
+
+        try {
+            $document = \Box\View\Document::get($this->client, $id);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Box\View\Exception', $e);
+
+            $failed = true;
+        }
+
+        $this->assertTrue($failed);
     }
 
     public function testDefaultUploadFile()
     {
-        $filename = __DIR__ . '/../examples/files/sample.doc';
-        $handle   = fopen($filename, 'r');
-        $document = $this->_getTestDocument();
+        $filename    = __DIR__ . '/../examples/files/sample.doc';
+        $handle      = fopen($filename, 'r');
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with(null, null, null, [
+             ->with('/documents', null, null, [
                    'file' => $handle,
                    'host' => 'upload.view-api.box.com',
                ])
-             ->andReturn($document);
+             ->andReturn($rawDocument);
 
-        $response = \Box\View\Document::uploadFile($handle);
-        $this->assertSame($document, $response);
+        $response = \Box\View\Document::uploadFile($this->client, $handle);
+
+        $this->assertEquals($document, $response);
     }
 
     public function testUploadFileWithInvalidFile()
     {
         $handle = null;
 
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/documents', null, null, [
+                   'file' => $handle,
+                   'host' => 'upload.view-api.box.com',
+               ])
+             ->andThrow('Box\View\Exception');
+
+        $failed = false;
+
         try {
-            $response = \Box\View\Document::uploadFile($handle);
+            $response = \Box\View\Document::uploadFile($this->client, $handle);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
             $this->assertEquals('invalid_file', $e->errorCode);
 
             $message = '$file is not a valid file resource.';
+
             $this->assertEquals($message, $e->getMessage());
+
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
     public function testUploadFileWithParams()
@@ -326,13 +427,16 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $handle   = fopen($filename, 'r');
         $newName  = 'Updated Name';
 
-        $document         = $this->_getTestDocument();
-        $document['name'] = $newName;
+        $rawDocument         = $this->getRawTestDocument();
+        $rawDocument['name'] = $newName;
+
+        $document       = $this->getTestDocument();
+        $document->name = $newName;
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   null,
+                   '/documents',
                    null,
                    [
                        'name' => $newName,
@@ -342,29 +446,32 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                        'host' => 'upload.view-api.box.com',
                    ]
                )
-             ->andReturn($document);
+             ->andReturn($rawDocument);
 
-        $response = \Box\View\Document::uploadFile($handle, [
+        $response = \Box\View\Document::uploadFile($this->client, $handle, [
             'name' => $newName,
         ]);
-        $this->assertSame($document, $response);
-        $this->assertEquals($newName, $response['name']);
+
+        $this->assertEquals($document, $response);
+        $this->assertEquals($newName, $response->name);
     }
 
     public function testDefaultUploadUrl()
     {
-        $url      = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
-        $document = $this->_getTestDocument();
+        $url         = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with(null, null, [
+             ->with('/documents', null, [
                    'url' => $url,
                ], null)
-             ->andReturn($document);
+             ->andReturn($rawDocument);
 
-        $response = \Box\View\Document::uploadUrl($url);
-        $this->assertSame($document, $response);
+        $response = \Box\View\Document::uploadUrl($this->client, $url);
+
+        $this->assertEquals($document, $response);
     }
 
     public function testUploadUrlWithInvalidFile()
@@ -373,16 +480,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with(null, null, [
+             ->with('/documents', null, [
                    'url' => $url,
                ], null)
              ->andThrow('Box\View\Exception');
 
+        $failed = false;
+
         try {
-            $response = \Box\View\Document::uploadUrl($url);
+            $response = \Box\View\Document::uploadUrl($this->client, $url);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
+
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
     public function testUploadUrlWithParams()
@@ -390,31 +503,60 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $url     = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
         $newName = 'Updated Name';
 
-        $document         = $this->_getTestDocument();
-        $document['name'] = $newName;
+        $document       = $this->getTestDocument();
+        $document->name = $newName;
+
+        $rawDocument         = $this->getRawTestDocument();
+        $rawDocument['name'] = $newName;
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with(null, null, [
+             ->with('/documents', null, [
                    'name' => $newName,
                    'url'  => $url,
                ], null)
-             ->andReturn($document);
+             ->andReturn($rawDocument);
 
-        $response = \Box\View\Document::uploadUrl($url, [
+        $response = \Box\View\Document::uploadUrl($this->client, $url, [
             'name' => $newName,
         ]);
-        $this->assertSame($document, $response);
-        $this->assertEquals($newName, $response['name']);
+
+        $this->assertEquals($document, $response);
+        $this->assertEquals($newName, $response->name);
     }
 
-    private function _getTestDocument()
+    private function getTestDocument()
     {
-        $documents = $this->_getTestDocuments(1);
+        $document = $this->getRawTestDocument();
+        return new \Box\View\Document($this->client, $document);
+    }
+
+    private function getTestDocuments($limit = null)
+    {
+        $documents    = [];
+        $rawDocuments = $this->getRawTestDocuments($limit);
+        $entries      = $rawDocuments['document_collection']['entries'];
+
+        foreach ($entries as $rawDocument) {
+            $documents[] = new \Box\View\Document($this->client, $rawDocument);
+        }
+
+        return $documents;
+    }
+
+    private function getTestSession()
+    {
+        $session = $this->getRawTestSession();
+        return new \Box\View\Session($this->client, $session);
+    }
+
+    private function getRawTestDocument()
+    {
+        $documents = $this->getRawTestDocuments(1);
         return $documents['document_collection']['entries'][0];
     }
 
-    private function _getTestDocuments($limit = null)
+    private function getRawTestDocuments($limit = null)
     {
         $documents = [
             'document_collection' => [
@@ -439,9 +581,32 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ];
 
         if ($limit) {
-            $documents = array_slice($documents, 0, $limit);
+            $entries = $documents['document_collection']['entries'];
+            $documents['document_collection']['entries']
+                = array_slice($entries, 0, $limit);
         }
 
         return $documents;
+    }
+
+    private function getRawTestSession()
+    {
+        return [
+            'type'       => 'session',
+            'id'         => 'c3d082985d08425faacb744aa28a8ba3',
+            'document'   => [
+                'type'       => 'document',
+                'id'         => 'f5f342c440b84dcfa4104eaae49cdead',
+                'status'     => 'done',
+                'name'       => 'Updated Name',
+                'created_at' => '2015-02-02T09:16:19Z',
+            ],
+            'expires_at' => '2015-02-02T10:16:39.876Z',
+            'urls'       => [
+                'view'     => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/view',
+                'assets'   => 'https://view-api.box.com/1/sessions/c3d082985d08425faacb744aa28a8ba3/assets/',
+                'realtime' => 'https://view-api.box.com/sse/c3d082985d08425faacb744aa28a8ba3',
+            ],
+        ];
     }
 }

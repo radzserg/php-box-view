@@ -7,8 +7,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $apiKey       = 'abc123';
+        $this->client = new \Box\View\Client($apiKey);
+
         $this->requestMock = m::mock('\Box\View\Request');
-        \Box\View\Session::setRequestHandler($this->requestMock);
+        $this->client->setRequestHandler($this->requestMock);
     }
 
     public function tearDown()
@@ -16,89 +19,28 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function testDefaultCreate()
+    public function testConstructor()
     {
-        $id = 123;
+        $rawSession = $this->getRawTestSession();
+        $session    = $this->getTestSession();
+        $response   = new \Box\View\Session($this->client, $rawSession);
 
-        $session = $this->_getTestSession();
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with(null, null, [
-                   'document_id' => $id,
-               ], null)
-             ->andReturn($session);
-
-        $response = \Box\View\Session::create($id);
-        $this->assertSame($session, $response);
-        $this->assertEquals(
-            $session['document']['id'],
-            $response['document']['id']
-        );
-    }
-
-    public function testCreateWithNonExistantFile()
-    {
-        $id = 123;
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with(null, null, [
-                   'document_id' => $id,
-               ], null)
-             ->andThrow('Box\View\Exception');
-
-        try {
-            $session = \Box\View\Session::create($id);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
-        }
-    }
-
-    public function testCreateWithOptions()
-    {
-        $id   = 123;
-        $date = date('r', strtotime('+10 min'));
-
-        $session = $this->_getTestSession();
-
-        $this->requestMock
-             ->shouldReceive('send')
-             ->with(null, null, [
-                   'document_id'        => $id,
-                   'duration'           => 10,
-                   'expires_at'         => date('c', strtotime($date)),
-                   'is_downloadable'    => true,
-                   'is_text_selectable' => false,
-               ], null)
-             ->andReturn($session);
-
-        $response = \Box\View\Session::create($id, [
-            'duration'         => 10,
-            'expiresAt'        => $date,
-            'isDownloadable'   => true,
-            'isTextSelectable' => false,
-        ]);
-        $this->assertSame($session, $response);
-        $this->assertEquals(
-            $session['document']['id'],
-            $response['document']['id']
-        );
+        $this->assertEquals($session, $response);
     }
 
     public function testDelete()
     {
-        $id = 123;
+        $session = $this->getTestSession();
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id, null, null, [
+             ->with('/sessions/' . $session->id, null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andReturnNull();
 
-        $deleted = \Box\View\Session::delete($id);
+        $deleted = $session->delete();
         $this->assertTrue($deleted);
     }
 
@@ -108,20 +50,110 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/' . $id, null, null, [
+             ->with('/sessions/' . $id, null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
+        $session = new \Box\View\Session($this->client, [
+            'id' => $id,
+        ]);
+        $failed   = false;
+
         try {
-            $deleted = \Box\View\Session::delete($id);
+            $deleted = $session->delete();
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
+            $failed = true;
         }
+
+        $this->assertTrue($failed);
     }
 
-    private function _getTestSession()
+    public function testDefaultCreate()
+    {
+        $rawSession = $this->getRawTestSession();
+        $session    = $this->getTestSession();
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/sessions', null, [
+                   'document_id' => $session->id,
+               ], null)
+             ->andReturn($rawSession);
+
+        $response = \Box\View\Session::create($this->client, $session->id);
+
+        $this->assertEquals($session, $response);
+        $this->assertEquals(
+            $session->document->id,
+            $response->document->id
+        );
+    }
+
+    public function testCreateWithNonExistantFile()
+    {
+        $id = 123;
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/sessions', null, [
+                   'document_id' => $id,
+               ], null)
+             ->andThrow('Box\View\Exception');
+
+        $failed = false;
+
+        try {
+            $session = \Box\View\Session::create($this->client, $id);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Box\View\Exception', $e);
+            $failed = true;
+        }
+
+        $this->assertTrue($failed);
+    }
+
+    public function testCreateWithOptions()
+    {
+        $rawSession = $this->getRawTestSession();
+        $session    = $this->getTestSession();
+        $date       = date('r', strtotime('+10 min'));
+
+        $this->requestMock
+             ->shouldReceive('send')
+             ->with('/sessions', null, [
+                   'document_id'        => $session->document->id,
+                   'duration'           => 10,
+                   'expires_at'         => date('c', strtotime($date)),
+                   'is_downloadable'    => true,
+                   'is_text_selectable' => false,
+               ], null)
+             ->andReturn($rawSession);
+
+        $docId = $session->document->id;
+        $response = \Box\View\Session::create($this->client, $docId, [
+            'duration'         => 10,
+            'expiresAt'        => $date,
+            'isDownloadable'   => true,
+            'isTextSelectable' => false,
+        ]);
+
+        $this->assertEquals($session, $response);
+        $this->assertEquals(
+            $session->document->id,
+            $response->document->id
+        );
+    }
+
+    private function getTestSession()
+    {
+        $session = $this->getRawTestSession();
+        return new \Box\View\Session($this->client, $session);
+    }
+
+    private function getRawTestSession()
     {
         return [
             'type'       => 'session',
