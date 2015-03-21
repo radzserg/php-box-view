@@ -7,6 +7,7 @@ namespace Box\View;
  * specific session-based URL.
  *
  * Session objects have the following fields:
+ *   - Box\View\Document 'document' The document the session was created for.
  *   - string 'id' The session ID.
  *   - string 'expiresAt' The date te session was created.
  *   - array 'urls' An associative array of URLs for 'assets', 'realtime', and
@@ -58,6 +59,8 @@ class Session extends Base
      * @param Box\View\Client $client The client instance to make requests from.
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
+     *                      - Box\View\Document 'document' The document the
+     *                        session was created for.
      *                      - string 'id' The session ID.
      *                      - string 'expiresAt' The date te session was
      *                        created.
@@ -199,6 +202,8 @@ class Session extends Base
      *
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
+     *                      - Box\View\Document 'document' The document the
+     *                        session was created for.
      *                      - string 'expiresAt' The date te session was
      *                        created.
      *                      - array 'urls' An associative array of URLs for
@@ -206,6 +211,10 @@ class Session extends Base
      */
     private function setValues($data)
     {
+        if (isset($data['document'])) {
+            $this->document = new Document($this->client, $data['document']);
+        }
+
         if (isset($data['expires_at'])) {
             $data['expiresAt'] = $data['expires_at'];
             unset($data['expires_at']);
@@ -215,20 +224,18 @@ class Session extends Base
             $this->expiresAt = static::date($data['expiresAt']);
         }
 
-        if (isset($data['urls']['assets'])) {
-            $this->urls['assets'] = $data['urls']['assets'];
-        }
+        if (isset($data['urls']) && is_array($data['urls'])) {
+            if (isset($data['urls']['assets'])) {
+                $this->urls['assets'] = $data['urls']['assets'];
+            }
 
-        if (isset($data['urls']['realtime'])) {
-            $this->urls['realtime'] = $data['urls']['realtime'];
-        }
+            if (isset($data['urls']['realtime'])) {
+                $this->urls['realtime'] = $data['urls']['realtime'];
+            }
 
-        if (isset($data['urls']['view'])) {
-            $this->urls['view'] = $data['urls']['view'];
-        }
-
-        if (isset($data['document'])) {
-            $this->document = new Document($this->client, $data['document']);
+            if (isset($data['urls']['view'])) {
+                $this->urls['view'] = $data['urls']['view'];
+            }
         }
     }
 }
