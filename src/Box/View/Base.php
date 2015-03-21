@@ -60,9 +60,9 @@ abstract class Base
      *                              to be added to the URL.
      * @param array|null $postParams Optional. An associative array of POST
      *                               params to be sent in the body.
-     * @param array|null $requestOpts Optional. An associative array of request
-     *                                options that may modify the way the
-     *                                request is made.
+     * @param array|null $requestOptions Optional. An associative array of
+     *                                   request options that may modify the way
+     *                                   the request is made.
      *
      * @return array|string The response is pass-thru from Box\View\Request.
      * @throws Box\View\Exception
@@ -70,15 +70,15 @@ abstract class Base
     protected static function request(
         $client,
         $path,
-        $getParams   = [],
-        $postParams  = [],
-        $requestOpts = []
+        $getParams      = [],
+        $postParams     = [],
+        $requestOptions = []
     ) {
         $requestHandler = $client->getRequestHandler();
         return $requestHandler->send(
             static::$path . $path,
             $getParams,
             $postParams,
-            $requestOpts);
+            $requestOptions);
     }
 }

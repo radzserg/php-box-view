@@ -76,9 +76,9 @@ class Request
      *                              to be added to the URL.
      * @param array|null $postParams Optional. An associative array of POST
      *                               params to be sent in the body.
-     * @param array|null $requestOpts Optional. An associative array of request
-     *                                options that may modify the way the
-     *                                request is made.
+     * @param array|null $requestOptions Optional. An associative array of
+     *                                   request options that may modify the way
+     *                                   the request is made.
      *
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from
@@ -87,32 +87,32 @@ class Request
      */
     public function send(
         $path,
-        $getParams   = [],
-        $postParams  = [],
-        $requestOpts = []
+        $getParams      = [],
+        $postParams     = [],
+        $requestOptions = []
     ) {
         $host = null;
-        if (!empty($requestOpts['host'])) $host = $requestOpts['host'];
+        if (!empty($requestOptions['host'])) $host = $requestOptions['host'];
 
         $guzzle = $this->getGuzzleInstance($host);
 
         $options = ['headers' => []];
         $method  = 'GET';
 
-        if (!empty($requestOpts['file'])) {
+        if (!empty($requestOptions['file'])) {
             $method                  = 'POST';
             $options['body']         = !empty($postParams) ? $postParams : [];
-            $options['body']['file'] = $requestOpts['file'];
+            $options['body']['file'] = $requestOptions['file'];
         } elseif (!empty($postParams)) {
             $method          = 'POST';
             $options['json'] = $postParams;
         }
 
-        if (!empty($requestOpts['httpMethod'])) {
-            $method = $requestOpts['httpMethod'];
+        if (!empty($requestOptions['httpMethod'])) {
+            $method = $requestOptions['httpMethod'];
         }
 
-        if (!empty($requestOpts['rawResponse'])) {
+        if (!empty($requestOptions['rawResponse'])) {
             $options['headers']['Accept'] = '*/*';
         }
 
@@ -122,8 +122,8 @@ class Request
         try {
             $request = $guzzle->createRequest($method, $url, $options);
 
-            $timeout = !empty($requestOpts['timeout'])
-                       ? $requestOpts['timeout']
+            $timeout = !empty($requestOptions['timeout'])
+                       ? $requestOptions['timeout']
                        : static::DEFAULT_RETRY_TIMEOUT;
             $this->timestampRequested = time();
 
@@ -132,7 +132,7 @@ class Request
             static::handleRequestError($e);
         }
 
-        $rawResponse = !empty($requestOpts['rawResponse']);
+        $rawResponse = !empty($requestOptions['rawResponse']);
         return static::handleResponse($response, $rawResponse, $request);
     }
 
