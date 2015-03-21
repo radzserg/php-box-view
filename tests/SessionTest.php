@@ -34,7 +34,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/sessions/' . $session->id, null, null, [
+             ->with('/sessions/' . $session->getId(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
@@ -46,19 +46,16 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteWithNonExistantSession()
     {
-        $id = 123;
+        $session = new \Box\View\Session($this->client, ['id' => 123]);
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/sessions/' . $id, null, null, [
+             ->with('/sessions/' . $session->getId(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
-        $session = new \Box\View\Session($this->client, [
-            'id' => $id,
-        ]);
         $failed   = false;
 
         try {
@@ -71,6 +68,37 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($failed);
     }
 
+    public function testGetDocument()
+    {
+        $rawSession = $this->getRawTestSession();
+        $session    = $this->getTestSession();
+        $document   = new \Box\View\Document(
+            $this->client,
+            $rawSession['document']
+        );
+
+        $response = $session->getDocument();
+
+        $this->assertEquals($document, $response);
+    }
+
+    public function testGetExpiresAt()
+    {
+        $rawSession = $this->getRawTestSession();
+        $expiresAt  = date('c', strtotime($rawSession['expires_at']));
+        $session    = $this->getTestSession();
+
+        $this->assertEquals($expiresAt, $session->getExpiresAt());
+    }
+
+    public function testGetId()
+    {
+        $rawSession = $this->getRawTestSession();
+        $session    = $this->getTestSession();
+
+        $this->assertEquals($rawSession['id'], $session->getId());
+    }
+
     public function testDefaultCreate()
     {
         $rawSession = $this->getRawTestSession();
@@ -79,16 +107,16 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/sessions', null, [
-                   'document_id' => $session->id,
+                   'document_id' => $session->getId(),
                ], null)
              ->andReturn($rawSession);
 
-        $response = \Box\View\Session::create($this->client, $session->id);
+        $response = \Box\View\Session::create($this->client, $session->getId());
 
         $this->assertEquals($session, $response);
         $this->assertEquals(
-            $session->document->id,
-            $response->document->id
+            $session->getDocument()->getId(),
+            $response->getDocument()->getId()
         );
     }
 
@@ -98,9 +126,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/sessions', null, [
-                   'document_id' => $id,
-               ], null)
+             ->with('/sessions', null, ['document_id' => $id ], null)
              ->andThrow('Box\View\Exception');
 
         $failed = false;
@@ -124,7 +150,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/sessions', null, [
-                   'document_id'        => $session->document->id,
+                   'document_id'        => $session->getDocument()->getId(),
                    'duration'           => 10,
                    'expires_at'         => date('c', strtotime($date)),
                    'is_downloadable'    => true,
@@ -132,7 +158,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
                ], null)
              ->andReturn($rawSession);
 
-        $docId = $session->document->id;
+        $docId = $session->getDocument()->getId();
         $response = \Box\View\Session::create($this->client, $docId, [
             'duration'         => 10,
             'expiresAt'        => $date,
@@ -142,8 +168,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($session, $response);
         $this->assertEquals(
-            $session->document->id,
-            $response->document->id
+            $session->getDocument()->getId(),
+            $response->getDocument()->getId()
         );
     }
 

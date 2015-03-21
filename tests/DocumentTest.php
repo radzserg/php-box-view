@@ -39,7 +39,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $session     = $this->getTestSession();
 
         $sessionMock->shouldReceive('create')
-                    ->with($this->client, $document->id, [])
+                    ->with($this->client, $document->getId(), [])
                     ->andReturn($session);
 
         $response = $document->createSession();
@@ -63,7 +63,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ];
 
         $sessionMock->shouldReceive('create')
-                    ->with($this->client, $document->id, $options)
+                    ->with($this->client, $document->getId(), $options)
                     ->andReturn($session);
 
         $response = $document->createSession($options);
@@ -77,7 +77,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $document->id, null, null, [
+             ->with('/documents/' . $document->getId(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
@@ -90,24 +90,20 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteWithNonExistantFile()
     {
-        $id = 123;
+        $document = new \Box\View\Document($this->client, ['id' => 123]);
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $id, null, null, [
+             ->with('/documents/' . $document->getId(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
              ->andThrow('Box\View\Exception');
 
-        $document = new \Box\View\Document($this->client, [
-            'id' => $id,
-        ]);
-
         $failed = false;
 
         try {
-            $deleted = $document->delete($id);
+            $deleted = $document->delete();
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
 
@@ -120,13 +116,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testDefaultDownload()
     {
         $document = $this->getTestDocument();
+        $path     = '/documents/' . $document->getId() . '/content';
         $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $document->id . '/content', null, null, [
-                   'rawResponse' => true,
-               ])
+             ->with($path, null, null, ['rawResponse' => true])
              ->andReturn($content);
 
         $response = $document->download();
@@ -137,13 +132,12 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testDownloadWithExtension()
     {
         $document = $this->getTestDocument();
+        $path     = '/documents/' . $document->getId() . '/content.pdf';
         $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $document->id . '/content.pdf', null, null, [
-                   'rawResponse' => true,
-               ])
+             ->with($path, null, null, ['rawResponse' => true])
              ->andReturn($content);
 
         $response = $document->download('pdf');
@@ -154,12 +148,11 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
     public function testDownloadWithWrongExtension()
     {
         $document = $this->getTestDocument();
+        $path     = '/documents/' . $document->getId() . '/content.pdf2';
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $document->id . '/content.pdf2', null, null, [
-                   'rawResponse' => true,
-               ])
+             ->with($path, null, null, ['rawResponse' => true])
              ->andThrow('Box\View\Exception');
 
         $failed = false;
@@ -175,6 +168,39 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($failed);
     }
 
+    public function testGetCreatedAt()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $createdAt   = date('c', strtotime($rawDocument['created_at']));
+        $document    = $this->getTestDocument();
+
+        $this->assertEquals($createdAt, $document->getCreatedAt());
+    }
+
+    public function testGetId()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
+
+        $this->assertEquals($rawDocument['id'], $document->getId());
+    }
+
+    public function testGetName()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
+
+        $this->assertEquals($rawDocument['name'], $document->getName());
+    }
+
+    public function testGetStatus()
+    {
+        $rawDocument = $this->getRawTestDocument();
+        $document    = $this->getTestDocument();
+
+        $this->assertEquals($rawDocument['status'], $document->getStatus());
+    }
+
     public function testThumbnail()
     {
         $document = $this->getTestDocument();
@@ -183,15 +209,13 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/documents/' . $document->id . '/thumbnail',
+                   '/documents/' . $document->getId() . '/thumbnail',
                    [
                        'height' => 100,
                        'width'  => 100,
                    ],
                    null,
-                   [
-                       'rawResponse' => true,
-                   ]
+                   ['rawResponse' => true]
                )
              ->andReturn($content);
 
@@ -202,24 +226,19 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
     public function testThumbnailNonExistantFile()
     {
-        $id = '123';
-        $document = new \Box\View\Document($this->client, [
-            'id' => $id,
-        ]);
+        $document = new \Box\View\Document($this->client, ['id' => 123]);
         $content  = '123456789';
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/documents/' . $document->id . '/thumbnail',
+                   '/documents/' . $document->getId() . '/thumbnail',
                    [
                        'height' => 100,
                        'width'  => 100,
                    ],
                    null,
-                   [
-                       'rawResponse' => true,
-                   ]
+                   ['rawResponse' => true]
                )
              ->andThrow('Box\View\Exception');
 
@@ -247,22 +266,16 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with(
-                   '/documents/' . $document->id,
+                   '/documents/' . $document->getId(),
                    null,
-                   [
-                       'name' => $newName,
-                   ],
-                   [
-                       'httpMethod' => 'PUT',
-                   ]
+                   ['name' => $newName],
+                   ['httpMethod' => 'PUT']
                )
              ->andReturn($updatedRawDocument);
 
-        $response = $document->update([
-            'name' => $newName,
-        ]);
+        $response = $document->update(['name' => $newName]);
 
-        $this->assertEquals($newName, $document->name);
+        $this->assertEquals($newName, $document->getName());
         $this->assertTrue($response);
     }
 
@@ -289,9 +302,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents', [
-                   'limit' => $limit,
-               ], null, null)
+             ->with('/documents', ['limit' => $limit], null, null)
              ->andReturn($rawDocuments);
 
         $response = \Box\View\Document::find($this->client, [
@@ -336,14 +347,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents/' . $document->id, [
+             ->with('/documents/' . $document->getId(), [
                    'fields' => 'id,created_at,name,status',
                ], null, null)
              ->andReturn($rawDocument);
 
-        $response = \Box\View\Document::get($this->client, $document->id);
+        $response = \Box\View\Document::get($this->client, $document->getId());
 
-        $this->assertEquals($document->id, $response->id);
+        $this->assertEquals($document->getId(), $response->getId());
         $this->assertEquals($document, $response);
     }
 
@@ -382,7 +393,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
              ->shouldReceive('send')
              ->with('/documents', null, null, [
                    'file' => $handle,
-                   'host' => 'upload.view-api.box.com',
+                   'host' => \Box\View\Document::FILE_UPLOAD_HOST,
                ])
              ->andReturn($rawDocument);
 
@@ -399,7 +410,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
              ->shouldReceive('send')
              ->with('/documents', null, null, [
                    'file' => $handle,
-                   'host' => 'upload.view-api.box.com',
+                   'host' => \Box\View\Document::FILE_UPLOAD_HOST,
                ])
              ->andThrow('Box\View\Exception');
 
@@ -430,20 +441,22 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $rawDocument         = $this->getRawTestDocument();
         $rawDocument['name'] = $newName;
 
-        $document       = $this->getTestDocument();
-        $document->name = $newName;
+        $document = new \Box\View\Document($this->client, [
+            'id'        => $rawDocument['id'],
+            'createdAt' => $rawDocument['created_at'],
+            'name'      => $newName,
+            'status'    => $rawDocument['status'],
+        ]);
 
         $this->requestMock
              ->shouldReceive('send')
              ->with(
                    '/documents',
                    null,
-                   [
-                       'name' => $newName,
-                   ],
+                   ['name' => $newName],
                    [
                        'file' => $handle,
-                       'host' => 'upload.view-api.box.com',
+                       'host' => \Box\View\Document::FILE_UPLOAD_HOST,
                    ]
                )
              ->andReturn($rawDocument);
@@ -453,7 +466,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals($document, $response);
-        $this->assertEquals($newName, $response->name);
+        $this->assertEquals($newName, $response->getName());
     }
 
     public function testDefaultUploadUrl()
@@ -464,9 +477,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents', null, [
-                   'url' => $url,
-               ], null)
+             ->with('/documents', null, ['url' => $url], null)
              ->andReturn($rawDocument);
 
         $response = \Box\View\Document::uploadUrl($this->client, $url);
@@ -480,9 +491,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/documents', null, [
-                   'url' => $url,
-               ], null)
+             ->with('/documents', null, ['url' => $url], null)
              ->andThrow('Box\View\Exception');
 
         $failed = false;
@@ -503,11 +512,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $url     = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
         $newName = 'Updated Name';
 
-        $document       = $this->getTestDocument();
-        $document->name = $newName;
-
         $rawDocument         = $this->getRawTestDocument();
         $rawDocument['name'] = $newName;
+
+        $document = new \Box\View\Document($this->client, [
+            'id'        => $rawDocument['id'],
+            'createdAt' => $rawDocument['created_at'],
+            'name'      => $newName,
+            'status'    => $rawDocument['status'],
+        ]);
 
         $this->requestMock
              ->shouldReceive('send')
@@ -522,7 +535,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals($document, $response);
-        $this->assertEquals($newName, $response->name);
+        $this->assertEquals($newName, $response->getName());
     }
 
     private function getTestDocument()

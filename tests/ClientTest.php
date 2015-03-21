@@ -79,15 +79,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDocument()
     {
+        $id           = 123;
         $documentMock = m::mock('alias:\Box\View\Document')->makePartial();
-        $document     = new \Box\View\Document();
-        $document->id = 123;
+        $document     = new \Box\View\Document(['id' => $id]);
 
         $documentMock->shouldReceive('get')
-                     ->with($this->client, $document->id)
+                     ->with($this->client, $id)
                      ->andReturn($document);
 
-        $response = $this->client->getDocument($document->id);
+        $response = $this->client->getDocument($id);
 
         $this->assertEquals($document, $response);
     }
@@ -126,8 +126,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $documentMock = m::mock('alias:\Box\View\Document');
         $filename     = __DIR__ . '/../examples/files/sample.doc';
         $handle       = fopen($filename, 'r');
-        $document     = new \Box\View\Document();
-        $document->id = 123;
+        $document     = new \Box\View\Document(['id' => 123]);
 
         $documentMock->shouldReceive('uploadFile')
                      ->with($this->client, $handle, [])
@@ -135,7 +134,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->client->uploadFile($handle);
 
-        $this->assertSame($document, $response);
+        $this->assertEquals($document, $response);
     }
 
     /**
@@ -146,21 +145,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $documentMock = m::mock('alias:\Box\View\Document');
         $filename     = __DIR__ . '/../examples/files/sample.doc';
         $handle       = fopen($filename, 'r');
-        $document     = new \Box\View\Document();
-        $document->id = 123;
+        $document     = new \Box\View\Document(['id' => 123]);
         $newName      = 'Updated Name';
 
         $documentMock->shouldReceive('uploadFile')
-                     ->with($this->client, $handle, [
-                           'name' => $newName,
-                       ])
+                     ->with($this->client, $handle, ['name' => $newName])
                      ->andReturn($document);
 
-        $response = $this->client->uploadFile($handle, [
-            'name' => $newName,
-        ]);
+        $response = $this->client->uploadFile($handle, ['name' => $newName]);
 
-        $this->assertSame($document, $response);
+        $this->assertEquals($document, $response);
     }
 
     /**
@@ -170,8 +164,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $documentMock = m::mock('alias:\Box\View\Document');
         $url          = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
-        $document     = new \Box\View\Document();
-        $document->id = 123;
+        $document     = new \Box\View\Document(['id' => 123]);
 
         $documentMock->shouldReceive('uploadUrl')
                      ->with($this->client, $url, [])
@@ -179,7 +172,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->client->uploadUrl($url);
 
-        $this->assertSame($document, $response);
+        $this->assertEquals($document, $response);
     }
 
     /**
@@ -189,21 +182,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $documentMock = m::mock('alias:\Box\View\Document');
         $url          = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
-        $document     = new \Box\View\Document();
-        $document->id = 123;
+        $document     = new \Box\View\Document(['id' => 123]);
         $newName      = 'Updated Name';
 
         $documentMock->shouldReceive('uploadUrl')
-                     ->with($this->client, $url, [
-                           'name' => $newName,
-                       ])
+                     ->with($this->client, $url, ['name' => $newName])
                      ->andReturn($document);
 
-        $response = $this->client->uploadUrl($url, [
-            'name' => $newName,
-        ]);
+        $response = $this->client->uploadUrl($url, ['name' => $newName]);
 
-        $this->assertSame($document, $response);
+        $this->assertEquals($document, $response);
     }
 
     private function getTestDocument()

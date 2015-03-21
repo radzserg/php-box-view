@@ -40,32 +40,6 @@ class Document extends Base
     const FILE_UPLOAD_HOST = 'upload.view-api.box.com';
 
     /**
-     * The date the document was created, formatted as RFC 3339.
-     * @var string
-     */
-    public $createdAt;
-
-    /**
-     * The document ID.
-     * @var string
-     */
-    public $id;
-
-    /**
-     * The document title.
-     * @var string
-     */
-    public $name;
-
-
-    /**
-     * The document status, which can be 'queued', 'processing', 'done', or
-     * 'error'.
-     * @var string
-     */
-    public $status;
-
-    /**
      * The Document API path relative to the base API path.
      * @var string
      */
@@ -77,6 +51,31 @@ class Document extends Base
      * @var array
      */
     public static $updateableFields = ['name'];
+
+    /**
+     * The date the document was created, formatted as RFC 3339.
+     * @var string
+     */
+    private $createdAt;
+
+    /**
+     * The document ID.
+     * @var string
+     */
+    private $id;
+
+    /**
+     * The document title.
+     * @var string
+     */
+    private $name;
+
+    /**
+     * The document status, which can be 'queued', 'processing', 'done', or
+     * 'error'.
+     * @var string
+     */
+    private $status;
 
     /**
      * Instantiate the document.
@@ -159,6 +158,46 @@ class Document extends Base
         return static::request($this->client, $path, null, null, [
             'rawResponse' => true,
         ]);
+    }
+
+    /**
+     * Get the date the document was created, formatted as RFC 3339.
+     *
+     * @return string The date the document was created, formatted as RFC 3339.
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Get the document ID.
+     *
+     * @return string The document ID.
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the document title.
+     *
+     * @return string The document title.
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get the document status.
+     *
+     * @return string The document title.
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**
@@ -341,9 +380,7 @@ class Document extends Base
      */
     public static function uploadUrl($client, $url, $params = [])
     {
-        return static::upload($client, $params, [
-            'url' => $url,
-        ]);
+        return static::upload($client, $params, ['url' => $url]);
     }
 
     /**
@@ -408,8 +445,6 @@ class Document extends Base
         if (!empty($params['nonSvg'])) {
             $postParams['non_svg'] = $params['nonSvg'];
         }
-
-        $options['timeout'] = 1;
 
         $metadata = static::request($client, null, null, $postParams, $options);
         return new self($client, $metadata);

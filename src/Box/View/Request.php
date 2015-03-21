@@ -96,9 +96,7 @@ class Request
 
         $guzzle = $this->getGuzzleInstance($host);
 
-        $options = [
-            'headers' => [],
-        ];
+        $options = ['headers' => []];
         $method  = 'GET';
 
         if (!empty($requestOpts['file'])) {

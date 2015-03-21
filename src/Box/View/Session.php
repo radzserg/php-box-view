@@ -22,35 +22,35 @@ namespace Box\View;
 class Session extends Base
 {
     /**
-     * The document that created this session.
-     * @var Box\View\Document
-     */
-    public $document;
-
-    /**
-     * The session ID.
-     * @var string
-     */
-    public $id;
-
-    /**
-     * The date the session expires, formatted as RFC 3339.
-     * @var string
-     */
-    public $expiresAt;
-
-    public $urls = [
-        'assets'   => null,
-        'realtime' => null,
-        'view'     => null,
-    ];
-
-    /**
      * The Session API path relative to the base API path.
      *
      * @var string
      */
     public static $path = '/sessions';
+
+    /**
+     * The document that created this session.
+     * @var Box\View\Document
+     */
+    private $document;
+
+    /**
+     * The session ID.
+     * @var string
+     */
+    private $id;
+
+    /**
+     * The date the session expires, formatted as RFC 3339.
+     * @var string
+     */
+    private $expiresAt;
+
+    private $urls = [
+        'assets'   => null,
+        'realtime' => null,
+        'view'     => null,
+    ];
 
     /**
      * Instantiate the document.
@@ -91,6 +91,66 @@ class Session extends Base
     }
 
     /**
+     * Get the document the session was created for.
+     *
+     * @return Box\View\Document The document the session was created for.
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * Get the session ID.
+     *
+     * @return string The session ID.
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the date the session expires, formatted as RFC 3339.
+     *
+     * @return string The date the session expires, formatted as RFC 3339.
+     */
+    public function getExpiresAt()
+    {
+        return $this->expiresAt;
+    }
+
+    /**
+     * Get the session assets URL.
+     *
+     * @return string The session assets URL.
+     */
+    public function getAssetsUrl()
+    {
+        return $this->urls['assets'];
+    }
+
+    /**
+     * Get the session realtime URL.
+     *
+     * @return string The session realtimes URL.
+     */
+    public function getRealtimeUrl()
+    {
+        return $this->urls['realtime'];
+    }
+
+    /**
+     * Get the session view URL.
+     *
+     * @return string The session view URL.
+     */
+    public function getViewUrl()
+    {
+        return $this->urls['view'];
+    }
+
+    /**
      * Create a session for a specific document by ID.
      *
      * @param Box\View\Client $client The client instance to make requests from.
@@ -113,9 +173,7 @@ class Session extends Base
      */
     public static function create($client, $id, $params = [])
     {
-        $postParams = [
-            'document_id' => $id,
-        ];
+        $postParams = ['document_id' => $id];
 
         if (isset($params['duration'])) {
             $postParams['duration'] = $params['duration'];
