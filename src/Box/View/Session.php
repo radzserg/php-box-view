@@ -9,7 +9,7 @@ namespace Box\View;
  * Session objects have the following fields:
  *   - Box\View\Document 'document' The document the session was created for.
  *   - string 'id' The session ID.
- *   - string 'expiresAt' The date te session was created.
+ *   - string 'expiresAt' The date the session was created.
  *   - array 'urls' An associative array of URLs for 'assets', 'realtime', and
  *                  'view'.
  *
@@ -54,7 +54,7 @@ class Session extends Base
     ];
 
     /**
-     * Instantiate the document.
+     * Instantiate the session.
      *
      * @param Box\View\Client $client The client instance to make requests from.
      * @param array $data An associative array to instantiate the object with.
@@ -62,7 +62,7 @@ class Session extends Base
      *                      - Box\View\Document 'document' The document the
      *                        session was created for.
      *                      - string 'id' The session ID.
-     *                      - string 'expiresAt' The date te session was
+     *                      - string 'expiresAt' The date the session was
      *                        created.
      *                      - array 'urls' An associative array of URLs for
      *                        assets', 'realtime', and 'view'.
@@ -204,7 +204,7 @@ class Session extends Base
      *                    Use the following values:
      *                      - Box\View\Document 'document' The document the
      *                        session was created for.
-     *                      - string 'expiresAt' The date te session was
+     *                      - string 'expiresAt' The date the session was
      *                        created.
      *                      - array 'urls' An associative array of URLs for
      *                        'assets', 'realtime', and 'view'.

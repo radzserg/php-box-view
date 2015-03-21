@@ -89,8 +89,6 @@ To start using `php-box-view` in your code, set your API key:
 $boxView = new Box\View\Client('YOUR_API_KEY');
 ```
 
-And now you can start using the methods in `Box\View\Document` and `Box\View\Session`.
-
 ## Tests
 
 First make sure you're running Composer and that you've run `composer install`.
@@ -108,6 +106,11 @@ Please use GitHub's issue tracker for API library support.
 
 ## Usage
 
+### Fields
+
+All fields are accessed using getters.
+You can find a list of these fields below in their respective sections.
+
 ### Errors
 
 Errors are handled by throwing exceptions.
@@ -119,6 +122,15 @@ You can see `examples/examples.php` to see working code for each method using tr
 
 ### Document
 
+#### Fields
+
+Field     | Getter
+--------- | ------
+id        | $document->getId()
+createdAt | $document->getCreatedAt()
+name      | $document->getName()
+status    | $document->getStatus()
+
 #### Upload from File
 
 https://developers.box.com/view/#post-documents
@@ -128,12 +140,12 @@ This function returns a `Box\View\Document` object.
 
 ```php
 // without options
-$fileHandle = fopen($filePath, 'r');
-$document   = $boxView->uploadFile($fileHandle);
+$handle     = fopen($filename, 'r');
+$document   = $boxView->uploadFile($handle);
 
 // with options
-$fileHandle = fopen($filePath, 'r');
-$document   = $boxView->uploadFile($fileHandle, [
+$handle   = fopen($filename, 'r');
+$document = $boxView->uploadFile($handle, [
     'name'       => 'Test File',
     'thumbnails' => ['100x100', '200x200'],
     'nonSvg'     => true,
@@ -144,13 +156,13 @@ The response looks like this:
 
 ```php
 object(Box\View\Document)#54 (5) {
-  ["createdAt"]=>
+  ["createdAt":"Box\View\Document":private]=>
   string(25) "2015-03-11T07:48:52+00:00"
-  ["id"]=>
+  ["id":"Box\View\Document":private]=>
   string(32) "0971e7674469406dba53254fcbb11d05"
-  ["name"]=>
+  ["name":"Box\View\Document":private]=>
   string(11) "Sample File"
-  ["status"]=>
+  ["status":"Box\View\Document":private]=>
   string(6) "queued"
 }
 ```
@@ -178,13 +190,13 @@ The response looks like this:
 
 ```php
 object(Box\View\Document)#54 (5) {
-  ["createdAt"]=>
+  ["createdAt":"Box\View\Document":private]=>
   string(25) "2015-03-11T07:48:52+00:00"
-  ["id"]=>
+  ["id":"Box\View\Document":private]=>
   string(32) "0971e7674469406dba53254fcbb11d05"
-  ["name"]=>
+  ["name":"Box\View\Document":private]=>
   string(11) "Sample File"
-  ["status"]=>
+  ["status":"Box\View\Document":private]=>
   string(6) "queued"
 }
 ```
@@ -204,13 +216,13 @@ The response looks like this:
 
 ```php
 object(Box\View\Document)#54 (5) {
-  ["createdAt"]=>
+  ["createdAt":"Box\View\Document":private]=>
   string(25) "2015-03-11T07:48:52+00:00"
-  ["id"]=>
+  ["id":"Box\View\Document":private]=>
   string(32) "0971e7674469406dba53254fcbb11d05"
-  ["name"]=>
+  ["name":"Box\View\Document":private]=>
   string(11) "Sample File"
-  ["status"]=>
+  ["status":"Box\View\Document":private]=>
   string(6) "queued"
 }
 ```
@@ -242,24 +254,24 @@ The response looks like this:
 array(2) {
   [0]=>
   object(Box\View\Document)#31 (5) {
-    ["createdAt"]=>
+    ["createdAt":"Box\View\Document":private]=>
     string(25) "2015-03-11T07:50:41+00:00"
-    ["id"]=>
+    ["id":"Box\View\Document":private]=>
     string(32) "f2f9be2249e2490da3b0a040d5eaae58"
-    ["name"]=>
+    ["name":"Box\View\Document":private]=>
     string(14) "Sample File #2"
-    ["status"]=>
+    ["status":"Box\View\Document":private]=>
     string(10) "processing"
   }
   [1]=>
   object(Box\View\Document)#55 (5) {
-    ["createdAt"]=>
+    ["createdAt":"Box\View\Document":private]=>
     string(25) "2015-03-11T07:50:40+00:00"
-    ["id"]=>
+    ["id":"Box\View\Document":private]=>
     string(32) "966f747cb77b4f1b805cc594c9fdd30c"
-    ["name"]=>
+    ["name":"Box\View\Document":private]=>
     string(11) "Sample File"
-    ["status"]=>
+    ["status":"Box\View\Document":private]=>
     string(4) "done"
   }
 }
@@ -275,6 +287,7 @@ This function returns the contents of the downloaded file.
 $contents = $document->download();
 $filename = __DIR__ . '/files/new-file.doc';
 $handle   = fopen($filename, 'w');
+
 fwrite($handle, $contents);
 fclose($handle);
 ```
@@ -292,6 +305,7 @@ This function returns the contents of the downloaded thumbnail.
 $thumbnailContents = $document->thumbnail(100, 100);
 $filename          = __DIR__ . '/files/new-thumbnail.png';
 $handle            = fopen($filename, 'w');
+
 fwrite($handle, $thumbnailContents);
 fclose($handle);
 ```
@@ -307,9 +321,7 @@ Right now, only the `name` field is supported.
 This function returns a boolean of whether the file was updated or not.
 
 ```php
-$updated = $document->update([
-    'name' => 'Updated Name',
-]);
+$updated = $document->update(['name' => 'Updated Name']);
 
 if ($updated) {
     // do something
@@ -331,7 +343,7 @@ To delete a document, use `$document->delete()`.
 This function returns a boolean of whether the file was deleted or not.
 
 ```php
-$deleted = $document->delete($documentId);
+$deleted = $document->delete();
 
 if ($deleted) {
     // do something
@@ -348,6 +360,17 @@ bool(true)
 
 ### Session
 
+#### Fields
+
+Field       | Getter
+----------- | ------
+id          | $session->getId()
+document    | $session->getDocument()
+expiresAt   | $session->getExpiresAt()
+assetsUrl   | $session->getAssetsUrl()
+realtimeUrl | $session->getRealtimeUrl()
+viewUrl     | $session->getViewUrl()
+
 #### Create
 
 https://developers.box.com/view/#post-sessions
@@ -361,8 +384,8 @@ $session = $document->createSession();
 
 // with options
 $session = $document->createSession([
-    'expiresAt' => date('c', strtotime('+10 min')),
-    'isDownloadable' => true,
+    'expiresAt'        => date('c', strtotime('+10 min')),
+    'isDownloadable'   => true,
     'isTextSelectable' => false,
 ]);
 ```
@@ -371,15 +394,15 @@ The response looks like this:
 
 ```php
 object(Box\View\Session)#41 (5) {
-  ["document"]=>
+  ["document":"Box\View\Session":private]=>
   object(Box\View\Document)#27 (5) {
     ...
   }
-  ["id"]=>
+  ["id":"Box\View\Session":private]=>
   string(32) "d1b8c35a69da43fbb2e978e99589114a"
-  ["expiresAt"]=>
+  ["expiresAt":"Box\View\Session":private]=>
   string(25) "2015-03-11T08:53:23+00:00"
-  ["urls"]=>
+  ["urls":"Box\View\Session":private]=>
   array(3) {
     ["assets"]=>
     string(76) "https://view-api.box.com/1/sessions/d1b8c35a69da43fbb2e978e99589114a/assets/"

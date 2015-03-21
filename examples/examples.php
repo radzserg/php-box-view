@@ -32,9 +32,7 @@ echo '  Uploading... ';
 $sampleUrl = 'http://crocodoc.github.io/php-box-view/examples/files/sample.doc';
 
 try {
-    $document = $boxView->uploadUrl($sampleUrl, [
-        'name' => 'Sample File',
-    ]);
+    $document = $boxView->uploadUrl($sampleUrl, ['name' => 'Sample File']);
 
     echo 'success :)' . "\n";
     echo '  ID is ' . $document->getId() . '.' . "\n";
@@ -136,9 +134,7 @@ echo 'Example #5 - List the documents we uploaded so far.' . "\n";
 echo '  Listing documents... ';
 
 try {
-    $documents = $boxView->findDocuments([
-        'createdAfter' => $start,
-    ]);
+    $documents = $boxView->findDocuments(['createdAfter' => $start]);
 
     $doc1 = $documents[1];
     $doc2 = $documents[0];
@@ -171,9 +167,7 @@ echo 'done.' . "\n";
 echo '  Checking statuses... ';
 
 try {
-    $documents = $boxView->findDocuments([
-        'createdAfter' => $start,
-    ]);
+    $documents = $boxView->findDocuments(['createdAfter' => $start]);
 
     $doc1 = $documents[1];
     $doc2 = $documents[0];
@@ -223,9 +217,7 @@ echo 'Example #8 - Update the name of a file.' . "\n";
 echo '  Updating... ';
 
 try {
-    $document->update([
-        'name' => 'Updated Name',
-    ]);
+    $document->update(['name' => 'Updated Name']);
 
     echo 'success :)' . "\n";
     echo '  File ID is ' . $document->getId() .  '.' . "\n";
@@ -251,6 +243,7 @@ try {
     $contents = $document->download();
     $filename = __DIR__ . '/files/test-original.doc';
     $handle   = fopen($filename, 'w');
+
     fwrite($handle, $contents);
     fclose($handle);
 
@@ -275,6 +268,7 @@ try {
     $contents = $document->download('pdf');
     $filename = __DIR__ . '/files/test.pdf';
     $handle   = fopen($filename, 'w');
+
     fwrite($handle, $contents);
     fclose($handle);
 
@@ -299,6 +293,7 @@ try {
     $contents = $document->download('zip');
     $filename = __DIR__ . '/files/test.zip';
     $handle   = fopen($filename, 'w');
+
     fwrite($handle, $contents);
     fclose($handle);
 
@@ -323,6 +318,7 @@ try {
     $thumbnailContents = $document->thumbnail(16, 16);
     $filename          = __DIR__ . '/files/test-thumbnail.png';
     $handle            = fopen($filename, 'w');
+
     fwrite($handle, $thumbnailContents);
     fclose($handle);
 
@@ -347,6 +343,7 @@ try {
     $thumbnailContents = $document->thumbnail(250, 250);
     $filename          = __DIR__ . '/files/test-thumbnail-large.png';
     $handle            = fopen($filename, 'w');
+
     fwrite($handle, $thumbnailContents);
     fclose($handle);
 

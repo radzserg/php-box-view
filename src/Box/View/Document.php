@@ -7,7 +7,7 @@ namespace Box\View;
  *
  * Document objects have the following fields:
  *   - string 'id' The document ID.
- *   - string 'createdAt' The date te document was created, formatted as
+ *   - string 'createdAt' The date the document was created, formatted as
  *                        RFC 3339.
  *   - string 'name' The document title.
  *   - string 'status' The document status, which can be 'queued', 'processing',
@@ -84,7 +84,7 @@ class Document extends Base
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
      *                      - string 'id' The document ID.
-     *                      - string 'createdAt' The date te document was
+     *                      - string 'createdAt' The date the document was
      *                        created, formatted as RFC 3339.
      *                      - string 'name' The document title.
      *                      - string 'status' The document status, which can be
@@ -388,7 +388,7 @@ class Document extends Base
      *
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
-     *                      - string 'createdAt' The date te document was
+     *                      - string 'createdAt' The date the document was
      *                        created.
      *                      - string 'name' The document title.
      *                      - string 'status' The document status, which can be
