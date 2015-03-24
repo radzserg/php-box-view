@@ -7,6 +7,20 @@ namespace Box\View;
 class Request
 {
     /**
+     * Request error-codes
+     */
+    const GUZZLE_ERROR = 'guzzle_error';
+    const REQUEST_TIMEOUT = 'request_timeout';
+    const JSON_RESPONSE_ERROR = 'server_response_not_valid_json';
+    const BAD_REQUEST_ERROR = 'bad_request';
+    const UNAUTHORIZED_ERROR = 'unauthorized';
+    const NOT_FOUND = 'not_found';
+    const METHOD_NOT_ALLOWED = 'method_not_allowed';
+    const UNSUPPORTED_MEDIA_TYPE = 'unsupported_media_type';
+    const TOO_MANY_REQUESTS = 'too_many_requests';
+    const SERVER_ERROR = 'server_error';
+
+    /**
      * The default protocol (Box View uses HTTPS).
      * @const string
      */
@@ -198,10 +212,9 @@ class Request
             $seconds = round(time() - $this->timestampRequested);
 
             if ($timeout > 0 && $seconds >= $timeout) {
-                $error   = 'request_timeout';
                 $message = 'The request timed out after retrying for '
                          . $seconds . ' seconds.';
-                static::error($error, $message, $request, null);
+                static::error(static::REQUEST_TIMEOUT, $message, $request, null);
             }
 
             sleep($headers['Retry-After'][0]);
@@ -242,21 +255,20 @@ class Request
     private static function handleHttpError($httpCode)
     {
         $http4xxErrorCodes = [
-            400 => 'bad_request',
-            401 => 'unauthorized',
-            404 => 'not_found',
-            405 => 'method_not_allowed',
-            415 => 'unsupported_media_type',
-            429 => 'too_many_requests',
+            400 => static::BAD_REQUEST_ERROR,
+            401 => static::UNAUTHORIZED_ERROR,
+            404 => static::NOT_FOUND,
+            405 => static::METHOD_NOT_ALLOWED,
+            415 => static::UNSUPPORTED_MEDIA_TYPE,
+            429 => static::TOO_MANY_REQUESTS,
         ];
 
         if (isset($http4xxErrorCodes[$httpCode])) {
-            return 'server_error_' . $httpCode . '_'
-                   . $http4xxErrorCodes[$httpCode];
+            return $http4xxErrorCodes[$httpCode];
         }
 
         if ($httpCode >= 500 && $httpCode < 600) {
-            return 'server_error_' . $httpCode . '_unknown';
+            return static::SERVER_ERROR;
         }
 
         return null;
@@ -279,7 +291,7 @@ class Request
         $message = 'Server error';
 
         if (!$error) {
-            $error   = 'guzzle_error';
+            $error   = static::GUZZLE_ERROR;
             $message = 'Guzzle error';
         }
 
@@ -313,8 +325,7 @@ class Request
         $jsonDecoded = json_decode($responseBody, true);
 
         if ($jsonDecoded === false || $jsonDecoded === null) {
-            $error = 'server_response_not_valid_json';
-            return static::error($error, null, $request, $response);
+            return static::error(static::JSON_RESPONSE_ERROR, null, $request, $response);
         }
 
         if (
@@ -322,11 +333,10 @@ class Request
             && isset($jsonDecoded['status'])
             && $jsonDecoded['status'] == 'error'
         ) {
-            $error   = 'server_error';
             $message = !empty($jsonDecoded['error_message'])
                        ? $jsonDecoded['error_message']
                        : 'Server error';
-            return static::error($error, $message, $request, $response);
+            return static::error(static::SERVER_ERROR, $message, $request, $response);
         }
 
         return $jsonDecoded;

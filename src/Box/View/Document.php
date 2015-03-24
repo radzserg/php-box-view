@@ -34,6 +34,12 @@ namespace Box\View;
 class Document extends Base
 {
     /**
+     * Document error-codes
+     */
+    const INVALID_RESPONSE = 'invalid_response';
+    const INVALID_FILE = 'invalid_file';
+
+    /**
      * An alternate hostname that file upload requests are sent to.
      * @const string
      */
@@ -289,7 +295,7 @@ class Document extends Base
             || !isset($response['document_collection']['entries'])
         ) {
             $message = '$response is not in a valid format.';
-            return static::error('invalid_response', $message);
+            return static::error(static::INVALID_RESPONSE, $message);
         }
 
         $documents = [];
@@ -347,7 +353,7 @@ class Document extends Base
     {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
-            return static::error('invalid_file', $message);
+            return static::error(static::INVALID_FILE, $message);
         }
 
         return static::upload($client, $params, null, [

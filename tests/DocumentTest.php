@@ -420,7 +420,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             $response = \Box\View\Document::uploadFile($this->client, $handle);
         } catch (\Exception $e) {
             $this->assertInstanceOf('Box\View\Exception', $e);
-            $this->assertEquals('invalid_file', $e->errorCode);
+            $this->assertEquals(\Box\View\Document::INVALID_FILE, $e->errorCode);
 
             $message = '$file is not a valid file resource.';
 
