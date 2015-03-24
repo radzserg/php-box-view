@@ -165,7 +165,7 @@ class Document extends Base
      *
      * @return string The date the document was created, formatted as RFC 3339.
      */
-    public function getCreatedAt()
+    public function createdAt()
     {
         return $this->createdAt;
     }
@@ -175,7 +175,7 @@ class Document extends Base
      *
      * @return string The document ID.
      */
-    public function getId()
+    public function id()
     {
         return $this->id;
     }
@@ -185,7 +185,7 @@ class Document extends Base
      *
      * @return string The document title.
      */
-    public function getName()
+    public function name()
     {
         return $this->name;
     }
@@ -195,7 +195,7 @@ class Document extends Base
      *
      * @return string The document title.
      */
-    public function getStatus()
+    public function status()
     {
         return $this->status;
     }

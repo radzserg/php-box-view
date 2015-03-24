@@ -35,7 +35,7 @@ try {
     $document = $boxView->uploadUrl($sampleUrl, ['name' => 'Sample File']);
 
     echo 'success :)' . "\n";
-    echo '  ID is ' . $document->getId() . '.' . "\n";
+    echo '  ID is ' . $document->id() . '.' . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
@@ -52,13 +52,13 @@ echo 'Example #2 - Check the metadata of the file we just uploaded.' . "\n";
 echo '  Checking metadata... ';
 
 try {
-    $documentDuplicate = $boxView->getDocument($document->getId());
+    $documentDuplicate = $boxView->getDocument($document->id());
 
     echo 'success :)' . "\n";
-    echo '  File ID is ' . $documentDuplicate->getId() . '.' . "\n";
-    echo '  File status is ' . $documentDuplicate->getStatus() . '.' . "\n";
-    echo '  File name is ' . $documentDuplicate->getName() . '.' . "\n";
-    echo '  File was created on ' . $documentDuplicate->getCreatedAt() . '.'
+    echo '  File ID is ' . $documentDuplicate->id() . '.' . "\n";
+    echo '  File status is ' . $documentDuplicate->status() . '.' . "\n";
+    echo '  File name is ' . $documentDuplicate->name() . '.' . "\n";
+    echo '  File was created on ' . $documentDuplicate->createdAt() . '.'
          . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
@@ -90,7 +90,7 @@ if (is_file($filePath)) {
         ]);
 
         echo 'success :)' . "\n";
-        echo '  ID is ' . $document2->getId() . '.' . "\n";
+        echo '  ID is ' . $document2->id() . '.' . "\n";
     } catch (Box\View\Exception $e) {
         echo 'failed :(' . "\n";
         echo '  Error Code: ' . $e->errorCode . "\n";
@@ -110,13 +110,13 @@ echo 'Example #4 - Check the metadata of the file we just uploaded.' . "\n";
 echo '  Checking metadata... ';
 
 try {
-    $documentDuplicate = $boxView->getDocument($document->getId());
+    $documentDuplicate = $boxView->getDocument($document->id());
 
     echo 'success :)' . "\n";
-    echo '  File ID is ' . $documentDuplicate->getId() . '.' . "\n";
-    echo '  File status is ' . $documentDuplicate->getStatus() . '.' . "\n";
-    echo '  File name is ' . $documentDuplicate->getName() . '.' . "\n";
-    echo '  File was created on ' . $documentDuplicate->getCreatedAt() . '.'
+    echo '  File ID is ' . $documentDuplicate->id() . '.' . "\n";
+    echo '  File status is ' . $documentDuplicate->status() . '.' . "\n";
+    echo '  File name is ' . $documentDuplicate->name() . '.' . "\n";
+    echo '  File was created on ' . $documentDuplicate->createdAt() . '.'
          . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
@@ -140,14 +140,14 @@ try {
     $doc2 = $documents[0];
 
     echo 'success :)' . "\n";
-    echo '  File #1 ID is ' . $doc1->getId() .  '.' . "\n";
-    echo '  File #1 status is ' . $doc1->getStatus() .  '.' . "\n";
-    echo '  File #1 name is ' . $doc1->getName() . '.' . "\n";
-    echo '  File #1 was created on ' . $doc1->getCreatedAt() .  '.' . "\n";
-    echo '  File #2 ID is ' . $doc2->getId() .  '.' . "\n";
-    echo '  File #2 status is ' . $doc2->getStatus() .  '.' . "\n";
-    echo '  File #2 name is ' . $doc2->getName() . '.' . "\n";
-    echo '  File #2 was created on ' . $doc2->getCreatedAt() .  '.' . "\n";
+    echo '  File #1 ID is ' . $doc1->id() .  '.' . "\n";
+    echo '  File #1 status is ' . $doc1->status() .  '.' . "\n";
+    echo '  File #1 name is ' . $doc1->name() . '.' . "\n";
+    echo '  File #1 was created on ' . $doc1->createdAt() .  '.' . "\n";
+    echo '  File #2 ID is ' . $doc2->id() .  '.' . "\n";
+    echo '  File #2 status is ' . $doc2->status() .  '.' . "\n";
+    echo '  File #2 name is ' . $doc2->name() . '.' . "\n";
+    echo '  File #2 was created on ' . $doc2->createdAt() .  '.' . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
@@ -173,10 +173,10 @@ try {
     $doc2 = $documents[0];
 
     echo 'success :)' . "\n";
-    echo '  Status for file #1 (id=' . $doc1->getId() .  ') is '
-         . $doc1->getStatus() . '.' . "\n";
-    echo '  Status for file #2 (id=' . $doc2->getId() .  ') is '
-         . $doc2->getStatus() . '.' . "\n";
+    echo '  Status for file #1 (id=' . $doc1->id() .  ') is '
+         . $doc1->status() . '.' . "\n";
+    echo '  Status for file #2 (id=' . $doc2->id() .  ') is '
+         . $doc2->status() . '.' . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
@@ -220,10 +220,10 @@ try {
     $document->update(['name' => 'Updated Name']);
 
     echo 'success :)' . "\n";
-    echo '  File ID is ' . $document->getId() .  '.' . "\n";
-    echo '  File status is ' . $document->getStatus() .  '.' . "\n";
-    echo '  File name is ' . $document->getName() . '.' . "\n";
-    echo '  File was created on ' . $document->getCreatedAt() .  '.' . "\n";
+    echo '  File ID is ' . $document->id() .  '.' . "\n";
+    echo '  File status is ' . $document->status() .  '.' . "\n";
+    echo '  File name is ' . $document->name() . '.' . "\n";
+    echo '  File was created on ' . $document->createdAt() .  '.' . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
@@ -371,11 +371,11 @@ try {
     $session = $document->createSession();
 
     echo 'success :)' . "\n";
-    echo '  Session ID is ' . $session->getId() .  '.' . "\n";
-    echo '  Session expires on ' . $session->getExpiresAt() . '.' . "\n";
-    echo '  Session view URL is ' . $session->getViewUrl() . '.' . "\n";
-    echo '  Session assets URL is ' . $session->getAssetsUrl() . '.' . "\n";
-    echo '  Session realtime URL is ' . $session->getRealtimeUrl() . '.'
+    echo '  Session ID is ' . $session->id() .  '.' . "\n";
+    echo '  Session expires on ' . $session->expiresAt() . '.' . "\n";
+    echo '  Session view URL is ' . $session->viewUrl() . '.' . "\n";
+    echo '  Session assets URL is ' . $session->assetsUrl() . '.' . "\n";
+    echo '  Session realtime URL is ' . $session->realtimeUrl() . '.'
          . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";
@@ -403,11 +403,11 @@ try {
     ]);
 
     echo 'success :)' . "\n";
-    echo '  Session ID is ' . $session2->getId() .  '.' . "\n";
-    echo '  Session expires on ' . $session2->getExpiresAt() . '.' . "\n";
-    echo '  Session view URL is ' . $session2->getViewUrl() . '.' . "\n";
-    echo '  Session assets URL is ' . $session2->getAssetsUrl() . '.' . "\n";
-    echo '  Session realtime URL is ' . $session2->getRealtimeUrl() . '.'
+    echo '  Session ID is ' . $session2->id() .  '.' . "\n";
+    echo '  Session expires on ' . $session2->expiresAt() . '.' . "\n";
+    echo '  Session view URL is ' . $session2->viewUrl() . '.' . "\n";
+    echo '  Session assets URL is ' . $session2->assetsUrl() . '.' . "\n";
+    echo '  Session realtime URL is ' . $session2->realtimeUrl() . '.'
          . "\n";
 } catch (Box\View\Exception $e) {
     echo 'failed :(' . "\n";

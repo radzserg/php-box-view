@@ -34,7 +34,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/sessions/' . $session->getId(), null, null, [
+             ->with('/sessions/' . $session->id(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
@@ -50,7 +50,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->requestMock
              ->shouldReceive('send')
-             ->with('/sessions/' . $session->getId(), null, null, [
+             ->with('/sessions/' . $session->id(), null, null, [
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
@@ -68,7 +68,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($failed);
     }
 
-    public function testGetDocument()
+    public function testDocument()
     {
         $rawSession = $this->getRawTestSession();
         $session    = $this->getTestSession();
@@ -77,26 +77,26 @@ class SessionTest extends \PHPUnit_Framework_TestCase
             $rawSession['document']
         );
 
-        $response = $session->getDocument();
+        $response = $session->document();
 
         $this->assertEquals($document, $response);
     }
 
-    public function testGetExpiresAt()
+    public function testExpiresAt()
     {
         $rawSession = $this->getRawTestSession();
         $expiresAt  = date('c', strtotime($rawSession['expires_at']));
         $session    = $this->getTestSession();
 
-        $this->assertEquals($expiresAt, $session->getExpiresAt());
+        $this->assertEquals($expiresAt, $session->expiresAt());
     }
 
-    public function testGetId()
+    public function testId()
     {
         $rawSession = $this->getRawTestSession();
         $session    = $this->getTestSession();
 
-        $this->assertEquals($rawSession['id'], $session->getId());
+        $this->assertEquals($rawSession['id'], $session->id());
     }
 
     public function testDefaultCreate()
@@ -107,16 +107,16 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/sessions', null, [
-                   'document_id' => $session->getId(),
+                   'document_id' => $session->id(),
                ], null)
              ->andReturn($rawSession);
 
-        $response = \Box\View\Session::create($this->client, $session->getId());
+        $response = \Box\View\Session::create($this->client, $session->id());
 
         $this->assertEquals($session, $response);
         $this->assertEquals(
-            $session->getDocument()->getId(),
-            $response->getDocument()->getId()
+            $session->document()->id(),
+            $response->document()->id()
         );
     }
 
@@ -150,7 +150,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/sessions', null, [
-                   'document_id'        => $session->getDocument()->getId(),
+                   'document_id'        => $session->document()->id(),
                    'duration'           => 10,
                    'expires_at'         => date('c', strtotime($date)),
                    'is_downloadable'    => true,
@@ -158,7 +158,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
                ], null)
              ->andReturn($rawSession);
 
-        $docId = $session->getDocument()->getId();
+        $docId = $session->document()->id();
         $response = \Box\View\Session::create($this->client, $docId, [
             'duration'         => 10,
             'expiresAt'        => $date,
@@ -168,8 +168,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($session, $response);
         $this->assertEquals(
-            $session->getDocument()->getId(),
-            $response->getDocument()->getId()
+            $session->document()->id(),
+            $response->document()->id()
         );
     }
 
