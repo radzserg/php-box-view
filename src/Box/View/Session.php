@@ -98,7 +98,7 @@ class Session extends Base
      *
      * @return Box\View\Document The document the session was created for.
      */
-    public function getDocument()
+    public function document()
     {
         return $this->document;
     }
@@ -108,7 +108,7 @@ class Session extends Base
      *
      * @return string The session ID.
      */
-    public function getId()
+    public function id()
     {
         return $this->id;
     }
@@ -118,7 +118,7 @@ class Session extends Base
      *
      * @return string The date the session expires, formatted as RFC 3339.
      */
-    public function getExpiresAt()
+    public function expiresAt()
     {
         return $this->expiresAt;
     }
@@ -128,7 +128,7 @@ class Session extends Base
      *
      * @return string The session assets URL.
      */
-    public function getAssetsUrl()
+    public function assetsUrl()
     {
         return $this->urls['assets'];
     }
@@ -138,7 +138,7 @@ class Session extends Base
      *
      * @return string The session realtimes URL.
      */
-    public function getRealtimeUrl()
+    public function realtimeUrl()
     {
         return $this->urls['realtime'];
     }
@@ -148,7 +148,7 @@ class Session extends Base
      *
      * @return string The session view URL.
      */
-    public function getViewUrl()
+    public function viewUrl()
     {
         return $this->urls['view'];
     }
