@@ -76,24 +76,6 @@ class Session extends Base
     }
 
     /**
-     * Delete a session.
-     *
-     * @return bool Was the session deleted?
-     * @throws Box\View\Exception
-     */
-    public function delete()
-    {
-        $path = '/' . $this->id;
-        $response = static::request($this->client, $path, null, null, [
-            'httpMethod'  => 'DELETE',
-            'rawResponse' => true,
-        ]);
-
-        // a successful delete returns nothing, so we return true in that case
-        return empty($response);
-    }
-
-    /**
      * Get the document the session was created for.
      *
      * @return Box\View\Document The document the session was created for.
@@ -151,6 +133,24 @@ class Session extends Base
     public function viewUrl()
     {
         return $this->urls['view'];
+    }
+
+    /**
+     * Delete a session.
+     *
+     * @return bool Was the session deleted?
+     * @throws Box\View\Exception
+     */
+    public function delete()
+    {
+        $path = '/' . $this->id;
+        $response = static::request($this->client, $path, null, null, [
+            'httpMethod'  => 'DELETE',
+            'rawResponse' => true,
+        ]);
+
+        // a successful delete returns nothing, so we return true in that case
+        return empty($response);
     }
 
     /**

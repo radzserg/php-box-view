@@ -126,10 +126,10 @@ You can see `examples/examples.php` to see working code for each method using tr
 
 Field     | Getter
 --------- | ------
-id        | $document->getId()
-createdAt | $document->getCreatedAt()
-name      | $document->getName()
-status    | $document->getStatus()
+id        | $document->id()
+createdAt | $document->createdAt()
+name      | $document->name()
+status    | $document->status()
 
 #### Upload from File
 
@@ -364,12 +364,12 @@ bool(true)
 
 Field       | Getter
 ----------- | ------
-id          | $session->getId()
-document    | $session->getDocument()
-expiresAt   | $session->getExpiresAt()
-assetsUrl   | $session->getAssetsUrl()
-realtimeUrl | $session->getRealtimeUrl()
-viewUrl     | $session->getViewUrl()
+id          | $session->id()
+document    | $session->document()
+expiresAt   | $session->expiresAt()
+assetsUrl   | $session->assetsUrl()
+realtimeUrl | $session->realtimeUrl()
+viewUrl     | $session->viewUrl()
 
 #### Create
 

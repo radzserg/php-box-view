@@ -34,10 +34,11 @@ namespace Box\View;
 class Document extends Base
 {
     /**
-     * Document error-codes
+     * Document error codes.
+     * @const string
      */
-    const INVALID_RESPONSE = 'invalid_response';
-    const INVALID_FILE = 'invalid_file';
+    const INVALID_FILE_ERROR     = 'invalid_file';
+    const INVALID_RESPONSE_ERROR = 'invalid_response';
 
     /**
      * An alternate hostname that file upload requests are sent to.
@@ -105,6 +106,46 @@ class Document extends Base
     }
 
     /**
+     * Get the date the document was created, formatted as RFC 3339.
+     *
+     * @return string The date the document was created, formatted as RFC 3339.
+     */
+    public function createdAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Get the document ID.
+     *
+     * @return string The document ID.
+     */
+    public function id()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the document title.
+     *
+     * @return string The document title.
+     */
+    public function name()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get the document status.
+     *
+     * @return string The document title.
+     */
+    public function status()
+    {
+        return $this->status;
+    }
+
+    /**
      * Create a session for a specific document.
      *
      * @param array|null $params Optional. An associative array of options
@@ -164,46 +205,6 @@ class Document extends Base
         return static::request($this->client, $path, null, null, [
             'rawResponse' => true,
         ]);
-    }
-
-    /**
-     * Get the date the document was created, formatted as RFC 3339.
-     *
-     * @return string The date the document was created, formatted as RFC 3339.
-     */
-    public function createdAt()
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * Get the document ID.
-     *
-     * @return string The document ID.
-     */
-    public function id()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Get the document title.
-     *
-     * @return string The document title.
-     */
-    public function name()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Get the document status.
-     *
-     * @return string The document title.
-     */
-    public function status()
-    {
-        return $this->status;
     }
 
     /**
@@ -295,7 +296,7 @@ class Document extends Base
             || !isset($response['document_collection']['entries'])
         ) {
             $message = '$response is not in a valid format.';
-            return static::error(static::INVALID_RESPONSE, $message);
+            return static::error(static::INVALID_RESPONSE_ERROR, $message);
         }
 
         $documents = [];
@@ -353,7 +354,7 @@ class Document extends Base
     {
         if (!is_resource($file)) {
             $message = '$file is not a valid file resource.';
-            return static::error(static::INVALID_FILE, $message);
+            return static::error(static::INVALID_FILE_ERROR, $message);
         }
 
         return static::upload($client, $params, null, [
@@ -436,7 +437,7 @@ class Document extends Base
         $client,
         $params,
         $postParams = [],
-        $options = []
+        $options    = []
     ) {
         if (!empty($params['name'])) $postParams['name'] = $params['name'];
 

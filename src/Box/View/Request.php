@@ -7,18 +7,19 @@ namespace Box\View;
 class Request
 {
     /**
-     * Request error-codes
+     * Request error codes.
+     * @const string
      */
-    const GUZZLE_ERROR = 'guzzle_error';
-    const REQUEST_TIMEOUT = 'request_timeout';
-    const JSON_RESPONSE_ERROR = 'server_response_not_valid_json';
-    const BAD_REQUEST_ERROR = 'bad_request';
-    const UNAUTHORIZED_ERROR = 'unauthorized';
-    const NOT_FOUND = 'not_found';
-    const METHOD_NOT_ALLOWED = 'method_not_allowed';
-    const UNSUPPORTED_MEDIA_TYPE = 'unsupported_media_type';
-    const TOO_MANY_REQUESTS = 'too_many_requests';
-    const SERVER_ERROR = 'server_error';
+    const BAD_REQUEST_ERROR            = 'bad_request';
+    const GUZZLE_ERROR                 = 'guzzle_error';
+    const JSON_RESPONSE_ERROR          = 'server_response_not_valid_json';
+    const METHOD_NOT_ALLOWED_ERROR     = 'method_not_allowed';
+    const NOT_FOUND_ERROR              = 'not_found';
+    const REQUEST_TIMEOUT_ERROR        = 'request_timeout';
+    const SERVER_ERROR                 = 'server_error';
+    const TOO_MANY_REQUESTS_ERROR      = 'too_many_requests';
+    const UNAUTHORIZED_ERROR           = 'unauthorized';
+    const UNSUPPORTED_MEDIA_TYPE_ERROR = 'unsupported_media_type';
 
     /**
      * The default protocol (Box View uses HTTPS).
@@ -214,7 +215,11 @@ class Request
             if ($timeout > 0 && $seconds >= $timeout) {
                 $message = 'The request timed out after retrying for '
                          . $seconds . ' seconds.';
-                static::error(static::REQUEST_TIMEOUT, $message, $request, null);
+                static::error(
+                    static::REQUEST_TIMEOUT_ERROR,
+                    $message,
+                    $request
+                );
             }
 
             sleep($headers['Retry-After'][0]);
@@ -257,10 +262,10 @@ class Request
         $http4xxErrorCodes = [
             400 => static::BAD_REQUEST_ERROR,
             401 => static::UNAUTHORIZED_ERROR,
-            404 => static::NOT_FOUND,
-            405 => static::METHOD_NOT_ALLOWED,
-            415 => static::UNSUPPORTED_MEDIA_TYPE,
-            429 => static::TOO_MANY_REQUESTS,
+            404 => static::NOT_FOUND_ERROR,
+            405 => static::METHOD_NOT_ALLOWED_ERROR,
+            415 => static::UNSUPPORTED_MEDIA_TYPE_ERROR,
+            429 => static::TOO_MANY_REQUESTS_ERROR,
         ];
 
         if (isset($http4xxErrorCodes[$httpCode])) {
@@ -325,7 +330,12 @@ class Request
         $jsonDecoded = json_decode($responseBody, true);
 
         if ($jsonDecoded === false || $jsonDecoded === null) {
-            return static::error(static::JSON_RESPONSE_ERROR, null, $request, $response);
+            return static::error(
+                static::JSON_RESPONSE_ERROR,
+                null,
+                $request,
+                $response
+            );
         }
 
         if (
@@ -336,7 +346,12 @@ class Request
             $message = !empty($jsonDecoded['error_message'])
                        ? $jsonDecoded['error_message']
                        : 'Server error';
-            return static::error(static::SERVER_ERROR, $message, $request, $response);
+            return static::error(
+                static::SERVER_ERROR,
+                $message,
+                $request,
+                $response
+            );
         }
 
         return $jsonDecoded;
