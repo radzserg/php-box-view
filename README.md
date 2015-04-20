@@ -114,7 +114,7 @@ You can find a list of these fields below in their respective sections.
 ### Errors
 
 Errors are handled by throwing exceptions.
-We throw instances of `Box\View\Exception`.
+We throw instances of `Box\View\BoxViewException`.
 
 Note that any Box View API call can throw an exception.
 When making API calls, put them in a try/catch block.
@@ -204,7 +204,7 @@ object(Box\View\Document)#54 (5) {
 #### Get Document
 
 https://developers.box.com/view/#get-documents-id
-To get a document, use `$boxView->get()`.
+To get a document, use `$boxView->getDocument()`.
 Pass in the ID of the document you want to get.
 This function returns a `Box\View\Document` object.
 

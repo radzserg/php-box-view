@@ -36,7 +36,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  ID is ' . $document->id() . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -48,7 +48,7 @@ try {
  * Check the metadata of the file from Example #1.
  */
 echo "\n";
-echo 'Example #2 - Check the metadata of the file we just uploaded.' . "\n";
+echo 'Example #2 - Check the metadata of the file from Example #1.' . "\n";
 echo '  Checking metadata... ';
 
 try {
@@ -60,7 +60,7 @@ try {
     echo '  File name is ' . $documentDuplicate->name() . '.' . "\n";
     echo '  File was created on ' . $documentDuplicate->createdAt() . '.'
          . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -91,7 +91,7 @@ if (is_file($filePath)) {
 
         echo 'success :)' . "\n";
         echo '  ID is ' . $document2->id() . '.' . "\n";
-    } catch (Box\View\Exception $e) {
+    } catch (Box\View\BoxViewException $e) {
         echo 'failed :(' . "\n";
         echo '  Error Code: ' . $e->errorCode . "\n";
         echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -110,7 +110,7 @@ echo 'Example #4 - Check the metadata of the file we just uploaded.' . "\n";
 echo '  Checking metadata... ';
 
 try {
-    $documentDuplicate = $boxView->getDocument($document->id());
+    $documentDuplicate = $boxView->getDocument($document2->id());
 
     echo 'success :)' . "\n";
     echo '  File ID is ' . $documentDuplicate->id() . '.' . "\n";
@@ -118,7 +118,7 @@ try {
     echo '  File name is ' . $documentDuplicate->name() . '.' . "\n";
     echo '  File was created on ' . $documentDuplicate->createdAt() . '.'
          . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -130,7 +130,7 @@ try {
  * List the documents we've uploaded since starting these examples.
  */
 echo "\n";
-echo 'Example #5 - List the documents we uploaded so far.' . "\n";
+echo 'Example #5 - List the documents we\'ve uploaded so far.' . "\n";
 echo '  Listing documents... ';
 
 try {
@@ -148,7 +148,7 @@ try {
     echo '  File #2 status is ' . $doc2->status() .  '.' . "\n";
     echo '  File #2 name is ' . $doc2->name() . '.' . "\n";
     echo '  File #2 was created on ' . $doc2->createdAt() .  '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -177,7 +177,7 @@ try {
          . $doc1->status() . '.' . "\n";
     echo '  Status for file #2 (id=' . $doc2->id() .  ') is '
          . $doc2->status() . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -201,7 +201,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -217,14 +217,18 @@ echo 'Example #8 - Update the name of a file.' . "\n";
 echo '  Updating... ';
 
 try {
-    $document->update(['name' => 'Updated Name']);
+    $updated = $document->update(['name' => 'Updated Name']);
 
-    echo 'success :)' . "\n";
-    echo '  File ID is ' . $document->id() .  '.' . "\n";
-    echo '  File status is ' . $document->status() .  '.' . "\n";
-    echo '  File name is ' . $document->name() . '.' . "\n";
-    echo '  File was created on ' . $document->createdAt() .  '.' . "\n";
-} catch (Box\View\Exception $e) {
+    if ($updated) {
+        echo 'success :)' . "\n";
+        echo '  File ID is ' . $document->id() .  '.' . "\n";
+        echo '  File status is ' . $document->status() .  '.' . "\n";
+        echo '  File name is ' . $document->name() . '.' . "\n";
+        echo '  File was created on ' . $document->createdAt() .  '.' . "\n";
+    } else {
+        echo 'failed :(' . "\n";
+    }
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -249,7 +253,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -274,7 +278,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -299,7 +303,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -324,7 +328,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -349,7 +353,7 @@ try {
 
     echo 'success :)' . "\n";
     echo '  File was downloaded to ' . $filename . '.' . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -377,7 +381,7 @@ try {
     echo '  Session assets URL is ' . $session->assetsUrl() . '.' . "\n";
     echo '  Session realtime URL is ' . $session->realtimeUrl() . '.'
          . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -409,7 +413,7 @@ try {
     echo '  Session assets URL is ' . $session2->assetsUrl() . '.' . "\n";
     echo '  Session realtime URL is ' . $session2->realtimeUrl() . '.'
          . "\n";
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -433,7 +437,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -450,7 +454,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";
@@ -474,7 +478,7 @@ try {
     } else {
         echo 'failed :(' . "\n";
     }
-} catch (Box\View\Exception $e) {
+} catch (Box\View\BoxViewException $e) {
     echo 'failed :(' . "\n";
     echo '  Error Code: ' . $e->errorCode . "\n";
     echo '  Error Message: ' . $e->getMessage() . "\n";

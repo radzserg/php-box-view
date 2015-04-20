@@ -44,7 +44,7 @@ class Client
      *
      * @return array An array containing document instances matching the
      *               request.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function findDocuments($params = [])
     {
@@ -65,10 +65,10 @@ class Client
      * Create a new document instance by ID, and load it with values requested
      * from the API.
      *
-     * @param $id The document ID.
+     * @param string $id The document ID.
      *
      * @return Box\View\Document A document instance using data from the API.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function getDocument($id)
     {
@@ -83,8 +83,7 @@ class Client
     public function getRequestHandler()
     {
         if (!isset($this->requestHandler)) {
-            $requestHandler = new Request($this->getApiKey());
-            $this->setRequestHandler($requestHandler);
+            $this->setRequestHandler(new Request($this->getApiKey()));
         }
 
         return $this->requestHandler;
@@ -105,7 +104,7 @@ class Client
      *
      * @param Request $requestHandler The request handler.
      *
-     * @return void No return value.
+     * @return void
      */
     public function setRequestHandler($requestHandler)
     {
@@ -131,7 +130,7 @@ class Client
      *                               with browsers that don't support SVG?
      *
      * @return Box\View\Document A new document instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function uploadFile($file, $params = [])
     {
@@ -141,7 +140,7 @@ class Client
     /**
      * Upload a file by URL and return a new document instance.
      *
-     * @param string $url The url of the file to upload.
+     * @param string $url The URL of the file to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
      *                           necessary; all are optional. Use the following
@@ -157,7 +156,7 @@ class Client
      *                               with browsers that don't support SVG?
      *
      * @return Box\View\Document A new document instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function uploadUrl($url, $params = [])
     {

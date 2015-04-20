@@ -54,14 +54,14 @@ class SessionTest extends \PHPUnit_Framework_TestCase
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed   = false;
 
         try {
             $deleted = $session->delete();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
             $failed = true;
         }
 
@@ -127,14 +127,14 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/sessions', null, ['document_id' => $id ], null)
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $session = \Box\View\Session::create($this->client, $id);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
             $failed = true;
         }
 

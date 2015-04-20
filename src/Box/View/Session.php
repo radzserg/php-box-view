@@ -5,20 +5,6 @@ namespace Box\View;
  * Provide access to the Box View Session API. The Session API is used to create
  * sessions for specific documents that can be used to view a document using a
  * specific session-based URL.
- *
- * Session objects have the following fields:
- *   - Box\View\Document 'document' The document the session was created for.
- *   - string 'id' The session ID.
- *   - string 'expiresAt' The date the session was created.
- *   - array 'urls' An associative array of URLs for 'assets', 'realtime', and
- *                  'view'.
- *
- * When creating a session, the following parameters can be set:
- *   - int|null 'duration' The number of minutes for the session to last.
- *   - string|DateTime|null 'expiresAt' When the session should expire.
- *   - bool|null 'isDownloadable' Should the user be allowed to download the
- *                                original file?
- *   - bool|null 'isTextSelectable' Should the user be allowed to select text?
  */
 class Session extends Base
 {
@@ -47,6 +33,10 @@ class Session extends Base
      */
     private $expiresAt;
 
+    /**
+     * The URLs for a session.
+     * @var array
+     */
     private $urls = [
         'assets'   => null,
         'realtime' => null,
@@ -62,16 +52,16 @@ class Session extends Base
      *                      - Box\View\Document 'document' The document the
      *                        session was created for.
      *                      - string 'id' The session ID.
-     *                      - string 'expiresAt' The date the session was
-     *                        created.
+     *                      - string|DateTime 'expiresAt' The date the session
+     *                        was created.
      *                      - array 'urls' An associative array of URLs for
-     *                        assets', 'realtime', and 'view'.
+     *                        'assets', 'realtime', and 'view'.
      */
     public function __construct($client, $data)
     {
         $this->client = $client;
+        $this->id     = $data['id'];
 
-        $this->id = $data['id'];
         $this->setValues($data);
     }
 
@@ -139,7 +129,7 @@ class Session extends Base
      * Delete a session.
      *
      * @return bool Was the session deleted?
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function delete()
     {
@@ -157,7 +147,7 @@ class Session extends Base
      * Create a session for a specific document by ID.
      *
      * @param Box\View\Client $client The client instance to make requests from.
-     * @param string $id The id of the document to create a session for.
+     * @param string $id The ID of the document to create a session for.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the new session. None are
      *                           necessary; all are optional. Use the following
@@ -172,7 +162,7 @@ class Session extends Base
      *                               user be allowed to select text?
      *
      * @return Box\View\Session A new session instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public static function create($client, $id, $params = [])
     {
@@ -204,10 +194,12 @@ class Session extends Base
      *                    Use the following values:
      *                      - Box\View\Document 'document' The document the
      *                        session was created for.
-     *                      - string 'expiresAt' The date the session was
-     *                        created.
+     *                      - string|DateTime 'expiresAt' The date the session
+     *                        was created.
      *                      - array 'urls' An associative array of URLs for
      *                        'assets', 'realtime', and 'view'.
+     *
+     * @return void
      */
     private function setValues($data)
     {

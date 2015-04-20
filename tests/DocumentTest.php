@@ -98,14 +98,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                    'httpMethod'  => 'DELETE',
                    'rawResponse' => true,
                ])
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $deleted = $document->delete();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
 
             $failed = true;
         }
@@ -153,14 +153,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with($path, null, null, ['rawResponse' => true])
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $response = $document->download('pdf2');
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
 
             $failed = true;
         }
@@ -240,14 +240,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                    null,
                    ['rawResponse' => true]
                )
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $response = $document->thumbnail(100, 100);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
 
             $failed = true;
         }
@@ -367,14 +367,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
              ->with('/documents/' . $id, [
                    'fields' => 'id,created_at,name,status',
                ], null, null)
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $document = \Box\View\Document::get($this->client, $id);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
 
             $failed = true;
         }
@@ -412,14 +412,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
                    'file' => $handle,
                    'host' => \Box\View\Document::FILE_UPLOAD_HOST,
                ])
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $response = \Box\View\Document::uploadFile($this->client, $handle);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
             $this->assertEquals(
                 \Box\View\Document::INVALID_FILE_ERROR,
                 $e->errorCode
@@ -495,14 +495,14 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->requestMock
              ->shouldReceive('send')
              ->with('/documents', null, ['url' => $url], null)
-             ->andThrow('Box\View\Exception');
+             ->andThrow('Box\View\BoxViewException');
 
         $failed = false;
 
         try {
             $response = \Box\View\Document::uploadUrl($this->client, $url);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('Box\View\Exception', $e);
+        } catch (\Box\View\BoxViewException $e) {
+            $this->assertInstanceOf('Box\View\BoxViewException', $e);
 
             $failed = true;
         }

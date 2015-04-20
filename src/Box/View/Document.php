@@ -4,32 +4,6 @@ namespace Box\View;
 /**
  * Provide access to the Box View Document API. The Document API is used for
  * uploading, checking status, and deleting documents.
- *
- * Document objects have the following fields:
- *   - string 'id' The document ID.
- *   - string 'createdAt' The date the document was created, formatted as
- *                        RFC 3339.
- *   - string 'name' The document title.
- *   - string 'status' The document status, which can be 'queued', 'processing',
- *                     'done', or 'error'.
- *
- * Only the following fields can be updated:
- *   - string 'name' The document title.
- *
- * When finding documents, the following parameters can be set:
- *   - int|null 'limit' The number of documents to return.
- *   - string|DateTime|null 'createdBefore' Upper date limit to filter by.
- *   - string|DateTime|null 'createdAfter' Lower date limit to filter by.
- *
- * When uploading a file, the following parameters can be set:
- *   - string|null 'name' Override the filename of the file being uploaded.
- *   - string[]|string|null 'thumbnails' An array of dimensions in pixels, with
- *                                       each dimension formatted as
- *                                       [width]x[height], this can also be a
- *                                       comma-separated string.
- *   - bool|null 'nonSvg' Create a second version of the file that doesn't use
- *                        SVG, for users with browsers that don't support SVG?
- *
  */
 class Document extends Base
 {
@@ -91,8 +65,8 @@ class Document extends Base
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
      *                      - string 'id' The document ID.
-     *                      - string 'createdAt' The date the document was
-     *                        created, formatted as RFC 3339.
+     *                      - string|DateTime 'createdAt' The date the document
+     *                        was created.
      *                      - string 'name' The document title.
      *                      - string 'status' The document status, which can be
      *                        'queued', 'processing', 'done', or 'error'.
@@ -100,8 +74,8 @@ class Document extends Base
     public function __construct($client, $data)
     {
         $this->client = $client;
+        $this->id     = $data['id'];
 
-        $this->id = $data['id'];
         $this->setValues($data);
     }
 
@@ -162,7 +136,7 @@ class Document extends Base
      *                               user be allowed to select text?
      *
      * @return Box\View\Session A new session instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function createSession($params = [])
     {
@@ -173,7 +147,7 @@ class Document extends Base
      * Delete a file.
      *
      * @return bool Was the file deleted?
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function delete()
     {
@@ -196,7 +170,7 @@ class Document extends Base
      *                               downloaded using the original extension.
      *
      * @return string The contents of the downloaded file.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function download($extension = null)
     {
@@ -214,7 +188,7 @@ class Document extends Base
      * @param int $height The height of the thumbnail in pixels.
      *
      * @return string The contents of the downloaded thumbnail.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function thumbnail($width, $height)
     {
@@ -236,7 +210,7 @@ class Document extends Base
      *                      time.
      *
      * @return bool Was the file updated?
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function update($fields)
     {
@@ -272,7 +246,7 @@ class Document extends Base
      *
      * @return array An array containing document instances matching the
      *               request.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public static function find($client, $params = [])
     {
@@ -316,7 +290,7 @@ class Document extends Base
      * @param string $id The document ID.
      *
      * @return Box\View\Document A document instance using data from the API.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public static function get($client, $id)
     {
@@ -348,7 +322,7 @@ class Document extends Base
      *                               with browsers that don't support SVG?
      *
      * @return Box\View\Document A new document instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public static function uploadFile($client, $file, $params = [])
     {
@@ -367,7 +341,7 @@ class Document extends Base
      * Upload a file by URL and return a new document instance.
      *
      * @param Box\View\Client $client The client instance to make requests from.
-     * @param string $url The url of the file to upload.
+     * @param string $url The URL of the file to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
      *                           necessary; all are optional. Use the following
@@ -383,7 +357,7 @@ class Document extends Base
      *                               with browsers that don't support SVG?
      *
      * @return Box\View\Document A new document instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public static function uploadUrl($client, $url, $params = [])
     {
@@ -395,11 +369,13 @@ class Document extends Base
      *
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
-     *                      - string 'createdAt' The date the document was
-     *                        created.
+     *                      - string|DateTime 'createdAt' The date the document
+     *                        was created.
      *                      - string 'name' The document title.
      *                      - string 'status' The document status, which can be
      *                        'queued', 'processing', 'done', or 'error'.
+     *
+     * @return void
      */
     private function setValues($data)
     {
@@ -431,7 +407,7 @@ class Document extends Base
      *                            may modify the way the request is made.
      *
      * @return Box\View\Document A new document instance.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     private static function upload(
         $client,

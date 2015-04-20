@@ -28,7 +28,7 @@ class Request
     const PROTOCOL = 'https';
 
     /**
-     * The default host
+     * The default host.
      * @const string
      */
     const HOST = 'view-api.box.com';
@@ -75,8 +75,6 @@ class Request
      * Set the API key.
      *
      * @param string $apiKey The API key.
-     *
-     * @return void No return value.
      */
     public function __construct($apiKey)
     {
@@ -98,7 +96,7 @@ class Request
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from
      *                      the server.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     public function send(
         $path,
@@ -162,8 +160,8 @@ class Request
      * @param GuzzleHttp\Message\Response|null $response Optional. The Guzzle
      *                                                   response object.
      *
-     * @return void No return value.
-     * @throws Box\View\Exception
+     * @return void
+     * @throws Box\View\BoxViewException
      */
     protected static function error(
         $error,
@@ -176,7 +174,7 @@ class Request
             $message .= 'Method: ' . $request->getMethod() . "\n";
             $message .= 'URL: ' . $request->getUrl() . "\n";
             $message .= 'Query: ' . json_encode($request->getQuery()->toArray())
-                      . "\n";
+                        . "\n";
             $message .= 'Headers: ' . json_encode($request->getHeaders())
                       . "\n";
             $message .= 'Request Body: ' . $request->getBody() . "\n";
@@ -187,7 +185,7 @@ class Request
             $message .= 'Response: ' . $response->getBody() . "\n";
         }
 
-        $exception            = new Exception($message);
+        $exception            = new BoxViewException($message);
         $exception->errorCode = $error;
         throw $exception;
     }
@@ -214,11 +212,12 @@ class Request
 
             if ($timeout > 0 && $seconds >= $timeout) {
                 $message = 'The request timed out after retrying for '
-                         . $seconds . ' seconds.';
+                           . $seconds . ' seconds.';
                 static::error(
                     static::REQUEST_TIMEOUT_ERROR,
                     $message,
-                    $request
+                    $request,
+                    $response
                 );
             }
 
@@ -284,8 +283,8 @@ class Request
      *
      * @param GuzzleHttp\Exception\RequestException e The Guzzle request error.
      *
-     * @return void No return value.
-     * @throws Box\View\Exception
+     * @return void
+     * @throws Box\View\BoxViewException
      */
     private static function handleRequestError($e)
     {
@@ -315,7 +314,7 @@ class Request
      *
      * @return array|string An array decoded from JSON, or the raw response from
      *                      the server.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     private static function handleResponse($response, $isRawResponse, $request)
     {

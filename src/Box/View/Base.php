@@ -30,6 +30,7 @@ abstract class Base
     protected static function date($date)
     {
         if (is_string($date)) $date = new \DateTime($date);
+
         $date->setTimezone(new \DateTimeZone('UTC'));
         return $date->format('c');
     }
@@ -41,13 +42,14 @@ abstract class Base
      *                      (use_underscore_separators).
      * @param string|null $message The error message.
      *
-     * @return void No return value.
-     * @throws Box\View\Exception
+     * @return void
+     * @throws Box\View\BoxViewException
      */
     protected static function error($error, $message = null)
     {
-        $exception            = new Exception($message);
+        $exception            = new BoxViewException($message);
         $exception->errorCode = $error;
+
         throw $exception;
     }
 
@@ -55,7 +57,7 @@ abstract class Base
      * Send a new request to the API.
      *
      * @param Box\View\Client $client The client instance to make requests from.
-     * @param string $path The path to add after the base path.
+     * @param string $requestPath The path to add after the base path.
      * @param array|null $getParams Optional. An associative array of GET params
      *                              to be added to the URL.
      * @param array|null $postParams Optional. An associative array of POST
@@ -65,20 +67,20 @@ abstract class Base
      *                                   the request is made.
      *
      * @return array|string The response is pass-thru from Box\View\Request.
-     * @throws Box\View\Exception
+     * @throws Box\View\BoxViewException
      */
     protected static function request(
         $client,
-        $path,
+        $requestPath,
         $getParams      = [],
         $postParams     = [],
         $requestOptions = []
     ) {
-        $requestHandler = $client->getRequestHandler();
-        return $requestHandler->send(
-            static::$path . $path,
+        return $client->getRequestHandler()->send(
+            static::$path . $requestPath,
             $getParams,
             $postParams,
-            $requestOptions);
+            $requestOptions
+        );
     }
 }
