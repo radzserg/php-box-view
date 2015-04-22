@@ -203,7 +203,7 @@ class Document extends Base
     }
 
     /**
-     * Update specific fields for the metadata of a file .
+     * Update specific fields for the metadata of a file.
      *
      * @param array $fields An associative array of the fields to update on the
      *                      file. Only the 'name' field is supported at this

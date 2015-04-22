@@ -182,7 +182,7 @@ class Request
 
         if (!empty($response)) {
             $message .= "\n";
-            $message .= 'Response: ' . $response->getBody() . "\n";
+            $message .= 'Response Body: ' . $response->getBody() . "\n";
         }
 
         $exception            = new BoxViewException($message);

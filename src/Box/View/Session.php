@@ -168,7 +168,7 @@ class Session extends Base
     {
         $postParams = ['document_id' => $id];
 
-        if (isset($params['duration'])) {
+        if (isset($params['duration']) && $params['duration'] > 0) {
             $postParams['duration'] = $params['duration'];
         }
         if (isset($params['expiresAt'])) {
