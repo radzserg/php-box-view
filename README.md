@@ -28,7 +28,7 @@ curl -sS https://getcomposer.org/installer | php
 Use Composer to install the latest stable version:
 
 ```bash
-composer require crocodoc/box-view
+composer require crocodoc/php-box-view
 ```
 
 Make sure to add this package to your composer.json file.
@@ -97,7 +97,6 @@ Run the tests:
 
 ```bash
 ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests
-
 ```
 
 ## Support
