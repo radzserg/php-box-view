@@ -1,3 +1,4 @@
 /composer.lock
 /examples/files/test*
 /vendor
+/phpunit.xml
