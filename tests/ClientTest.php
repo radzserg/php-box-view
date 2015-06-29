@@ -5,6 +5,11 @@ use \Mockery as m;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Box\View\Client
+     */
+    private $client;
+
     public function setUp()
     {
         $apiKey       = 'abc123';

@@ -5,6 +5,16 @@ use \Mockery as m;
 
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Box\View\Client
+     */
+    private $client;
+
+    /**
+     * @var \Mockery\MockInterface
+     */
+    private $requestMock;
+
     public function setUp()
     {
         $apiKey       = 'abc123';
