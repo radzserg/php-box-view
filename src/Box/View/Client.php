@@ -44,7 +44,7 @@ class Client
      *
      * @return array An array containing document instances matching the
      *               request.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function findDocuments($params = [])
     {
@@ -67,8 +67,8 @@ class Client
      *
      * @param string $id The document ID.
      *
-     * @return Box\View\Document A document instance using data from the API.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A document instance using data from the API.
+     * @throws \Box\View\BoxViewException
      */
     public function getDocument($id)
     {
@@ -129,8 +129,8 @@ class Client
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return Box\View\Document A new document instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A new document instance.
+     * @throws \Box\View\BoxViewException
      */
     public function uploadFile($file, $params = [])
     {
@@ -155,8 +155,8 @@ class Client
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return Box\View\Document A new document instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A new document instance.
+     * @throws \Box\View\BoxViewException
      */
     public function uploadUrl($url, $params = [])
     {

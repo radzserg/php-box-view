@@ -17,7 +17,7 @@ class Session extends Base
 
     /**
      * The document that created this session.
-     * @var Box\View\Document
+     * @var \Box\View\Document
      */
     private $document;
 
@@ -46,7 +46,7 @@ class Session extends Base
     /**
      * Instantiate the session.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
      *                      - Box\View\Document 'document' The document the
@@ -68,7 +68,7 @@ class Session extends Base
     /**
      * Get the document the session was created for.
      *
-     * @return Box\View\Document The document the session was created for.
+     * @return \Box\View\Document The document the session was created for.
      */
     public function document()
     {
@@ -108,7 +108,7 @@ class Session extends Base
     /**
      * Get the session realtime URL.
      *
-     * @return string The session realtimes URL.
+     * @return string The session realtime URL.
      */
     public function realtimeUrl()
     {
@@ -129,7 +129,7 @@ class Session extends Base
      * Delete a session.
      *
      * @return bool Was the session deleted?
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function delete()
     {
@@ -146,7 +146,7 @@ class Session extends Base
     /**
      * Create a session for a specific document by ID.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param string $id The ID of the document to create a session for.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the new session. None are
@@ -161,8 +161,8 @@ class Session extends Base
      *                             - bool|null 'isTextSelectable' Should the
      *                               user be allowed to select text?
      *
-     * @return Box\View\Session A new session instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Session A new session instance.
+     * @throws \Box\View\BoxViewException
      */
     public static function create($client, $id, $params = [])
     {

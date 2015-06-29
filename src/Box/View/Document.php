@@ -61,7 +61,7 @@ class Document extends Base
     /**
      * Instantiate the document.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param array $data An associative array to instantiate the object with.
      *                    Use the following values:
      *                      - string 'id' The document ID.
@@ -135,8 +135,8 @@ class Document extends Base
      *                             - bool|null 'isTextSelectable' Should the
      *                               user be allowed to select text?
      *
-     * @return Box\View\Session A new session instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Session A new session instance.
+     * @throws \Box\View\BoxViewException
      */
     public function createSession($params = [])
     {
@@ -147,7 +147,7 @@ class Document extends Base
      * Delete a file.
      *
      * @return bool Was the file deleted?
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function delete()
     {
@@ -170,7 +170,7 @@ class Document extends Base
      *                               downloaded using the original extension.
      *
      * @return string The contents of the downloaded file.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function download($extension = null)
     {
@@ -188,7 +188,7 @@ class Document extends Base
      * @param int $height The height of the thumbnail in pixels.
      *
      * @return string The contents of the downloaded thumbnail.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function thumbnail($width, $height)
     {
@@ -210,7 +210,7 @@ class Document extends Base
      *                      time.
      *
      * @return bool Was the file updated?
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function update($fields)
     {
@@ -232,7 +232,7 @@ class Document extends Base
     /**
      * Get a list of all documents that meet the provided criteria.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param array|null $params Optional. An associative array to filter the
      *                           list of all documents uploaded. None are
      *                           necessary; all are optional. Use the following
@@ -246,7 +246,7 @@ class Document extends Base
      *
      * @return array An array containing document instances matching the
      *               request.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public static function find($client, $params = [])
     {
@@ -286,11 +286,11 @@ class Document extends Base
      * Create a new document instance by ID, and load it with values requested
      * from the API.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param string $id The document ID.
      *
-     * @return Box\View\Document A document instance using data from the API.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A document instance using data from the API.
+     * @throws \Box\View\BoxViewException
      */
     public static function get($client, $id)
     {
@@ -305,7 +305,7 @@ class Document extends Base
     /**
      * Upload a local file and return a new document instance.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param resource $file The file resource to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -321,8 +321,8 @@ class Document extends Base
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return Box\View\Document A new document instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A new document instance.
+     * @throws \Box\View\BoxViewException
      */
     public static function uploadFile($client, $file, $params = [])
     {
@@ -340,7 +340,7 @@ class Document extends Base
     /**
      * Upload a file by URL and return a new document instance.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param string $url The URL of the file to upload.
      * @param array|null $params Optional. An associative array of options
      *                           relating to the file upload. None are
@@ -356,8 +356,8 @@ class Document extends Base
      *                               of the file that doesn't use SVG, for users
      *                               with browsers that don't support SVG?
      *
-     * @return Box\View\Document A new document instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A new document instance.
+     * @throws \Box\View\BoxViewException
      */
     public static function uploadUrl($client, $url, $params = [])
     {
@@ -397,7 +397,7 @@ class Document extends Base
      * more specific than this one, and know how to handle upload by URL and
      * upload from filesystem.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param array|null $params An associative array of options relating to the
      *                           file upload. Pass-thru from the other upload
      *                           functions.
@@ -406,8 +406,8 @@ class Document extends Base
      * @param array|null $options An associative array of request options that
      *                            may modify the way the request is made.
      *
-     * @return Box\View\Document A new document instance.
-     * @throws Box\View\BoxViewException
+     * @return \Box\View\Document A new document instance.
+     * @throws \Box\View\BoxViewException
      */
     private static function upload(
         $client,
