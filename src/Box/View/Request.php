@@ -291,12 +291,16 @@ class Request
         $request  = $e->getRequest();
         $response = $e->getResponse();
 
-        $error   = static::handleHttpError($response->getStatusCode());
+        $error = null;
         $message = 'Server error';
+
+        if (null !== $response) {
+            $error   = static::handleHttpError($response->getStatusCode());
+        }
 
         if (!$error) {
             $error   = static::GUZZLE_ERROR;
-            $message = 'Guzzle error';
+            $message = sprintf('Guzzle error (%s)', $e->getMessage());
         }
 
         static::error($error, $message, $request, $response);
