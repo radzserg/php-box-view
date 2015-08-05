@@ -7,4 +7,8 @@ namespace Box\View;
  */
 class BoxViewException extends \Exception
 {
+    /**
+     * @var string
+     */
+    public $errorCode;
 }
