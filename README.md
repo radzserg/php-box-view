@@ -17,7 +17,7 @@ For more information about the Box View API, see the [API docs at developers.box
 
 ### Install with Composer
 
-We recommend installing `php-box-view` using [Composer](http://getcomposer.org).
+We recommend installing `php-box-view` using [Composer](https://getcomposer.org).
 
 If you don't have Composer, you can install it from the command line:
 
@@ -72,7 +72,7 @@ To run these examples, open up `examples/examples.php` and change this line to s
 $exampleApiKey = 'YOUR_API_KEY';
 ```
 
-Save the file, make sure the `examples/files` directory is writeable, and then run `examples/examples.php`:
+Save the file, make sure the `examples/files` directory is writable, and then run `examples/examples.php`:
 
 ```php
 php examples/examples.php
@@ -96,7 +96,7 @@ First make sure you're running Composer and that you've run `composer install`.
 Run the tests:
 
 ```bash
-./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests
+./vendor/bin/phpunit
 ```
 
 ## Support
