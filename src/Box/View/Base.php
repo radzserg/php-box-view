@@ -14,7 +14,7 @@ abstract class Base
 
     /**
      * The client instance to make requests from.
-     * @var Box\View\Client
+     * @var \Box\View\Client
      */
     protected $client;
 
@@ -22,7 +22,7 @@ abstract class Base
      * Take a date in almost any format, and return a date string that is
      * formatted as an RFC 3339 timestamp.
      *
-     * @param string|DateTime $date A date string in almost any format, or a
+     * @param string|\DateTime $date A date string in almost any format, or a
      *                              DateTime object.
      *
      * @return string An RFC 3339 timestamp.
@@ -43,7 +43,7 @@ abstract class Base
      * @param string|null $message The error message.
      *
      * @return void
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     protected static function error($error, $message = null)
     {
@@ -56,7 +56,7 @@ abstract class Base
     /**
      * Send a new request to the API.
      *
-     * @param Box\View\Client $client The client instance to make requests from.
+     * @param \Box\View\Client $client The client instance to make requests from.
      * @param string $requestPath The path to add after the base path.
      * @param array|null $getParams Optional. An associative array of GET params
      *                              to be added to the URL.
@@ -66,8 +66,8 @@ abstract class Base
      *                                   request options that may modify the way
      *                                   the request is made.
      *
-     * @return array|string The response is pass-thru from Box\View\Request.
-     * @throws Box\View\BoxViewException
+     * @return array|string The response is pass-through from Box\View\Request.
+     * @throws \Box\View\BoxViewException
      */
     protected static function request(
         $client,

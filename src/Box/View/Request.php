@@ -96,7 +96,7 @@ class Request
      * @return array|string The response array is usually converted from JSON,
      *                      but sometimes we just return the raw response from
      *                      the server.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     public function send(
         $path,
@@ -155,13 +155,13 @@ class Request
      * @param string $error An error code representing the error
      *                      (use_underscore_separators).
      * @param string|null $message The error message.
-     * @param GuzzleHttp\Message\Request|null $request Optional. The Guzzle
+     * @param \GuzzleHttp\Message\RequestInterface|null $request Optional. The Guzzle
      *                                                 request object.
-     * @param GuzzleHttp\Message\Response|null $response Optional. The Guzzle
+     * @param \GuzzleHttp\Message\ResponseInterface|null $response Optional. The Guzzle
      *                                                   response object.
      *
      * @return void
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     protected static function error(
         $error,
@@ -194,13 +194,13 @@ class Request
      * Execute a request to the server and return the response, while retrying
      * based on any Retry-After headers that are sent back.
      *
-     * @param GuzzleHttp\Client $guzzle The Guzzle instance to use.
-     * @param GuzzleHttp\Message\Request $request The request to send, and
+     * @param \GuzzleHttp\Client $guzzle The Guzzle instance to use.
+     * @param \GuzzleHttp\Message\RequestInterface $request The request to send, and
      *                                            possibly retry.
      * @param int $timeout The maximum number of seconds to retry for.
      *
-     * @return GuzzleHttp\Message\Response The Guzzle response object.
-     * @throws GuzzleHttp\Exception\RequestException
+     * @return \GuzzleHttp\Message\ResponseInterface The Guzzle response object.
+     * @throws \GuzzleHttp\Exception\RequestException
      */
     private function execute($guzzle, $request, $timeout)
     {
@@ -233,7 +233,7 @@ class Request
      *
      * @param string|null $host Optional. The host to use in the base URL.
      *
-     * @return GuzzleHttp\Client A new Guzzle instance.
+     * @return \GuzzleHttp\Client A new Guzzle instance.
      */
     private function getGuzzleInstance($host = null)
     {
@@ -281,10 +281,10 @@ class Request
     /**
      * Handle a request error from Guzzle.
      *
-     * @param GuzzleHttp\Exception\RequestException e The Guzzle request error.
+     * @param \GuzzleHttp\Exception\RequestException e The Guzzle request error.
      *
      * @return void
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     private static function handleRequestError($e)
     {
@@ -307,14 +307,14 @@ class Request
      * checking anything. JSON responses are decoded and then checked for
      * any errors.
      *
-     * @param GuzzleHttp\Message\Response $response The Guzzle response object.
+     * @param \GuzzleHttp\Message\ResponseInterface $response The Guzzle response object.
      * @param bool $isRawResponse Do we want to return the raw response, or
      *                            process as JSON?
-     * @param GuzzleHttp\Message\Request The Guzzle request object.
+     * @param \GuzzleHttp\Message\RequestInterface The Guzzle request object.
      *
      * @return array|string An array decoded from JSON, or the raw response from
      *                      the server.
-     * @throws Box\View\BoxViewException
+     * @throws \Box\View\BoxViewException
      */
     private static function handleResponse($response, $isRawResponse, $request)
     {
