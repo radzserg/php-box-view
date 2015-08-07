@@ -346,7 +346,7 @@ class Request
         }
 
         if (
-            // we have an array
+            // if we have an array
             is_array($jsonDecoded)
             // with status=error or type=error
             && (
@@ -355,9 +355,6 @@ class Request
                 || (isset($jsonDecoded['type'])
                     && $jsonDecoded['type'] == 'error')
             )
-            // and an error_message or message
-            && (isset($jsonDecoded['error_message'])
-                || isset($jsonDecoded['message']))
         ) {
             $message = isset($jsonDecoded['error_message'])
                        ? $jsonDecoded['error_message']
