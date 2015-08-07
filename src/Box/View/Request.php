@@ -145,8 +145,8 @@ class Request
             static::handleRequestError($e);
         }
 
-        $rawResponse = !empty($requestOptions['rawResponse']);
-        return static::handleResponse($response, $rawResponse, $request);
+        $isRawResponse = !empty($requestOptions['rawResponse']);
+        return static::handleResponse($response, $isRawResponse, $request);
     }
 
     /**
@@ -155,10 +155,10 @@ class Request
      * @param string $error An error code representing the error
      *                      (use_underscore_separators).
      * @param string|null $message The error message.
-     * @param \GuzzleHttp\Message\RequestInterface|null $request Optional. The Guzzle
-     *                                                 request object.
-     * @param \GuzzleHttp\Message\ResponseInterface|null $response Optional. The Guzzle
-     *                                                   response object.
+     * @param \GuzzleHttp\Message\RequestInterface|null $request Optional. The
+     *                                                  Guzzle request object.
+     * @param \GuzzleHttp\Message\ResponseInterface|null $response Optional. The
+     *                                                   Guzzle response object.
      *
      * @return void
      * @throws \Box\View\BoxViewException
@@ -195,8 +195,8 @@ class Request
      * based on any Retry-After headers that are sent back.
      *
      * @param \GuzzleHttp\Client $guzzle The Guzzle instance to use.
-     * @param \GuzzleHttp\Message\RequestInterface $request The request to send, and
-     *                                            possibly retry.
+     * @param \GuzzleHttp\Message\RequestInterface $request The request to send,
+     *                                              and possibly retry.
      * @param int $timeout The maximum number of seconds to retry for.
      *
      * @return \GuzzleHttp\Message\ResponseInterface The Guzzle response object.
@@ -291,16 +291,21 @@ class Request
         $request  = $e->getRequest();
         $response = $e->getResponse();
 
-        $error = null;
+        // check for error embedded in json
+        static::handleResponse($response, true, $request);
+
+        // no error embedded in json, so proceed
+
+        $error   = null;
         $message = 'Server error';
 
-        if (null !== $response) {
-            $error   = static::handleHttpError($response->getStatusCode());
+        if ($response !== null) {
+            $error = static::handleHttpError($response->getStatusCode());
         }
 
         if (!$error) {
             $error   = static::GUZZLE_ERROR;
-            $message = sprintf('Guzzle error (%s)', $e->getMessage());
+            $message = 'Guzzle error: ' . $e->getMessage();
         }
 
         static::error($error, $message, $request, $response);
@@ -311,7 +316,8 @@ class Request
      * checking anything. JSON responses are decoded and then checked for
      * any errors.
      *
-     * @param \GuzzleHttp\Message\ResponseInterface $response The Guzzle response object.
+     * @param \GuzzleHttp\Message\ResponseInterface $response The Guzzle
+     *                                              response object.
      * @param bool $isRawResponse Do we want to return the raw response, or
      *                            process as JSON?
      * @param \GuzzleHttp\Message\RequestInterface The Guzzle request object.
@@ -324,15 +330,13 @@ class Request
     {
         $responseBody = (string) $response->getBody();
 
-        // if we want a raw response, then it's not JSON, and we're done
-        if (!empty($isRawResponse)) {
-            return $responseBody;
-        }
-
         // decode json and handle any potential errors
         $jsonDecoded = json_decode($responseBody, true);
 
-        if ($jsonDecoded === false || $jsonDecoded === null) {
+        if (
+            !$isRawResponse
+            && ($jsonDecoded === false || $jsonDecoded === null)
+        ) {
             return static::error(
                 static::JSON_RESPONSE_ERROR,
                 null,
@@ -342,13 +346,22 @@ class Request
         }
 
         if (
+            // we have an array
             is_array($jsonDecoded)
-            && isset($jsonDecoded['status'])
-            && $jsonDecoded['status'] == 'error'
+            // with status=error or type=error
+            && (
+                (isset($jsonDecoded['status'])
+                 && $jsonDecoded['status'] == 'error')
+                || (isset($jsonDecoded['type'])
+                    && $jsonDecoded['type'] == 'error')
+            )
+            // and an error_message or message
+            && (isset($jsonDecoded['error_message'])
+                || isset($jsonDecoded['message']))
         ) {
-            $message = !empty($jsonDecoded['error_message'])
+            $message = isset($jsonDecoded['error_message'])
                        ? $jsonDecoded['error_message']
-                       : 'Server error';
+                       : $jsonDecoded['message'];
             return static::error(
                 static::SERVER_ERROR,
                 $message,
