@@ -1,5 +1,5 @@
 {
-  "name": "crocodoc/php-box-view",
+  "name": "radzserg/php-box-view",
   "description": "PHP wrapper for the Box View API",
   "type": "library",
   "keywords": [
