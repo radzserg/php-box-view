@@ -343,7 +343,7 @@ class Request
                 $request,
                 $response
             );
-        }
+        }        
 
         if (
             // if we have an array
@@ -370,6 +370,10 @@ class Request
             );
         }
 
-        return $jsonDecoded;
+        if ($isRawResponse) {
+            return $responseBody;
+        } else {
+            return $jsonDecoded;
+        }
     }
 }
