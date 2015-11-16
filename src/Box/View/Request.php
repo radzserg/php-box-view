@@ -292,7 +292,9 @@ class Request
         $response = $e->getResponse();
 
         // check for error embedded in json
-        static::handleResponse($response, true, $request);
+	if ($response) {
+            static::handleResponse($response, true, $request);
+        }
 
         // no error embedded in json, so proceed
 
