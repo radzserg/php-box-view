@@ -133,7 +133,7 @@ class Request
         if (!empty($getParams)) $options['query'] = $getParams;
 
         try {
-            $request = $guzzle->createRequest($method, $url, $options);
+            $request = $guzzle->request($method, $url, $options);
 
             $timeout = !empty($requestOptions['timeout'])
                        ? $requestOptions['timeout']
@@ -148,20 +148,15 @@ class Request
         $isRawResponse = !empty($requestOptions['rawResponse']);
         return static::handleResponse($response, $isRawResponse, $request);
     }
-
+    
     /**
      * Handle an error. We handle errors by throwing an exception.
-     *
-     * @param string $error An error code representing the error
+     * @param string $error - An error code representing the error
      *                      (use_underscore_separators).
-     * @param string|null $message The error message.
-     * @param \GuzzleHttp\Message\RequestInterface|null $request Optional. The
-     *                                                  Guzzle request object.
-     * @param \GuzzleHttp\Message\ResponseInterface|null $response Optional. The
-     *                                                   Guzzle response object.
-     *
-     * @return void
-     * @throws \Box\View\BoxViewException
+     * @param string|null $message
+     * @param null $request
+     * @param null $response
+     * @throws BoxViewException
      */
     protected static function error(
         $error,
