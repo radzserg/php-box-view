@@ -3,7 +3,7 @@
 namespace Box\View;
 
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Psr\Http\Message\ResponseInterface;
 
@@ -200,7 +200,7 @@ class Request
     /**
      * Execute a request to the server and return the response, while retrying
      * based on any Retry-After headers that are sent back.
-     * @param Client $guzzle
+     * @param GuzzleClient $guzzle
      * @param GuzzleRequest $request
      * @param array $options
      * @param int $timeout
@@ -240,7 +240,7 @@ class Request
      *
      * @param string|null $host Optional. The host to use in the base URL.
      *
-     * @return Client A new Guzzle instance.
+     * @return GuzzleClient A new Guzzle instance.
      */
     private function getGuzzleInstance($host = null)
     {
@@ -250,7 +250,7 @@ class Request
         $defaults['headers']['Authorization'] = 'Token ' . $this->apiKey;
         $defaults['base_uri'] = static::PROTOCOL . '://' . $host;
 
-        return new Client($defaults);
+        return new GuzzleClient($defaults);
     }
 
     /**
