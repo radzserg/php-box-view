@@ -1,5 +1,11 @@
 <?php
+
 namespace Box\View;
+
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Makes a request to the Box View API.
@@ -10,15 +16,15 @@ class Request
      * Request error codes.
      * @const string
      */
-    const BAD_REQUEST_ERROR            = 'bad_request';
-    const GUZZLE_ERROR                 = 'guzzle_error';
-    const JSON_RESPONSE_ERROR          = 'server_response_not_valid_json';
-    const METHOD_NOT_ALLOWED_ERROR     = 'method_not_allowed';
-    const NOT_FOUND_ERROR              = 'not_found';
-    const REQUEST_TIMEOUT_ERROR        = 'request_timeout';
-    const SERVER_ERROR                 = 'server_error';
-    const TOO_MANY_REQUESTS_ERROR      = 'too_many_requests';
-    const UNAUTHORIZED_ERROR           = 'unauthorized';
+    const BAD_REQUEST_ERROR = 'bad_request';
+    const GUZZLE_ERROR = 'guzzle_error';
+    const JSON_RESPONSE_ERROR = 'server_response_not_valid_json';
+    const METHOD_NOT_ALLOWED_ERROR = 'method_not_allowed';
+    const NOT_FOUND_ERROR = 'not_found';
+    const REQUEST_TIMEOUT_ERROR = 'request_timeout';
+    const SERVER_ERROR = 'server_error';
+    const TOO_MANY_REQUESTS_ERROR = 'too_many_requests';
+    const UNAUTHORIZED_ERROR = 'unauthorized';
     const UNSUPPORTED_MEDIA_TYPE_ERROR = 'unsupported_media_type';
 
     /**
@@ -50,13 +56,13 @@ class Request
      * @var array
      */
     public static $guzzleDefaultOptions = [
-        'headers'         => [
-            'Accept'        => 'application/json',
+        'headers' => [
+            'Accept' => 'application/json',
             'Authorization' => null,
-            'User-Agent'    => 'box-view-php',
+            'User-Agent' => 'box-view-php',
         ],
         'connect_timeout' => 10,
-        'timeout'         => 60,
+        'timeout' => 60,
     ];
 
     /**
@@ -100,24 +106,27 @@ class Request
      */
     public function send(
         $path,
-        $getParams      = [],
-        $postParams     = [],
+        $getParams = [],
+        $postParams = [],
         $requestOptions = []
-    ) {
+    )
+    {
         $host = null;
-        if (!empty($requestOptions['host'])) $host = $requestOptions['host'];
+        if (!empty($requestOptions['host'])) {
+            $host = $requestOptions['host'];
+        }
 
         $guzzle = $this->getGuzzleInstance($host);
 
         $options = ['headers' => []];
-        $method  = 'GET';
+        $method = 'GET';
 
         if (!empty($requestOptions['file'])) {
-            $method                  = 'POST';
-            $options['body']         = !empty($postParams) ? $postParams : [];
+            $method = 'POST';
+            $options['body'] = !empty($postParams) ? $postParams : [];
             $options['body']['file'] = $requestOptions['file'];
         } elseif (!empty($postParams)) {
-            $method          = 'POST';
+            $method = 'POST';
             $options['json'] = $postParams;
         }
 
@@ -130,48 +139,50 @@ class Request
         }
 
         $url = static::BASE_PATH . $path;
-        if (!empty($getParams)) $options['query'] = $getParams;
+        if (!empty($getParams)) {
+            $options['query'] = $getParams;
+        }
+
+        $timeout = !empty($requestOptions['timeout'])
+            ? $requestOptions['timeout']
+            : static::DEFAULT_RETRY_TIMEOUT;
+        $this->timestampRequested = time();
 
         try {
-            $request = $guzzle->request($method, $url, $options);
-
-            $timeout = !empty($requestOptions['timeout'])
-                       ? $requestOptions['timeout']
-                       : static::DEFAULT_RETRY_TIMEOUT;
-            $this->timestampRequested = time();
-
-            $response = $this->execute($guzzle, $request, $timeout);
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $request = new GuzzleRequest($method, $url);
+            $response = $this->execute($guzzle, $request, $options, $timeout);
+        } catch (RequestException $e) {
             static::handleRequestError($e);
         }
 
         $isRawResponse = !empty($requestOptions['rawResponse']);
         return static::handleResponse($response, $isRawResponse, $request);
     }
-    
+
     /**
      * Handle an error. We handle errors by throwing an exception.
-     * @param string $error - An error code representing the error
+     *
+     * @param string $error An error code representing the error
      *                      (use_underscore_separators).
-     * @param string|null $message
-     * @param null $request
-     * @param null $response
+     * @param string|null $message The error message.
+     * @param GuzzleRequest|null $request Optional. The Guzzle request object.
+     * @param ResponseInterface|null $response Optional. The Guzzle response object.
+     *
+     * @return void
      * @throws BoxViewException
      */
     protected static function error(
         $error,
-        $message  = null,
-        $request  = null,
+        $message = null,
+        $request = null,
         $response = null
-    ) {
+    )
+    {
         if (!empty($request)) {
             $message .= "\n";
             $message .= 'Method: ' . $request->getMethod() . "\n";
-            $message .= 'URL: ' . $request->getUrl() . "\n";
-            $message .= 'Query: ' . json_encode($request->getQuery()->toArray())
-                        . "\n";
-            $message .= 'Headers: ' . json_encode($request->getHeaders())
-                      . "\n";
+            $message .= 'URL: ' . $request->getUri() . "\n";
+            $message .= 'Headers: ' . json_encode($request->getHeaders()) . "\n";
             $message .= 'Request Body: ' . $request->getBody() . "\n";
         }
 
@@ -180,34 +191,35 @@ class Request
             $message .= 'Response Body: ' . $response->getBody() . "\n";
         }
 
-        $exception            = new BoxViewException($message);
+        $exception = new BoxViewException($message);
         $exception->errorCode = $error;
         throw $exception;
     }
 
-   /**
+
+    /**
      * Execute a request to the server and return the response, while retrying
      * based on any Retry-After headers that are sent back.
-     *
-     * @param \GuzzleHttp\Client $guzzle The Guzzle instance to use.
-     * @param \GuzzleHttp\Message\RequestInterface $request The request to send,
-     *                                              and possibly retry.
-     * @param int $timeout The maximum number of seconds to retry for.
-     *
-     * @return \GuzzleHttp\Message\ResponseInterface The Guzzle response object.
-     * @throws \GuzzleHttp\Exception\RequestException
+     * @param Client $guzzle
+     * @param GuzzleRequest $request
+     * @param array $options
+     * @param int $timeout
+     * @return ResponseInterface
+     * @throws BoxViewException
      */
-    private function execute($guzzle, $request, $timeout)
+    private function execute($guzzle, $request, $options, $timeout)
     {
-        $response = $guzzle->send($request);
-        $headers  = $response->getHeaders();
+        /** @var \Psr\Http\Message\ResponseInterface $response */
+        $response = $guzzle->send($request, $options);
+
+        $headers = $response->getHeaders();
 
         if (!empty($headers['Retry-After'])) {
             $seconds = round(time() - $this->timestampRequested);
 
             if ($timeout > 0 && $seconds >= $timeout) {
                 $message = 'The request timed out after retrying for '
-                           . $seconds . ' seconds.';
+                    . $seconds . ' seconds.';
                 static::error(
                     static::REQUEST_TIMEOUT_ERROR,
                     $message,
@@ -217,7 +229,7 @@ class Request
             }
 
             sleep($headers['Retry-After'][0]);
-            return $this->execute($guzzle, $request, $timeout);
+            return $this->execute($guzzle, $request, $options, $timeout);
         }
 
         return $response;
@@ -228,19 +240,17 @@ class Request
      *
      * @param string|null $host Optional. The host to use in the base URL.
      *
-     * @return \GuzzleHttp\Client A new Guzzle instance.
+     * @return Client A new Guzzle instance.
      */
     private function getGuzzleInstance($host = null)
     {
         if (!$host) $host = static::HOST;
 
-        $defaults                             = static::$guzzleDefaultOptions;
+        $defaults = static::$guzzleDefaultOptions;
         $defaults['headers']['Authorization'] = 'Token ' . $this->apiKey;
+        $defaults['base_uri'] = static::PROTOCOL . '://' . $host;
 
-        return new \GuzzleHttp\Client([
-            'base_url' => static::PROTOCOL . '://' . $host,
-            'defaults' => $defaults,
-        ]);
+        return new Client($defaults);
     }
 
     /**
@@ -283,17 +293,18 @@ class Request
      */
     private static function handleRequestError($e)
     {
-        $request  = $e->getRequest();
+        $request = $e->getRequest();
         $response = $e->getResponse();
 
         // check for error embedded in json
-	if ($response) {
+        // check for error embedded in json
+        if ($response) {
             static::handleResponse($response, true, $request);
         }
 
         // no error embedded in json, so proceed
 
-        $error   = null;
+        $error = null;
         $message = 'Server error';
 
         if ($response !== null) {
@@ -301,7 +312,7 @@ class Request
         }
 
         if (!$error) {
-            $error   = static::GUZZLE_ERROR;
+            $error = static::GUZZLE_ERROR;
             $message = 'Guzzle error: ' . $e->getMessage();
         }
 
@@ -313,11 +324,11 @@ class Request
      * checking anything. JSON responses are decoded and then checked for
      * any errors.
      *
-     * @param \GuzzleHttp\Message\ResponseInterface $response The Guzzle
+     * @param ResponseInterface $response The Guzzle
      *                                              response object.
      * @param bool $isRawResponse Do we want to return the raw response, or
      *                            process as JSON?
-     * @param \GuzzleHttp\Message\RequestInterface The Guzzle request object.
+     * @param RequestInterface The Guzzle request object.
      *
      * @return array|string An array decoded from JSON, or the raw response from
      *                      the server.
@@ -325,7 +336,7 @@ class Request
      */
     private static function handleResponse($response, $isRawResponse, $request)
     {
-        $responseBody = (string) $response->getBody();
+        $responseBody = (string)$response->getBody();
 
         // decode json and handle any potential errors
         $jsonDecoded = json_decode($responseBody, true);
@@ -340,7 +351,7 @@ class Request
                 $request,
                 $response
             );
-        }        
+        }
 
         if (
             // if we have an array
@@ -348,7 +359,7 @@ class Request
             // with status=error or type=error
             && (
                 (isset($jsonDecoded['status'])
-                 && $jsonDecoded['status'] == 'error')
+                    && $jsonDecoded['status'] == 'error')
                 || (isset($jsonDecoded['type'])
                     && $jsonDecoded['type'] == 'error')
             )
@@ -357,8 +368,8 @@ class Request
                 || isset($jsonDecoded['message']))
         ) {
             $message = isset($jsonDecoded['error_message'])
-                       ? $jsonDecoded['error_message']
-                       : $jsonDecoded['message'];
+                ? $jsonDecoded['error_message']
+                : $jsonDecoded['message'];
             return static::error(
                 static::SERVER_ERROR,
                 $message,
