@@ -47,11 +47,7 @@ class Request
 
 
     public static $defaultOptions = [
-        /**
-         * The number of seconds before timing out when in a retry loop.
-         * leave it 0 in order not to limit request with timeout
-         */
-        'absolute_timeout' => 60    
+        'absolute_timeout' => 62    // The number of seconds before timing out when in a retry loop.
     ];
 
 
