@@ -126,6 +126,16 @@ class Session extends Base
     }
 
     /**
+     * Get the session download URL.
+     *
+     * @return string The session view URL.
+     */
+    public function downloadUrl()
+    {
+        return isset($this->urls['download']) ? $this->urls['download'] : null;
+    }
+
+    /**
      * Delete a session.
      *
      * @return bool Was the session deleted?
@@ -227,6 +237,10 @@ class Session extends Base
 
             if (isset($data['urls']['view'])) {
                 $this->urls['view'] = $data['urls']['view'];
+            }
+
+            if (isset($data['urls']['download'])) {
+                $this->urls['download'] = $data['urls']['download'];
             }
         }
     }
