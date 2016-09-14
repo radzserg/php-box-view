@@ -210,29 +210,49 @@ class Request
     private function execute($guzzle, $request, $options, $absoluteTimeout)
     {
         /** @var \Psr\Http\Message\ResponseInterface $response */
-        $response = $guzzle->send($request, $options);
+        try {
+            $response = $guzzle->send($request, $options);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
 
-        $headers = $response->getHeaders();
-
-        if (!empty($headers['Retry-After'])) {
-            $seconds = round(time() - $this->timestampRequested);
-
-            if ($absoluteTimeout > 0 && $seconds >= $absoluteTimeout) {
-                $message = 'The request timed out after retrying for '
-                    . $seconds . ' seconds.';
-                static::error(
-                    static::REQUEST_TIMEOUT_ERROR,
-                    $message,
-                    $request,
-                    $response
-                );
+            if ($response) {
+                $retryAfter = $this->checkThrottledRequest($response);
+                if ($retryAfter !== false) {
+                    sleep($retryAfter);
+                    return $this->execute($guzzle, $request, $options, $absoluteTimeout);
+                }
             }
+        }
 
-            sleep($headers['Retry-After'][0]);
+        $retryAfter = $this->checkThrottledRequest($response);
+        if ($retryAfter !== false) {
+            sleep($retryAfter);
             return $this->execute($guzzle, $request, $options, $absoluteTimeout);
         }
 
         return $response;
+    }
+
+
+    /**
+     * Check if request was throttled. Return retry after seconds or false
+     * @param $response
+     * @return bool|mixed
+     */
+    private function checkThrottledRequest($response)
+    {
+        $headers = $response->getHeaders();
+
+        if (!empty($headers['Retry-After'])) {
+            return is_array($headers['Retry-After']) ? $headers['Retry-After'][0] : $headers['Retry-After'];
+        }
+
+        if (!empty($headers['X-Throttle-Wait-Seconds'])) {
+            return is_array($headers['X-Throttle-Wait-Seconds']) ? $headers['X-Throttle-Wait-Seconds'][0]
+                : $headers['X-Throttle-Wait-Seconds'];
+        }
+
+        return false;
     }
 
     /**
