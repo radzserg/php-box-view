@@ -1,5 +1,6 @@
 <?php
 namespace Box\View;
+use GuzzleHttp\Psr7\Response;
 
 /**
  * Provide access to the Box View Document API. The Document API is used for
@@ -152,13 +153,13 @@ class Document extends Base
     public function delete()
     {
         $path = '/' . $this->id;
+        /** @var Response $response */
         $response = static::request($this->client, $path, null, null, [
             'httpMethod'  => 'DELETE',
             'rawResponse' => true,
         ]);
 
-        // a successful delete returns nothing, so we return true in that case
-        return empty($response);
+        return $response->getStatusCode() == 204;
     }
 
     /**
@@ -169,7 +170,7 @@ class Document extends Base
      *                               extension is provided, the file will be
      *                               downloaded using the original extension.
      *
-     * @return string The contents of the downloaded file.
+     * @return Response
      * @throws \Box\View\BoxViewException
      */
     public function download($extension = null)
@@ -187,7 +188,7 @@ class Document extends Base
      * @param int $width The width of the thumbnail in pixels.
      * @param int $height The height of the thumbnail in pixels.
      *
-     * @return string The contents of the downloaded thumbnail.
+     * @return Response
      * @throws \Box\View\BoxViewException
      */
     public function thumbnail($width, $height)

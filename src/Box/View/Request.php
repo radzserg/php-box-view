@@ -356,15 +356,16 @@ class Request
      */
     private static function handleResponse($response, $isRawResponse, $request)
     {
+        if ($isRawResponse) {
+            return $response;
+        }
+
         $responseBody = (string)$response->getBody();
 
         // decode json and handle any potential errors
         $jsonDecoded = json_decode($responseBody, true);
 
-        if (
-            !$isRawResponse
-            && ($jsonDecoded === false || $jsonDecoded === null)
-        ) {
+        if ($jsonDecoded === false || $jsonDecoded === null) {
             return static::error(
                 static::JSON_RESPONSE_ERROR,
                 null,
@@ -398,10 +399,6 @@ class Request
             );
         }
 
-        if ($isRawResponse) {
-            return $responseBody;
-        } else {
-            return $jsonDecoded;
-        }
+        return $jsonDecoded;
     }
 }
