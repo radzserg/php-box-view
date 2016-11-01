@@ -5,6 +5,7 @@ namespace Box\View;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -241,6 +242,9 @@ class Request
      */
     private function checkThrottledRequest($response)
     {
+        if (!$response || !($response instanceof Response)) {
+            return false;
+        }
         $headers = $response->getHeaders();
 
         if (!empty($headers['Retry-After'])) {
