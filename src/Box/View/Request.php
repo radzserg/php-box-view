@@ -124,8 +124,11 @@ class Request
 
         if (!empty($requestOptions['file'])) {
             $method = 'POST';
-            $options['body'] = !empty($postParams) ? $postParams : [];
-            $options['body']['file'] = $requestOptions['file'];
+            $options = [
+                'multipart' => [
+                    ['name' => 'file', 'contents' => $requestOptions['file']],
+                ]
+            ];
         } elseif (!empty($postParams)) {
             $method = 'POST';
             $options['json'] = $postParams;
